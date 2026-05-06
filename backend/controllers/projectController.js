@@ -1,0 +1,218 @@
+import { Project } from '../models/index.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { validateRequired, validateUrl } from '../utils/validation.js';
+import { clearCache } from '../utils/cache.js';
+import { getFullImageUrl } from '../utils/image.js';
+
+// @desc    Get all projects
+// @route   GET /api/projects
+// @access  Public
+export const getProjects = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // For list view, only fetch essential fields to improve performance
+  let selectFields = 'title description image techStack category featured createdAt _id';
+  if (req.query.excludeImages === 'true') {
+    selectFields = 'title description techStack category featured createdAt _id';
+  }
+
+  let projects = await Project.find()
+    .select(selectFields)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  // Transform image URLs to full URLs
+  projects = projects.map(project => ({
+    ...project,
+    image: getFullImageUrl(project.image)
+  }));
+
+  const total = await Project.countDocuments();
+
+  res.json({
+    success: true,
+    count: projects.length,
+    total,
+    page,
+    pages: Math.ceil(total / limit),
+    data: projects,
+  });
+});
+
+// @desc    Get single project
+// @route   GET /api/projects/:id
+// @access  Public
+export const getProject = asyncHandler(async (req, res) => {
+  let project = await Project.findById(req.params.id).lean();
+
+  if (!project) {
+    res.status(404);
+    throw new Error('Project not found');
+  }
+
+  // Transform image URLs to full URLs
+  project = {
+    ...project,
+    image: getFullImageUrl(project.image),
+    galleryImages: project.galleryImages?.map(getFullImageUrl) || [],
+    pillars: project.pillars?.map(p => ({
+      ...p,
+      icon: getFullImageUrl(p.icon)
+    })) || []
+  };
+
+  res.json({
+    success: true,
+    data: project,
+  });
+});
+
+// @desc    Create project
+// @route   POST /api/projects
+// @access  Private
+export const createProject = asyncHandler(async (req, res) => {
+  const { title, description, image, githubLink, liveDemo, techStack, mission, challenge, pillars, galleryImages, duration, collaborationType, videoUrl, category, featured } = req.body;
+
+  const missing = validateRequired(['title', 'description'], req.body);
+  if (missing.length > 0) {
+    res.status(400);
+    throw new Error(`Missing required fields: ${missing.join(', ')}`);
+  }
+
+  if (githubLink && !validateUrl(githubLink)) {
+    res.status(400);
+    throw new Error('Invalid GitHub URL');
+  }
+
+  if (liveDemo && !validateUrl(liveDemo)) {
+    res.status(400);
+    throw new Error('Invalid live demo URL');
+  }
+
+  let project = await Project.create({
+    title,
+    description,
+    image,
+    githubLink,
+    liveDemo,
+    techStack: techStack || [],
+    mission,
+    challenge,
+    pillars: pillars || [],
+    galleryImages: galleryImages || [],
+    duration,
+    collaborationType,
+    videoUrl,
+    category,
+    featured
+  });
+
+  clearCache('projects');
+
+  // Transform image URLs to full URLs
+  project = {
+    ...project.toObject(),
+    image: getFullImageUrl(project.image),
+    galleryImages: project.galleryImages?.map(getFullImageUrl) || [],
+    pillars: project.pillars?.map(p => ({
+      ...p,
+      icon: getFullImageUrl(p.icon)
+    })) || []
+  };
+
+  res.status(201).json({
+    success: true,
+    data: project,
+  });
+});
+
+// @desc    Update project
+// @route   PUT /api/projects/:id
+// @access  Private
+export const updateProject = asyncHandler(async (req, res) => {
+  const { title, description, image, githubLink, liveDemo, techStack, mission, challenge, pillars, galleryImages, category, featured, duration, collaborationType, videoUrl } = req.body;
+
+  const existingProject = await Project.findById(req.params.id);
+
+  if (!existingProject) {
+    res.status(404);
+    throw new Error('Project not found');
+  }
+
+  if (githubLink && !validateUrl(githubLink)) {
+    res.status(400);
+    throw new Error('Invalid GitHub URL');
+  }
+
+  if (liveDemo && !validateUrl(liveDemo)) {
+    res.status(400);
+    throw new Error('Invalid live demo URL');
+  }
+
+  // Build update object with only provided fields
+  const updateData = {};
+  if (title !== undefined) updateData.title = title;
+  if (description !== undefined) updateData.description = description;
+  if (image !== undefined) updateData.image = image;
+  if (githubLink !== undefined) updateData.githubLink = githubLink;
+  if (liveDemo !== undefined) updateData.liveDemo = liveDemo;
+  if (techStack !== undefined) updateData.techStack = techStack;
+  if (mission !== undefined) updateData.mission = mission;
+  if (challenge !== undefined) updateData.challenge = challenge;
+  if (pillars !== undefined) updateData.pillars = pillars;
+  if (galleryImages !== undefined) updateData.galleryImages = galleryImages;
+  if (category !== undefined) updateData.category = category;
+  if (featured !== undefined) updateData.featured = featured;
+  if (duration !== undefined) updateData.duration = duration;
+  if (collaborationType !== undefined) updateData.collaborationType = collaborationType;
+  if (videoUrl !== undefined) updateData.videoUrl = videoUrl;
+
+  let project = await Project.findByIdAndUpdate(
+    req.params.id,
+    updateData,
+    { new: true, runValidators: true }
+  );
+
+  clearCache('projects');
+
+  // Transform image URLs to full URLs
+  project = {
+    ...project.toObject(),
+    image: getFullImageUrl(project.image),
+    galleryImages: project.galleryImages?.map(getFullImageUrl) || [],
+    pillars: project.pillars?.map(p => ({
+      ...p,
+      icon: getFullImageUrl(p.icon)
+    })) || []
+  };
+
+  res.json({
+    success: true,
+    data: project,
+  });
+});
+
+// @desc    Delete project
+// @route   DELETE /api/projects/:id
+// @access  Private
+export const deleteProject = asyncHandler(async (req, res) => {
+  const existingProject = await Project.findById(req.params.id);
+
+  if (!existingProject) {
+    res.status(404);
+    throw new Error('Project not found');
+  }
+
+  await Project.findByIdAndDelete(req.params.id);
+
+  clearCache('projects');
+
+  res.json({
+    success: true,
+    message: 'Project deleted successfully',
+  });
+});
