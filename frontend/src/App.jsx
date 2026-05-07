@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
 
 // ============================================
@@ -78,6 +78,8 @@ function App() {
                 <ProjectSingle />
               </Suspense>
             } />
+            {/* Redirect /login to /admin/login */}
+            <Route path="/login" element={<Navigate to="/admin/login" replace />} />
             {/* Catch-all for other paths to prevent blank screen */}
             <Route path="*" element={<Home />} />
           </Routes>
