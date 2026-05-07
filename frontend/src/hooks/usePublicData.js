@@ -51,6 +51,12 @@ export const clearAllCaches = () => {
   localStorage.removeItem('cached_experiences');
   localStorage.removeItem('cached_services');
   localStorage.removeItem('cached_certificates');
+  // Clear old individual project caches
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('cached_project_') || k.startsWith('cache_time_project_')) {
+      localStorage.removeItem(k);
+    }
+  });
   localStorage.removeItem(CACHE_TIMESTAMP_KEY);
   console.log('All caches cleared');
 };
@@ -345,37 +351,49 @@ export const useServices = () => {
   return { services, loading, error, refetch: fetchServices };
 };
 
+// Shorter cache for individual projects (5 minutes) for faster updates
+const PROJECT_CACHE_DURATION = 5 * 60 * 1000;
+
 export const useProject = (id) => {
   const [project, setProject] = useState(() => {
-    const cached = localStorage.getItem(`cached_project_${id}`);
+    const cached = localStorage.getItem(`cached_project_v2_${id}`);
     return cached ? JSON.parse(cached) : null;
   });
-  const [loading, setLoading] = useState(!project && !!id);
+  // Don't show loading if we have cached data - show it immediately
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchProject = useCallback(async (forceRefresh = false) => {
     if (!id) return;
 
-    const cacheTime = localStorage.getItem(`cache_time_project_${id}`);
-    const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+    const cacheKey = `cached_project_v2_${id}`;
+    const cacheTimeKey = `cache_time_project_v2_${id}`;
+    const cacheTime = localStorage.getItem(cacheTimeKey);
+    const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < PROJECT_CACHE_DURATION;
 
-    if (!forceRefresh && isCacheValid && project) {
-      setLoading(false);
-      return;
+    // If we have no cached data, show loading
+    if (!project) {
+      setLoading(true);
     }
 
-    setLoading(true);
-    setError(null);
+    if (!forceRefresh && isCacheValid && project) {
+      // Use cached data but still fetch in background for freshness
+      setLoading(false);
+    }
 
     try {
       const response = await publicService.getProject(id);
       const data = response.data || response;
       setProject(data);
-      safeSetItem(`cached_project_${id}`, JSON.stringify(data));
-      safeSetItem(`cache_time_project_${id}`, Date.now().toString());
+      safeSetItem(cacheKey, JSON.stringify(data));
+      safeSetItem(cacheTimeKey, Date.now().toString());
+      setError(null);
     } catch (err) {
       console.error('Failed to fetch project:', err);
-      setError('Failed to load project');
+      // Only show error if we don't have cached data
+      if (!project) {
+        setError('Failed to load project');
+      }
     } finally {
       setLoading(false);
     }

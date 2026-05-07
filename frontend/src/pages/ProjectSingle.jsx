@@ -183,8 +183,21 @@ const ProjectSingle = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-accent/20 border-t-accent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#0a0a0a] font-outfit">
+        {/* Skeleton Header */}
+        <div className="w-full aspect-[21/4] md:aspect-[32/5] bg-[#1a1a1a] animate-pulse" />
+        <main className="w-full max-w-[1200px] mx-auto px-6 pt-10 pb-20">
+          <div className="h-8 w-48 bg-[#1a1a1a] rounded animate-pulse mb-12" />
+          <div className="h-16 w-3/4 bg-[#1a1a1a] rounded animate-pulse mb-24" />
+          <div className="grid lg:grid-cols-2 gap-20 mb-32">
+            <div className="space-y-6">
+              <div className="h-4 w-full bg-[#1a1a1a] rounded animate-pulse" />
+              <div className="h-4 w-5/6 bg-[#1a1a1a] rounded animate-pulse" />
+              <div className="h-4 w-4/6 bg-[#1a1a1a] rounded animate-pulse" />
+            </div>
+            <div className="h-64 bg-[#1a1a1a] rounded-xl animate-pulse" />
+          </div>
+        </main>
       </div>
     );
   }
