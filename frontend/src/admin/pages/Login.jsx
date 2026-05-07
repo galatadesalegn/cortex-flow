@@ -50,15 +50,24 @@ const Login = () => {
     
     if (!email || !password) return;
     
-    console.log('🔍 Login: Submitting login form');
-    const result = await login(email, password);
-    console.log('🔍 Login: Login result:', result);
-    
-    if (result.success) {
-      console.log('🔍 Login: Login successful, navigating to:', from);
-      navigate(from, { replace: true });
-    } else {
-      console.log('🔍 Login: Login failed');
+    console.log('🔍 Login: Submitting login form with email:', email);
+    try {
+      const result = await login(email, password);
+      console.log('🔍 Login: Login result:', result);
+      
+      if (result.success) {
+        console.log('🔍 Login: Login successful!');
+        console.log('🔍 Login: Waiting 500ms for auth state to update...');
+        // Wait a moment for auth state to propagate before navigation
+        setTimeout(() => {
+          console.log('🔍 Login: Navigating to:', from);
+          navigate(from, { replace: true });
+        }, 500);
+      } else {
+        console.log('🔍 Login: Login failed with error:', result.error || 'Unknown error');
+      }
+    } catch (err) {
+      console.error('🔍 Login: Exception during login:', err);
     }
   };
 
