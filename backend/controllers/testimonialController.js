@@ -2,6 +2,7 @@ import { Testimonial } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
+import { validateImageUrl } from '../utils/validation.js';
 
 // @desc    Get all testimonials (public - only active)
 // @route   GET /api/testimonials
@@ -10,12 +11,6 @@ export const getTestimonials = asyncHandler(async (req, res) => {
   let testimonials = await Testimonial.find({ active: true })
     .sort({ order: 1, createdAt: -1 })
     .lean();
-
-  // Transform avatar URLs to full URLs
-  testimonials = testimonials.map(t => ({
-    ...t,
-    avatar: getFullImageUrl(t.avatar)
-  }));
 
   res.json({
     success: true,
@@ -37,12 +32,6 @@ export const getAllTestimonials = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit)
     .lean();
-
-  // Transform avatar URLs to full URLs
-  testimonials = testimonials.map(t => ({
-    ...t,
-    avatar: getFullImageUrl(t.avatar)
-  }));
 
   const total = await Testimonial.countDocuments();
 
@@ -85,6 +74,12 @@ export const createTestimonial = asyncHandler(async (req, res) => {
     throw new Error('Please provide name, role, company, and content');
   }
 
+  // Validate avatar URL
+  if (avatar !== undefined && avatar !== null && !validateImageUrl(avatar)) {
+    res.status(400);
+    throw new Error('Invalid avatar URL. Only Cloudinary or production URLs are allowed.');
+  }
+
   let testimonial = await Testimonial.create({
     name,
     role,
@@ -117,6 +112,14 @@ export const createTestimonial = asyncHandler(async (req, res) => {
 // @route   PUT /api/testimonials/:id
 // @access  Private
 export const updateTestimonial = asyncHandler(async (req, res) => {
+  const { avatar } = req.body;
+
+  // Validate avatar URL
+  if (avatar !== undefined && avatar !== null && !validateImageUrl(avatar)) {
+    res.status(400);
+    throw new Error('Invalid avatar URL. Only Cloudinary or production URLs are allowed.');
+  }
+
   let testimonial = await Testimonial.findById(req.params.id);
 
   if (!testimonial) {
@@ -133,12 +136,6 @@ export const updateTestimonial = asyncHandler(async (req, res) => {
   // Clear cache
   clearCache('/api/testimonials');
   clearCache(`/api/testimonials/${req.params.id}`);
-
-  // Transform avatar URL to full URL
-  testimonial = {
-    ...testimonial.toObject(),
-    avatar: getFullImageUrl(testimonial.avatar)
-  };
 
   res.json({
     success: true,

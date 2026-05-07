@@ -1,6 +1,6 @@
 import { Skill } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import { validateRequired, validateSkillLevel } from '../utils/validation.js';
+import { validateRequired, validateSkillLevel, validateImageUrl } from '../utils/validation.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
@@ -9,11 +9,6 @@ import { getFullImageUrl } from '../utils/image.js';
 // @access  Public
 export const getSkills = asyncHandler(async (req, res) => {
   let skills = await Skill.find().sort({ category: 1, name: 1 }).lean();
-
-  skills = skills.map(skill => ({
-    ...skill,
-    icon: getFullImageUrl(skill.icon)
-  }));
 
   res.json({
     success: true,
@@ -27,11 +22,6 @@ export const getSkills = asyncHandler(async (req, res) => {
 // @access  Public
 export const getSkillsByCategory = asyncHandler(async (req, res) => {
   let skills = await Skill.find({ category: req.params.category }).sort({ level: -1 }).lean();
-
-  skills = skills.map(skill => ({
-    ...skill,
-    icon: getFullImageUrl(skill.icon)
-  }));
 
   res.json({
     success: true,
@@ -50,8 +40,6 @@ export const getSkill = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Skill not found');
   }
-
-  skill.icon = getFullImageUrl(skill.icon);
 
   res.json({
     success: true,
@@ -73,7 +61,13 @@ export const createSkill = asyncHandler(async (req, res) => {
 
   if (!validateSkillLevel(level)) {
     res.status(400);
-    throw new Error('Skill level must be between 1 and 5');
+    throw new Error('Skill level must be between 1 and 100');
+  }
+
+  // Validate icon URL
+  if (icon !== undefined && !validateImageUrl(icon)) {
+    res.status(400);
+    throw new Error('Invalid icon URL. Only Cloudinary or production URLs are allowed.');
   }
 
   let skill = await Skill.create({
@@ -84,12 +78,6 @@ export const createSkill = asyncHandler(async (req, res) => {
   });
 
   clearCache('skills');
-
-  // Transform image URLs
-  skill = {
-    ...skill.toObject(),
-    icon: getFullImageUrl(skill.icon)
-  };
 
   res.status(201).json({
     success: true,
@@ -112,7 +100,13 @@ export const updateSkill = asyncHandler(async (req, res) => {
 
   if (level !== undefined && !validateSkillLevel(level)) {
     res.status(400);
-    throw new Error('Skill level must be between 1 and 5');
+    throw new Error('Skill level must be between 1 and 100');
+  }
+
+  // Validate icon URL
+  if (icon !== undefined && !validateImageUrl(icon)) {
+    res.status(400);
+    throw new Error('Invalid icon URL. Only Cloudinary or production URLs are allowed.');
   }
 
   const updateData = {};

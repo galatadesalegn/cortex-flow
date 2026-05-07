@@ -1,6 +1,6 @@
 import { Project } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import { validateRequired, validateUrl } from '../utils/validation.js';
+import { validateRequired, validateUrl, validateImageUrl } from '../utils/validation.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
@@ -25,12 +25,6 @@ export const getProjects = asyncHandler(async (req, res) => {
     .limit(limit)
     .lean();
 
-  // Transform image URLs to full URLs
-  projects = projects.map(project => ({
-    ...project,
-    image: getFullImageUrl(project.image)
-  }));
-
   const total = await Project.countDocuments();
 
   res.json({
@@ -53,17 +47,6 @@ export const getProject = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Project not found');
   }
-
-  // Transform image URLs to full URLs
-  project = {
-    ...project,
-    image: getFullImageUrl(project.image),
-    galleryImages: project.galleryImages?.map(getFullImageUrl) || [],
-    pillars: project.pillars?.map(p => ({
-      ...p,
-      icon: getFullImageUrl(p.icon)
-    })) || []
-  };
 
   res.json({
     success: true,
@@ -91,6 +74,30 @@ export const createProject = asyncHandler(async (req, res) => {
   if (liveDemo && !validateUrl(liveDemo)) {
     res.status(400);
     throw new Error('Invalid live demo URL');
+  }
+
+  // Validate image URLs
+  if (image !== undefined && !validateImageUrl(image)) {
+    res.status(400);
+    throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
+  }
+
+  if (galleryImages && Array.isArray(galleryImages)) {
+    for (const img of galleryImages) {
+      if (img && !validateImageUrl(img)) {
+        res.status(400);
+        throw new Error('Invalid gallery image URL. Only Cloudinary or production URLs are allowed.');
+      }
+    }
+  }
+
+  if (pillars && Array.isArray(pillars)) {
+    for (const pillar of pillars) {
+      if (pillar.icon && !validateImageUrl(pillar.icon)) {
+        res.status(400);
+        throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+      }
+    }
   }
 
   let project = await Project.create({
@@ -151,6 +158,30 @@ export const updateProject = asyncHandler(async (req, res) => {
   if (liveDemo && !validateUrl(liveDemo)) {
     res.status(400);
     throw new Error('Invalid live demo URL');
+  }
+
+  // Validate image URLs
+  if (image !== undefined && !validateImageUrl(image)) {
+    res.status(400);
+    throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
+  }
+
+  if (galleryImages !== undefined && Array.isArray(galleryImages)) {
+    for (const img of galleryImages) {
+      if (img && !validateImageUrl(img)) {
+        res.status(400);
+        throw new Error('Invalid gallery image URL. Only Cloudinary or production URLs are allowed.');
+      }
+    }
+  }
+
+  if (pillars !== undefined && Array.isArray(pillars)) {
+    for (const pillar of pillars) {
+      if (pillar.icon && !validateImageUrl(pillar.icon)) {
+        res.status(400);
+        throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+      }
+    }
   }
 
   // Build update object with only provided fields

@@ -2,6 +2,7 @@ import { Profile } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
+import { validateImageUrl } from '../utils/validation.js';
 
 // Helper to clean strings from backticks and extra spaces
 const cleanString = (str) => {
@@ -29,23 +30,10 @@ export const getProfile = asyncHandler(async (req, res) => {
     profile = profile.toObject();
   }
 
-  // Clean data and transform URLs
-  profile.name = cleanString(profile.name);
-  profile.avatar = getFullImageUrl(cleanString(profile.avatar));
-  profile.resume = getFullImageUrl(cleanString(profile.resume));
-  profile.github = cleanString(profile.github);
-  profile.linkedin = cleanString(profile.linkedin);
-  
-  if (profile.focusStats) {
-    profile.focusStats.title = cleanString(profile.focusStats.title);
-    if (profile.focusStats.image) {
-      profile.focusStats.image = getFullImageUrl(cleanString(profile.focusStats.image));
-    }
-  }
-
+  // Return profile as-is from MongoDB (no runtime mutations)
   res.json({
     success: true,
-    data: profile,
+    data: profile
   });
 });
 
@@ -54,6 +42,20 @@ export const getProfile = asyncHandler(async (req, res) => {
 // @access  Private
 export const updateProfile = asyncHandler(async (req, res) => {
   const { name, title, subtitle, bio, location, email, image, resume, github, linkedin, twitter, phone, focusStats } = req.body;
+
+  // Validate image URLs
+  if (image !== undefined && !validateImageUrl(image)) {
+    res.status(400);
+    throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
+  }
+  if (resume !== undefined && !validateImageUrl(resume)) {
+    res.status(400);
+    throw new Error('Invalid resume URL. Only Cloudinary or production URLs are allowed.');
+  }
+  if (focusStats?.image !== undefined && !validateImageUrl(focusStats.image)) {
+    res.status(400);
+    throw new Error('Invalid focusStats.image URL. Only Cloudinary or production URLs are allowed.');
+  }
 
   let profile = await Profile.findOne();
 

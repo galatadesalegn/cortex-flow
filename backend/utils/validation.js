@@ -38,3 +38,38 @@ export const validateSkillLevel = (level) => {
   const num = parseInt(level);
   return !isNaN(num) && num >= 1 && num <= 100;
 };
+
+// Validate image URL - reject localhost, allow Cloudinary or production URLs
+export const validateImageUrl = (url) => {
+  if (!url) return true; // optional field
+  if (typeof url !== 'string') return false;
+  
+  // Reject localhost URLs
+  if (url.includes('localhost') || url.includes('127.0.0.1')) {
+    return false;
+  }
+  
+  // Allow Cloudinary URLs
+  if (url.includes('cloudinary.com') || url.includes('res.cloudinary.com')) {
+    return true;
+  }
+  
+  // Allow production backend URL
+  const backendUrl = process.env.BACKEND_URL || 'https://galata-desalegn.onrender.com';
+  if (url.includes(backendUrl)) {
+    return true;
+  }
+  
+  // Allow other HTTPS URLs (for flexibility)
+  if (url.startsWith('https://')) {
+    return true;
+  }
+  
+  // Reject HTTP URLs (non-HTTPS)
+  if (url.startsWith('http://')) {
+    return false;
+  }
+  
+  // Reject relative paths (should be full URLs)
+  return false;
+};

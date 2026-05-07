@@ -1,6 +1,7 @@
 import { Education } from '../models/index.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
+import { validateImageUrl } from '../utils/validation.js';
 
 // @desc    Get all education entries
 // @route   GET /api/education
@@ -8,13 +9,6 @@ import { getFullImageUrl } from '../utils/image.js';
 export const getEducations = async (req, res) => {
   try {
     let educations = await Education.find().sort({ order: 1, createdAt: -1 }).lean();
-    
-    // Transform image URLs
-    educations = educations.map(edu => ({
-      ...edu,
-      logo: getFullImageUrl(edu.logo),
-      icon: getFullImageUrl(edu.icon)
-    }));
 
     res.status(200).json({
       success: true,
@@ -41,10 +35,6 @@ export const getEducation = async (req, res) => {
       });
     }
 
-    // Transform image URLs
-    education.logo = getFullImageUrl(education.logo);
-    education.icon = getFullImageUrl(education.icon);
-
     res.status(200).json({
       success: true,
       data: education
@@ -62,15 +52,24 @@ export const getEducation = async (req, res) => {
 // @access  Private
 export const createEducation = async (req, res) => {
   try {
+    const { logo, icon } = req.body;
+
+    // Validate image URLs
+    if (logo !== undefined && !validateImageUrl(logo)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid logo URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+    if (icon !== undefined && !validateImageUrl(icon)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid icon URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+
     let education = await Education.create(req.body);
     clearCache('education');
-    
-    // Transform image URLs
-    education = {
-      ...education.toObject(),
-      logo: getFullImageUrl(education.logo),
-      icon: getFullImageUrl(education.icon)
-    };
 
     res.status(201).json({
       success: true,
@@ -89,6 +88,22 @@ export const createEducation = async (req, res) => {
 // @access  Private
 export const updateEducation = async (req, res) => {
   try {
+    const { logo, icon } = req.body;
+
+    // Validate image URLs
+    if (logo !== undefined && !validateImageUrl(logo)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid logo URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+    if (icon !== undefined && !validateImageUrl(icon)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid icon URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+
     let education = await Education.findByIdAndUpdate(
       req.params.id,
       req.body,

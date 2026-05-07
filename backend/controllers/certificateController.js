@@ -1,6 +1,6 @@
 import { Certificate } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import { validateRequired, validateUrl } from '../utils/validation.js';
+import { validateRequired, validateUrl, validateImageUrl } from '../utils/validation.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
@@ -9,11 +9,6 @@ import { getFullImageUrl } from '../utils/image.js';
 // @access  Public
 export const getCertificates = asyncHandler(async (req, res) => {
   let certificates = await Certificate.find().sort({ order: 1, date: -1 }).lean();
-
-  certificates = certificates.map(cert => ({
-    ...cert,
-    image: getFullImageUrl(cert.image)
-  }));
 
   res.json({
     success: true,
@@ -33,8 +28,6 @@ export const getCertificate = asyncHandler(async (req, res) => {
     throw new Error('Certificate not found');
   }
 
-  certificate.image = getFullImageUrl(certificate.image);
-
   res.json({
     success: true,
     data: certificate,
@@ -51,6 +44,12 @@ export const createCertificate = asyncHandler(async (req, res) => {
   if (missing.length > 0) {
     res.status(400);
     throw new Error(`Missing required fields: ${missing.join(', ')}`);
+  }
+
+  // Validate image URL
+  if (image !== undefined && !validateImageUrl(image)) {
+    res.status(400);
+    throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
   }
 
   const certificate = await Certificate.create({
@@ -83,6 +82,12 @@ export const updateCertificate = asyncHandler(async (req, res) => {
   if (!existingCertificate) {
     res.status(404);
     throw new Error('Certificate not found');
+  }
+
+  // Validate image URL
+  if (image !== undefined && !validateImageUrl(image)) {
+    res.status(400);
+    throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
   }
 
   const updateData = {};

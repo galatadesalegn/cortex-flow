@@ -2,6 +2,7 @@ import { User } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { sendInvitationEmail } from '../utils/emailService.js';
 import { getFullImageUrl } from '../utils/image.js';
+import { validateImageUrl } from '../utils/validation.js';
 
 // @desc    Get all users/admins
 // @route   GET /api/users
@@ -11,24 +12,10 @@ export const getUsers = asyncHandler(async (req, res) => {
     .select('-password')
     .sort({ createdAt: -1 });
 
-  // Format users to match frontend expectations
-  const formattedUsers = users.map(user => ({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    username: user.username || user.email.split('@')[0],
-    role: user.role,
-    avatar: getFullImageUrl(user.avatar),
-    status: user.status,
-    lastActive: user.lastActive,
-    permissions: user.getPermissions(),
-    createdAt: user.createdAt
-  }));
-
   res.json({
     success: true,
     count: users.length,
-    data: formattedUsers
+    data: users
   });
 });
 
@@ -45,17 +32,7 @@ export const getUser = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    data: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      username: user.username || user.email.split('@')[0],
-      role: user.role,
-      avatar: getFullImageUrl(user.avatar),
-      status: user.status,
-      lastActive: user.lastActive,
-      permissions: user.getPermissions()
-    }
+    data: user
   });
 });
 

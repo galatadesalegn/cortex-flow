@@ -1,6 +1,6 @@
 import { Experience } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import { validateRequired } from '../utils/validation.js';
+import { validateRequired, validateImageUrl } from '../utils/validation.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
@@ -10,13 +10,6 @@ import { getFullImageUrl } from '../utils/image.js';
 export const getExperiences = async (req, res) => {
   try {
     let experiences = await Experience.find().sort({ startDate: -1 }).lean();
-    
-    // Transform image URLs
-    experiences = experiences.map(exp => ({
-      ...exp,
-      logo: getFullImageUrl(exp.logo),
-      icon: getFullImageUrl(exp.icon)
-    }));
 
     res.status(200).json({
       success: true,
@@ -43,10 +36,6 @@ export const getExperience = async (req, res) => {
       });
     }
 
-    // Transform image URLs
-    experience.logo = getFullImageUrl(experience.logo);
-    experience.icon = getFullImageUrl(experience.icon);
-
     res.status(200).json({
       success: true,
       data: experience
@@ -64,15 +53,24 @@ export const getExperience = async (req, res) => {
 // @access  Private
 export const createExperience = async (req, res) => {
   try {
+    const { logo, icon } = req.body;
+
+    // Validate image URLs
+    if (logo !== undefined && !validateImageUrl(logo)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid logo URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+    if (icon !== undefined && !validateImageUrl(icon)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid icon URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+
     let experience = await Experience.create(req.body);
     clearCache('experiences');
-    
-    // Transform image URLs
-    experience = {
-      ...experience.toObject(),
-      logo: getFullImageUrl(experience.logo),
-      icon: getFullImageUrl(experience.icon)
-    };
 
     res.status(201).json({
       success: true,
@@ -91,6 +89,22 @@ export const createExperience = async (req, res) => {
 // @access  Private
 export const updateExperience = async (req, res) => {
   try {
+    const { logo, icon } = req.body;
+
+    // Validate image URLs
+    if (logo !== undefined && !validateImageUrl(logo)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid logo URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+    if (icon !== undefined && !validateImageUrl(icon)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid icon URL. Only Cloudinary or production URLs are allowed.'
+      });
+    }
+
     let experience = await Experience.findByIdAndUpdate(
       req.params.id,
       req.body,
