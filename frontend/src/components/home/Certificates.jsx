@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useCertificates } from "../../hooks";
 import CertificateModal from "./CertificateModal";
 import { ExternalLink } from "lucide-react";
+import { fixImageUrl } from "../../utils/imageHelper.js";
 
 // Fade-in animation hook
 const useFadeIn = (threshold = 0.1) => {
@@ -94,6 +95,7 @@ const Certificates = () => {
 	const [selectedCert, setSelectedCert] = useState(null);
 	const [sectionRef, isVisible] = useFadeIn();
 	const [hoveredId, setHoveredId] = useState(null);
+	const [imgErrors, setImgErrors] = useState({});
 
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 6;
@@ -131,6 +133,9 @@ const Certificates = () => {
 
 	const nextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
 	const prevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+	const handleImgError = (certId) => {
+		setImgErrors(prev => ({ ...prev, [certId]: true }));
+	};
 
 	return (
 		<section
@@ -184,11 +189,12 @@ const Certificates = () => {
 									>
 										{/* Thumbnail Image */}
 										<div className="w-full h-32 bg-bg-secondary relative overflow-hidden group/img">
-											{cert.image ? (
+											{cert.image && !imgErrors[cert.id] ? (
 												<img
-													src={cert.image}
+													src={fixImageUrl(cert.image)}
 													alt={cert.title}
 													className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110 opacity-100"
+													onError={() => handleImgError(cert.id)}
 												/>
 											) : (
 												<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/15 to-[#00b894]/15">

@@ -1,5 +1,6 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
-import { useProjects, useTheme } from "../../hooks";
+import React, { useState, useRef, useEffect } from "react";
+import { useProjects } from "../../hooks";
+import { fixImageUrl } from "../../utils/imageHelper.js";
 
 // 3D Card Component
 function Card3D({ children, className = "" }) {
@@ -253,7 +254,7 @@ const ProjectCard = ({ project, onClick }) => {
       <div className="relative h-40 overflow-hidden bg-bg-secondary">
         {project.image ? (
           <img
-            src={project.image}
+            src={fixImageUrl(project.image)}
             alt={project.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />

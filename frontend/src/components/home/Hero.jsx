@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Button from "../common/Button";
 import { useProfile } from "../../hooks";
 import { useTheme } from "../../contexts/ThemeContext";
+import { fixImageUrl } from "../../utils/imageHelper.js";
 
 // Hook for scroll-triggered animations
 const useScrollAnimation = (threshold = 0.1) => {
@@ -341,7 +342,7 @@ const Hero = () => {
 						<div className="relative w-full h-full rounded-full overflow-hidden shadow-[0_0_80px_rgba(74,222,128,0.4)] transition-all duration-500 bg-bg-secondary">
 							{displayProfile.avatar || displayProfile.image ? (
 								<img
-									src={displayProfile.avatar || displayProfile.image}
+									src={fixImageUrl(displayProfile.avatar || displayProfile.image)}
 									alt={displayProfile.name}
 									className="w-full h-full object-cover"
 									onError={(e) => {

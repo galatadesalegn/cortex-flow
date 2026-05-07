@@ -59,31 +59,35 @@ const PORT = process.env.PORT || 5000;
 
 // 1. CORS - MUST BE FIRST
 const allowedOrigins = [
-  'http://localhost:5173',  // Frontend dev
-  'http://localhost:5174',  // Admin dev
-  'http://localhost:8888',  // Backend dev
-  'http://localhost:5000',  // Old backend dev
-  process.env.FRONTEND_URL,
-  process.env.ADMIN_URL,
-].filter(Boolean);
+  "https://galatadesalegn-xi.vercel.app",
+];
 
-app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
+const corsOptions = {
+  origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+
+    if (origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+
+    // Allow localhost in development
+    if (process.env.NODE_ENV !== 'production' && origin.startsWith('http://localhost')) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("CORS not allowed: " + origin));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Range', 'X-Content-Range']
-}));
+};
+
+app.use(cors(corsOptions));
 
 // 2. Security & Parsers
 app.use(helmet({

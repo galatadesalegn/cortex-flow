@@ -83,7 +83,7 @@ export const createUser = asyncHandler(async (req, res) => {
   });
 
   // Send invitation email
-  const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://galata-desalegn.onrender.com'}/login`;
+  const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://galatadesalegn.onrender.com'}/login`;
   const emailResult = await sendInvitationEmail(email, name, userPassword, adminPanelUrl);
 
   if (emailResult.success) {

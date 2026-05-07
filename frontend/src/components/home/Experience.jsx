@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useExperiences, useTheme } from "../../hooks";
+import { fixImageUrl } from "../../utils/imageHelper.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -167,6 +168,7 @@ const ExperienceItem = ({ exp, index }) => {
 	const cardRef = useRef(null);
 	const [cardStyle, setCardStyle] = useState({});
 	const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+	const [imgError, setImgError] = useState(false);
 
 	const handleMove = (e) => {
 		const el = cardRef.current;
@@ -243,9 +245,14 @@ const ExperienceItem = ({ exp, index }) => {
 				<div className="flex flex-col md:flex-row justify-between items-start gap-4 relative z-10">
 					<div className="flex gap-5 md:gap-6 items-start flex-1 w-full">
 						{/* Logo with enhanced styling - Smaller */}
-						{exp.logo ? (
+						{exp.logo && !imgError ? (
 							<div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden border shadow-md transition-colors duration-300 border-border-theme bg-bg-secondary">
-								<img src={exp.logo} alt={exp.company} className="w-full h-full object-contain p-1.5" />
+								<img 
+									src={fixImageUrl(exp.logo)} 
+									alt={exp.company} 
+									className="w-full h-full object-contain p-1.5" 
+									onError={() => setImgError(true)}
+								/>
 							</div>
 						) : (
 							<div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center flex-shrink-0 border shadow-md transition-colors duration-300 border-border-theme bg-bg-secondary/50">

@@ -55,7 +55,7 @@ export const validateImageUrl = (url) => {
   }
   
   // Allow production backend URL
-  const backendUrl = process.env.BACKEND_URL || 'https://galata-desalegn.onrender.com';
+  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
   if (url.includes(backendUrl)) {
     return true;
   }
