@@ -11,11 +11,6 @@ export const getFullImageUrl = (imagePath) => {
     return imagePath;
   }
   
-  // Rule: If image contains "localhost", return null (do not rewrite it)
-  if (typeof imagePath === 'string' && (imagePath.includes('localhost') || imagePath.includes('127.0.0.1'))) {
-    return null;
-  }
-  
   // Convert relative path to full URL using production base
   const baseUrl = process.env.BACKEND_URL || 'https://galata-desalegn.onrender.com';
 

@@ -3,14 +3,10 @@ import { asyncHandler } from '../middleware/asyncHandler.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
-// Helper to clean strings from backticks, extra spaces and localhost references
+// Helper to clean strings from backticks and extra spaces
 const cleanString = (str) => {
   if (typeof str !== 'string') return str;
   const cleaned = str.replace(/`/g, '').trim();
-  // Rule: If data contains "localhost", return null to remove it from production output
-  if (cleaned.includes('localhost') || cleaned.includes('127.0.0.1')) {
-    return null;
-  }
   return cleaned;
 };
 
