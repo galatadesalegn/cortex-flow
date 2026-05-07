@@ -29,7 +29,51 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
   
   const fileInputRef = useRef(null);
 
-  // ... handle functions stay the same
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.title || !formData.description) {
+      toast.error('Title and description are required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const dataToSubmit = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        image: formData.image || null,
+        githubLink: formData.githubLink?.trim() || null,
+        liveDemo: formData.liveDemo?.trim() || null,
+        techStack: formData.techStack,
+        challenge: formData.challenge?.trim() || null,
+        pillars: formData.pillars.filter(p => p.title && p.description),
+        galleryImages: formData.galleryImages.filter(img => img && typeof img === 'string'),
+        category: formData.category?.trim() || 'Other',
+        duration: formData.duration?.trim() || null,
+        collaborationType: formData.collaborationType || 'Solo',
+        videoUrl: formData.videoUrl?.trim() || null
+      };
+      
+      const result = await projectService.update(project._id, dataToSubmit);
+      
+      if (result.success) {
+        toast.success('Project updated successfully!');
+        onSave?.();
+      } else {
+        toast.error(result.error || 'Failed to update project');
+      }
+    } catch (error) {
+      console.error('Project update error:', error);
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || 'Failed to update project';
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
