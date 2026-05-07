@@ -33,7 +33,9 @@ const Login = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
+    console.log('🔍 Login: isAuthenticated changed:', isAuthenticated, 'from:', from);
     if (isAuthenticated) {
+      console.log('🔍 Login: Redirecting to:', from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
@@ -48,10 +50,15 @@ const Login = () => {
     
     if (!email || !password) return;
     
+    console.log('🔍 Login: Submitting login form');
     const result = await login(email, password);
+    console.log('🔍 Login: Login result:', result);
     
     if (result.success) {
+      console.log('🔍 Login: Login successful, navigating to:', from);
       navigate(from, { replace: true });
+    } else {
+      console.log('🔍 Login: Login failed');
     }
   };
 

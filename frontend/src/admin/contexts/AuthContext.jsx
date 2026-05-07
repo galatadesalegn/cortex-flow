@@ -14,24 +14,29 @@ export const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       try {
         const { token, user: storedUser } = authService.getStoredAuth();
+        console.log('🔐 AuthContext: Checking auth, token exists:', !!token);
         
         if (token && storedUser) {
           // Verify token is still valid by fetching current user
           const response = await authService.getMe();
+          console.log('🔐 AuthContext: getMe response:', response);
           if (response.success) {
             setUser(response.user);
             setIsAuthenticated(true);
+            console.log('🔐 AuthContext: Auth verified, user set');
           } else {
             throw new Error('Invalid token');
           }
         }
       } catch (err) {
+        console.error('🔐 AuthContext: Auth check failed:', err.message);
         // Clear invalid auth data
         authService.clearAuth();
         setUser(null);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
+        console.log('🔐 AuthContext: Auth check complete, isAuthenticated:', isAuthenticated);
       }
     };
 
