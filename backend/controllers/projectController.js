@@ -4,6 +4,14 @@ import { validateRequired, validateUrl, validateImageUrl } from '../utils/valida
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
+// Helper to fix image URLs
+const fixImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
+  // Replace localhost URLs with production URL
+  return url.replace(/http:\/\/localhost:\d+/g, backendUrl).replace(/http:\/\/127\.0\.0\.1:\d+/g, backendUrl);
+};
+
 // @desc    Get all projects
 // @route   GET /api/projects
 // @access  Public
@@ -24,6 +32,12 @@ export const getProjects = asyncHandler(async (req, res) => {
     .skip(skip)
     .limit(limit)
     .lean();
+
+  // Fix localhost URLs in image paths
+  projects = projects.map(project => ({
+    ...project,
+    image: fixImageUrl(project.image)
+  }));
 
   const total = await Project.countDocuments();
 
@@ -46,6 +60,15 @@ export const getProject = asyncHandler(async (req, res) => {
   if (!project) {
     res.status(404);
     throw new Error('Project not found');
+  }
+
+  // Fix localhost URLs in image paths
+  project.image = fixImageUrl(project.image);
+  if (project.galleryImages) {
+    project.galleryImages = project.galleryImages.map(img => ({
+      ...img,
+      url: fixImageUrl(img.url)
+    }));
   }
 
   res.json({
