@@ -28,8 +28,14 @@ export const getTestimonials = asyncHandler(async (req, res) => {
 // @route   GET /api/testimonials/admin
 // @access  Private
 export const getAllTestimonials = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const skip = (page - 1) * limit;
+
   let testimonials = await Testimonial.find()
     .sort({ order: 1, createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .lean();
 
   // Transform avatar URLs to full URLs
@@ -38,9 +44,14 @@ export const getAllTestimonials = asyncHandler(async (req, res) => {
     avatar: getFullImageUrl(t.avatar)
   }));
 
+  const total = await Testimonial.countDocuments();
+
   res.json({
     success: true,
     count: testimonials.length,
+    total,
+    page,
+    pages: Math.ceil(total / limit),
     data: testimonials,
   });
 });

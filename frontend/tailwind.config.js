@@ -15,18 +15,22 @@ export default {
       },
       colors: {
         // Your brand accent color - stays consistent
-        accent: '#1de9b6',
-        'accent-hover': '#14b98a',
+        accent: 'var(--accent)',
+        'accent-hover': 'var(--accent-hover)',
         
-        // Dark mode colors - your existing palette
-        'dark-primary': '#101413',
-        'dark-secondary': '#0a1a14',
-        'dark-accent': '#1c201f',
-        'dark-card': '#13241c',
-        'dark-border': '#3c4a42',
-        'dark-text-primary': '#ffffff',
-        'dark-text-secondary': '#e2e8f0',
-        'dark-text-muted': '#a0aec0',
+        // Dynamic theme colors using CSS variables
+        'bg-primary': 'var(--bg-primary)',
+        'bg-secondary': 'var(--bg-secondary)',
+        'bg-accent': 'var(--bg-accent)',
+        'bg-card': 'var(--bg-card)',
+        'border-theme': 'var(--border-color)',
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted': 'var(--text-muted)',
+        'glass-bg': 'var(--glass-bg)',
+        'glass-border': 'var(--glass-border)',
+        'dark-primary': '#0a1a14',
+        'dark-secondary': '#0d1411',
       }
     },
   },

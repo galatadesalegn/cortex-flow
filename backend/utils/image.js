@@ -5,6 +5,12 @@
  */
 export const getFullImageUrl = (imagePath) => {
   if (!imagePath) return null;
+
+  // If it's a single emoji or a very short string without extensions/slashes, return as-is
+  // This prevents emojis in the Service model from being prepended with the backend URL
+  if (typeof imagePath === 'string' && imagePath.length <= 8 && !imagePath.includes('.') && !imagePath.includes('/')) {
+    return imagePath;
+  }
   
   // Convert relative path to full URL
   const baseUrl = process.env.BACKEND_URL || 'http://localhost:8888';
@@ -23,11 +29,23 @@ export const getFullImageUrl = (imagePath) => {
     imagePath.startsWith('https://') || 
     imagePath.startsWith('data:')
   ) {
+    // If it's a localhost URL with wrong port, fix it
+    if (imagePath.includes('localhost:5000')) {
+      return imagePath.replace('localhost:5000', baseUrl.replace('http://', ''));
+    }
+    if (imagePath.includes('localhost:5001')) {
+      return imagePath.replace('localhost:5001', baseUrl.replace('http://', ''));
+    }
     return imagePath;
   }
   
   // Handle case where path might already have /uploads prefix or not
-  const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  let cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  // Ensure /uploads prefix for local files
+  if (!cleanPath.startsWith('/uploads/') && !cleanPath.startsWith('http')) {
+    cleanPath = `/uploads${cleanPath}`;
+  }
   
   return `${baseUrl}${cleanPath}`;
 };

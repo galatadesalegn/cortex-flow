@@ -3,19 +3,20 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('dark');
-  const isDark = true;
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
     document.documentElement.classList.remove('light');
-    localStorage.setItem('portfolio-theme', 'dark');
+    localStorage.setItem('admin-theme', 'dark');
   }, []);
 
   const toggleTheme = () => {
     // Light mode removed - toggle functionality disabled
-    console.log('Theme toggle is disabled. Website is dark mode only.');
+    console.log('Admin theme toggle is disabled. Website is dark mode only.');
   };
+
+  const theme = 'dark';
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>

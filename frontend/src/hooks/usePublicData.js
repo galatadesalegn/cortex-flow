@@ -4,16 +4,49 @@ import { publicService } from '../services';
 const PROFILE_CACHE_KEY = 'cached_profile';
 const PROJECTS_CACHE_KEY = 'cached_projects';
 const TESTIMONIALS_CACHE_KEY = 'cached_testimonials';
+const SKILLS_CACHE_KEY = 'cached_skills';
+const EXPERIENCES_CACHE_KEY = 'cached_experiences';
+const SERVICES_CACHE_KEY = 'cached_services';
+const CERTIFICATES_CACHE_KEY = 'cached_certificates';
 const CACHE_TIMESTAMP_KEY = 'cache_last_updated';
+
+// Helper to safely set item in localStorage
+const safeSetItem = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (e) {
+    if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+      console.warn('Storage quota exceeded, clearing old project caches...');
+      // Clear specific project caches to free up space
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('cached_project_') || k.startsWith('cache_time_project_')) {
+          localStorage.removeItem(k);
+        }
+      });
+      // Try again once after clearing projects
+      try {
+        localStorage.setItem(key, value);
+      } catch (retryError) {
+        console.error('Failed to set item even after clearing projects:', retryError);
+      }
+    }
+  }
+};
 
 // Clear all cached data - call this after admin updates
 export const clearAllCaches = () => {
   localStorage.removeItem(PROFILE_CACHE_KEY);
   localStorage.removeItem(PROJECTS_CACHE_KEY);
   localStorage.removeItem(TESTIMONIALS_CACHE_KEY);
+  localStorage.removeItem(SKILLS_CACHE_KEY);
+  localStorage.removeItem(EXPERIENCES_CACHE_KEY);
+  localStorage.removeItem(SERVICES_CACHE_KEY);
+  localStorage.removeItem(CERTIFICATES_CACHE_KEY);
   localStorage.removeItem(CACHE_TIMESTAMP_KEY);
   console.log('All caches cleared');
 };
+
+const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes cache
 
 export const useProfile = () => {
   // Load cached data immediately to prevent flash of defaults
@@ -21,120 +54,121 @@ export const useProfile = () => {
     const cached = localStorage.getItem(PROFILE_CACHE_KEY);
     return cached ? JSON.parse(cached) : null;
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!profile);
   const [error, setError] = useState(null);
 
   const fetchProfile = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+      
+      if (!forceRefresh && isCacheValid && profile) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       
-      // Check if we should skip cache
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const shouldSkipCache = forceRefresh || !cacheTime || (Date.now() - parseInt(cacheTime)) > 5 * 60 * 1000; // 5 minutes
-      
       const response = await publicService.getProfile();
       const responseData = response.data || response;
-      // Extract the actual profile if it's wrapped in a data property
       const actualProfile = responseData?.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)
         ? responseData.data
         : responseData;
 
-      console.log('Profile fetched:', actualProfile);
       setProfile(actualProfile);
-      // Cache the fresh data with timestamp
-      localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(actualProfile));
-      localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      safeSetItem(PROFILE_CACHE_KEY, JSON.stringify(actualProfile));
+      safeSetItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
     } catch (err) {
       console.error('Failed to fetch profile:', err);
       setError('Failed to load profile');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [profile]);
 
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
   
-  // Refresh when window gains focus (user returns to tab)
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchProfile(true); // Force refresh on focus
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [fetchProfile]);
-
   return { profile, setProfile, loading, error, refetch: fetchProfile };
 };
 
 export const useProjects = (page = 1, limit = 6) => {
-  // Load cached projects immediately
   const [projects, setProjects] = useState(() => {
     const cached = localStorage.getItem(PROJECTS_CACHE_KEY);
     return cached ? JSON.parse(cached) : [];
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(projects.length === 0);
   const [error, setError] = useState(null);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
 
   const fetchProjects = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+      if (!forceRefresh && isCacheValid && projects.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const response = await publicService.getProjects({ page, limit });
-      // API returns { data: [...], total: X } format
       const data = response.data || response || [];
       setProjects(data);
       setTotal(response.total || 0);
       setHasMore(data.length === limit);
-      // Cache the fresh data
-      localStorage.setItem(PROJECTS_CACHE_KEY, JSON.stringify(data));
-      localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      safeSetItem(PROJECTS_CACHE_KEY, JSON.stringify(data));
+      safeSetItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
     } catch (err) {
       console.error('Failed to fetch projects:', err);
       setError('Failed to load projects');
     } finally {
       setLoading(false);
     }
-  }, [page, limit]);
+  }, [page, limit, projects.length]);
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
   
-  // Refresh when window gains focus
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchProjects(true);
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [fetchProjects]);
-
   return { projects, loading, error, refetch: fetchProjects, total, hasMore };
 };
 
 export const useCertificates = () => {
-  const [certificates, setCertificates] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [certificates, setCertificates] = useState(() => {
+    const cached = localStorage.getItem(CERTIFICATES_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(certificates.length === 0);
   const [error, setError] = useState(null);
 
-  const fetchCertificates = useCallback(async () => {
+  const fetchCertificates = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+      if (!forceRefresh && isCacheValid && certificates.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const response = await publicService.getCertificates();
-      setCertificates(response.data || []);
+      const data = response.data || [];
+      setCertificates(data);
+      safeSetItem(CERTIFICATES_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
       console.error('Failed to fetch certificates:', err);
       setError('Failed to load certificates');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [certificates.length]);
 
   useEffect(() => {
     fetchCertificates();
@@ -144,23 +178,36 @@ export const useCertificates = () => {
 };
 
 export const useSkills = () => {
-  const [skills, setSkills] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [skills, setSkills] = useState(() => {
+    const cached = localStorage.getItem(SKILLS_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(skills.length === 0);
   const [error, setError] = useState(null);
 
-  const fetchSkills = useCallback(async () => {
+  const fetchSkills = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+      if (!forceRefresh && isCacheValid && skills.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const response = await publicService.getSkills();
-      setSkills(response.data || []);
+      const data = response.data || [];
+      setSkills(data);
+      safeSetItem(SKILLS_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
       console.error('Failed to fetch skills:', err);
       setError('Failed to load skills');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [skills.length]);
 
   useEffect(() => {
     fetchSkills();
@@ -170,23 +217,36 @@ export const useSkills = () => {
 };
 
 export const useExperiences = () => {
-  const [experiences, setExperiences] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [experiences, setExperiences] = useState(() => {
+    const cached = localStorage.getItem(EXPERIENCES_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(experiences.length === 0);
   const [error, setError] = useState(null);
 
-  const fetchExperiences = useCallback(async () => {
+  const fetchExperiences = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+      if (!forceRefresh && isCacheValid && experiences.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const response = await publicService.getExperiences();
-      setExperiences(response.data || []);
+      const data = response.data || [];
+      setExperiences(data);
+      safeSetItem(EXPERIENCES_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
       console.error('Failed to fetch experiences:', err);
       setError('Failed to load experiences');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [experiences.length]);
 
   useEffect(() => {
     fetchExperiences();
@@ -201,66 +261,73 @@ export const useTestimonials = () => {
     const cached = localStorage.getItem(TESTIMONIALS_CACHE_KEY);
     return cached ? JSON.parse(cached) : [];
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(testimonials.length === 0);
   const [error, setError] = useState(null);
 
   const fetchTestimonials = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+      if (!forceRefresh && isCacheValid && testimonials.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
-
-      // Check if we should skip cache
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const shouldSkipCache = forceRefresh || !cacheTime || (Date.now() - parseInt(cacheTime)) > 5 * 60 * 1000; // 5 minutes
 
       const response = await publicService.getTestimonials();
       const data = response.data || [];
       setTestimonials(data);
-      // Cache the fresh data
-      localStorage.setItem(TESTIMONIALS_CACHE_KEY, JSON.stringify(data));
-      localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      safeSetItem(TESTIMONIALS_CACHE_KEY, JSON.stringify(data));
+      safeSetItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
     } catch (err) {
       console.error('Failed to fetch testimonials:', err);
       setError('Failed to load testimonials');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [testimonials.length]);
 
   useEffect(() => {
     fetchTestimonials();
-  }, [fetchTestimonials]);
-
-  // Refresh when window gains focus
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchTestimonials(true); // Force refresh on focus
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
   }, [fetchTestimonials]);
 
   return { testimonials, loading, error, refetch: fetchTestimonials };
 };
 
 export const useServices = () => {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState(() => {
+    const cached = localStorage.getItem(SERVICES_CACHE_KEY);
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [loading, setLoading] = useState(services.length === 0);
   const [error, setError] = useState(null);
 
-  const fetchServices = useCallback(async () => {
+  const fetchServices = useCallback(async (forceRefresh = false) => {
     try {
+      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+      if (!forceRefresh && isCacheValid && services.length > 0) {
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       const response = await publicService.getServices();
-      setServices(response.data || []);
+      const data = response.data || [];
+      setServices(data);
+      safeSetItem(SERVICES_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
       console.error('Failed to fetch services:', err);
       setError('Failed to load services');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [services.length]);
 
   useEffect(() => {
     fetchServices();
@@ -270,12 +337,23 @@ export const useServices = () => {
 };
 
 export const useProject = (id) => {
-  const [project, setProject] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [project, setProject] = useState(() => {
+    const cached = localStorage.getItem(`cached_project_${id}`);
+    return cached ? JSON.parse(cached) : null;
+  });
+  const [loading, setLoading] = useState(!project && !!id);
   const [error, setError] = useState(null);
 
-  const fetchProject = useCallback(async () => {
+  const fetchProject = useCallback(async (forceRefresh = false) => {
     if (!id) return;
+
+    const cacheTime = localStorage.getItem(`cache_time_project_${id}`);
+    const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
+
+    if (!forceRefresh && isCacheValid && project) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -284,13 +362,15 @@ export const useProject = (id) => {
       const response = await publicService.getProject(id);
       const data = response.data || response;
       setProject(data);
+      safeSetItem(`cached_project_${id}`, JSON.stringify(data));
+      safeSetItem(`cache_time_project_${id}`, Date.now().toString());
     } catch (err) {
       console.error('Failed to fetch project:', err);
       setError('Failed to load project');
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, project]);
 
   useEffect(() => {
     fetchProject();

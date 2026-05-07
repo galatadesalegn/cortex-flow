@@ -22,14 +22,14 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|webp|gif|mp4|webm|ogg/;
+    const filetypes = /jpeg|jpg|png|webp|gif|mp4|webm|ogg|pdf/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
 
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error('Only images (jpeg, jpg, png, webp, gif) and videos (mp4, webm, ogg) are allowed'));
+      cb(new Error('Only images, videos and PDF files are allowed'));
     }
   },
   limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
@@ -56,6 +56,7 @@ router.post(
     }
 
     const isVideo = req.file.mimetype.startsWith('video/');
+    const isPdf = req.file.mimetype === 'application/pdf';
 
     // Check if Cloudinary is configured
     const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME && 
@@ -66,11 +67,8 @@ router.post(
       // Upload to Cloudinary
       const uploadOptions = {
         folder: 'portfolio',
+        resource_type: 'auto'
       };
-
-      if (isVideo) {
-        uploadOptions.resource_type = 'video';
-      }
 
       const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
       

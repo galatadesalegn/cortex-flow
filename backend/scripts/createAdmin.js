@@ -22,9 +22,10 @@ const createAdminUser = async () => {
     const existingAdmin = await User.findOne({ email: 'galataddesalegn@gmail.com' });
     
     if (existingAdmin) {
-      console.log('✅ Admin user already exists:');
-      console.log('   Email:', existingAdmin.email);
-      console.log('   Name:', existingAdmin.name);
+      console.log('✅ Admin user already exists. Updating password to admin123...');
+      existingAdmin.password = 'admin123';
+      await existingAdmin.save();
+      console.log('✅ Admin password updated successfully!');
       process.exit(0);
     }
 

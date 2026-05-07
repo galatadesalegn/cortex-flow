@@ -13,6 +13,17 @@ export const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
+export const sanitizeString = (str) => {
+  if (typeof str !== 'string') return str;
+  return str
+    .trim()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+};
+
 export const validateUrl = (url) => {
   if (!url) return true; // optional
   try {

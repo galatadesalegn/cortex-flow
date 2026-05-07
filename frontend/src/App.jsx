@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
 
 // ============================================
@@ -6,27 +7,27 @@ import { useTheme } from './contexts/ThemeContext';
 // ============================================
 
 // Eager load critical components (above the fold)
-import Navbar from './Components/Layout/Navbar';
-import Footer from './Components/Layout/Footer';
-import Home from './Components/pages/Home';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import Home from './pages/Home';
 
 // Lazy load heavy sections (on demand)
-const ProjectSingle = lazy(() => import('./Components/pages/ProjectSingle'));
+const ProjectSingle = lazy(() => import('./pages/ProjectSingle'));
+const AdminApp = lazy(() => import('./admin/AdminApp'));
 
 // Loading fallback with skeleton UI
 const SectionLoader = () => {
-  const { isDark } = useTheme();
   return (
-    <div className={`min-h-[50vh] flex items-center justify-center transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a]' : 'bg-gray-50'}`}>
+    <div className="min-h-[50vh] flex items-center justify-center bg-bg-primary">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-[#1de9b6]/30 border-t-[#1de9b6] rounded-full animate-spin" />
-        <p className="text-[#1de9b6] animate-pulse font-medium tracking-wider">Loading...</p>
+        <div className="w-12 h-12 border-4 border-accent/30 border-t-accent rounded-full animate-spin" />
+        <p className="text-accent animate-pulse font-medium tracking-wider">Loading...</p>
       </div>
     </div>
   );
 };
 
-// Simple hash-based router
+// Simple hash-based router to support both paths and legacy hash routes
 const useHashRouter = () => {
   const [hash, setHash] = useState(window.location.hash);
 
@@ -40,23 +41,48 @@ const useHashRouter = () => {
 };
 
 function App() {
-  const hash = useHashRouter();
   const { isDark } = useTheme();
+  const location = useLocation();
   
-  // Check if we're on the project page
-  const isProjectPage = hash.startsWith('#/project') || hash.startsWith('#project');
+  // Check for admin path (non-hash)
+  const isAdminPath = location.pathname.startsWith('/admin');
+  
+  // Check for project-single (hash-based)
+  const isProjectPage = location.hash.startsWith('#/project-single') || location.hash.startsWith('#project-single');
+
+  // If it's an admin path, render AdminApp without the portfolio layout (Navbar/Footer)
+  if (isAdminPath) {
+    return (
+      <Suspense fallback={<SectionLoader />}>
+        <Routes>
+          <Route path="/admin/*" element={<AdminApp />} />
+        </Routes>
+      </Suspense>
+    );
+  }
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a]' : 'bg-white'}`}>
-      <Navbar />
+    <div className="min-h-screen bg-bg-primary">
+      {!isProjectPage && <Navbar />}
       
-      {isProjectPage ? (
-        <Suspense fallback={<SectionLoader />}>
-          <ProjectSingle />
-        </Suspense>
-      ) : (
-        <Home />
-      )}
+      <main>
+        {isProjectPage ? (
+          <Suspense fallback={<SectionLoader />}>
+            <ProjectSingle key={location.hash} />
+          </Suspense>
+        ) : (
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/project-single" element={
+              <Suspense fallback={<SectionLoader />}>
+                <ProjectSingle />
+              </Suspense>
+            } />
+            {/* Catch-all for other paths to prevent blank screen */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        )}
+      </main>
       
       <Footer />
     </div>

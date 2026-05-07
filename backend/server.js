@@ -62,6 +62,7 @@ const allowedOrigins = [
   'http://localhost:5173',  // Frontend dev
   'http://localhost:5174',  // Admin dev
   'http://localhost:8888',  // Backend dev
+  'http://localhost:5000',  // Old backend dev
   process.env.FRONTEND_URL,
   process.env.ADMIN_URL,
 ].filter(Boolean);

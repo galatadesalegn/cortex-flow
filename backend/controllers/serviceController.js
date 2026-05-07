@@ -9,11 +9,11 @@ export const getServices = async (req, res) => {
   try {
     let services = await Service.find({}).sort({ order: 1, createdAt: -1 }).lean();
     
-    // Transform image URLs
-    services = services.map(service => ({
-      ...service,
-      icon: getFullImageUrl(service.icon)
-    }));
+    // We don't transform icon because it's an emoji, not a path
+    // services = services.map(service => ({
+    //   ...service,
+    //   icon: getFullImageUrl(service.icon)
+    // }));
 
     res.status(200).json({
       success: true,
@@ -42,8 +42,8 @@ export const getService = async (req, res) => {
       });
     }
 
-    // Transform image URLs
-    service.icon = getFullImageUrl(service.icon);
+    // We don't transform icon because it's an emoji, not a path
+    // service.icon = getFullImageUrl(service.icon);
 
     res.status(200).json({
       success: true,
@@ -66,10 +66,10 @@ export const createService = async (req, res) => {
     let service = await Service.create(req.body);
     clearCache('services');
 
-    // Transform image URLs
+    // We don't transform icon because it's an emoji, not a path
     service = {
       ...service.toObject(),
-      icon: getFullImageUrl(service.icon)
+      // icon: getFullImageUrl(service.icon)
     };
 
     res.status(201).json({
@@ -103,8 +103,8 @@ export const updateService = async (req, res) => {
     }
     clearCache('services');
 
-    // Transform image URLs
-    service.icon = getFullImageUrl(service.icon);
+    // We don't transform icon because it's an emoji, not a path
+    // service.icon = getFullImageUrl(service.icon);
 
     res.status(200).json({
       success: true,
