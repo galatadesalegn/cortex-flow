@@ -32,7 +32,7 @@ function AdminContent() {
           path="/" 
           element={
             <ProtectedRoute>
-              <Navigate to="dashboard" replace />
+              <Navigate to="/admin/dashboard" replace />
             </ProtectedRoute>
           } 
         />
@@ -48,7 +48,7 @@ function AdminContent() {
         />
         
         {/* Catch all for admin - redirect to login */}
-        <Route path="*" element={<Navigate to="login" replace />} />
+        <Route path="*" element={<Navigate to="/admin/login" replace />} />
       </Routes>
     </>
   );

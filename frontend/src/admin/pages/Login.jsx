@@ -28,8 +28,8 @@ const Login = () => {
   const location = useLocation();
   
   // Get the page user tried to visit before being redirected to login
-  // Use relative 'dashboard' path since we're in /admin/* route context
-  const from = location.state?.from?.pathname || 'dashboard';
+  // Default to /admin/dashboard after successful login
+  const from = location.state?.from?.pathname || '/admin/dashboard';
 
   // Redirect if already authenticated
   useEffect(() => {
