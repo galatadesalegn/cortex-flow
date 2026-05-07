@@ -351,53 +351,31 @@ export const useServices = () => {
   return { services, loading, error, refetch: fetchServices };
 };
 
-// Shorter cache for individual projects (5 minutes) for faster updates
-const PROJECT_CACHE_DURATION = 5 * 60 * 1000;
-
+// Disable localStorage caching for individual projects (too large)
+// Only use in-memory state
 export const useProject = (id) => {
-  const [project, setProject] = useState(() => {
-    const cached = localStorage.getItem(`cached_project_v2_${id}`);
-    return cached ? JSON.parse(cached) : null;
-  });
-  // Don't show loading if we have cached data - show it immediately
-  const [loading, setLoading] = useState(false);
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(!!id);
   const [error, setError] = useState(null);
 
-  const fetchProject = useCallback(async (forceRefresh = false) => {
+  const fetchProject = useCallback(async () => {
     if (!id) return;
 
-    const cacheKey = `cached_project_v2_${id}`;
-    const cacheTimeKey = `cache_time_project_v2_${id}`;
-    const cacheTime = localStorage.getItem(cacheTimeKey);
-    const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < PROJECT_CACHE_DURATION;
-
-    // If we have no cached data, show loading
-    if (!project) {
-      setLoading(true);
-    }
-
-    if (!forceRefresh && isCacheValid && project) {
-      // Use cached data but still fetch in background for freshness
-      setLoading(false);
-    }
+    setLoading(true);
+    setError(null);
 
     try {
       const response = await publicService.getProject(id);
       const data = response.data || response;
       setProject(data);
-      safeSetItem(cacheKey, JSON.stringify(data));
-      safeSetItem(cacheTimeKey, Date.now().toString());
       setError(null);
     } catch (err) {
       console.error('Failed to fetch project:', err);
-      // Only show error if we don't have cached data
-      if (!project) {
-        setError('Failed to load project');
-      }
+      setError('Failed to load project');
     } finally {
       setLoading(false);
     }
-  }, [id, project]);
+  }, [id]);
 
   useEffect(() => {
     fetchProject();
