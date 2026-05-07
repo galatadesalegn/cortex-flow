@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useProject } from "../hooks";
 import { useTheme } from "../contexts/ThemeContext";
 import { ArrowLeft, Play, LayoutGrid, Cpu, Zap, Info, Target, Layers, Calendar, Code, ExternalLink } from "lucide-react";
+import { fixImageUrl } from "../utils/imageHelper.js";
 
 // SVG Icons
 const GithubIcon = () => (
@@ -157,12 +158,12 @@ const ProjectSingle = () => {
       title: project.title || 'Untitled Project',
       category: project.category || 'AI DEPLOYMENT ARCHITECTURE',
       description: project.description || 'A modern full-stack web application system combining e-commerce functionality, AI-powered features, and advanced UI/UX design. The project focuses on building scalable, responsive, and intelligent digital platforms where users can browse products, interact with smart recommendations, and experience smooth, modern interfaces. It integrates frontend design, backend APIs, database systems, and AI-based enhancements to create a complete production-ready application.',
-      image: project.image,
+      image: fixImageUrl(project.image),
       mission: project.mission || '',
       challenge: project.challenge || 'Complex System Integration Combining frontend, backend, database, and AI logic into one smooth system was difficult. Used modular architecture with separated API layers and reusable frontend components to maintain clean structure and scalability.',
       tech: project.techStack || [],
       pillars: project.pillars || [],
-      gallery: project.galleryImages || [],
+      gallery: (project.galleryImages || []).map(img => fixImageUrl(img)),
       videoUrl: project.videoUrl || null,
       duration: project.duration || null,
       collaborationType: project.collaborationType || null,
