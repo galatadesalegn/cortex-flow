@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useProjects } from "../../hooks";
 import { fixImageUrl } from "../../utils/imageHelper.js";
 
