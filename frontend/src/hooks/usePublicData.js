@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { publicService } from '../services';
 
-const PROFILE_CACHE_KEY = 'cached_profile';
-const PROJECTS_CACHE_KEY = 'cached_projects';
-const TESTIMONIALS_CACHE_KEY = 'cached_testimonials';
-const SKILLS_CACHE_KEY = 'cached_skills';
-const EXPERIENCES_CACHE_KEY = 'cached_experiences';
-const SERVICES_CACHE_KEY = 'cached_services';
-const CERTIFICATES_CACHE_KEY = 'cached_certificates';
+const PROFILE_CACHE_KEY = 'cached_profile_v2';
+const PROJECTS_CACHE_KEY = 'cached_projects_v2';
+const TESTIMONIALS_CACHE_KEY = 'cached_testimonials_v2';
+const SKILLS_CACHE_KEY = 'cached_skills_v2';
+const EXPERIENCES_CACHE_KEY = 'cached_experiences_v2';
+const SERVICES_CACHE_KEY = 'cached_services_v2';
+const CERTIFICATES_CACHE_KEY = 'cached_certificates_v2';
 const CACHE_TIMESTAMP_KEY = 'cache_last_updated';
 
 // Helper to safely set item in localStorage
@@ -35,6 +35,7 @@ const safeSetItem = (key, value) => {
 
 // Clear all cached data - call this after admin updates
 export const clearAllCaches = () => {
+  // Clear v2 cache keys
   localStorage.removeItem(PROFILE_CACHE_KEY);
   localStorage.removeItem(PROJECTS_CACHE_KEY);
   localStorage.removeItem(TESTIMONIALS_CACHE_KEY);
@@ -42,6 +43,14 @@ export const clearAllCaches = () => {
   localStorage.removeItem(EXPERIENCES_CACHE_KEY);
   localStorage.removeItem(SERVICES_CACHE_KEY);
   localStorage.removeItem(CERTIFICATES_CACHE_KEY);
+  // Clear old v1 cache keys
+  localStorage.removeItem('cached_profile');
+  localStorage.removeItem('cached_projects');
+  localStorage.removeItem('cached_testimonials');
+  localStorage.removeItem('cached_skills');
+  localStorage.removeItem('cached_experiences');
+  localStorage.removeItem('cached_services');
+  localStorage.removeItem('cached_certificates');
   localStorage.removeItem(CACHE_TIMESTAMP_KEY);
   console.log('All caches cleared');
 };
