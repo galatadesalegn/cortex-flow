@@ -5,7 +5,7 @@ const LivePreview = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
-  const portfolioUrl = 'http://localhost:5174';
+  const portfolioUrl = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
 
   useEffect(() => {
     // Check if portfolio is available

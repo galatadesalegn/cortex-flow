@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useExperiences, useTheme } from "../../hooks";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Fade-in animation hook
 const useFadeIn = (threshold = 0.1) => {
