@@ -1,4 +1,5 @@
 import React from "react";
+import { fixImageUrl } from "../../utils/imageHelper.js";
 
 const CertificateModal = ({ isOpen, onClose, certificate }) => {
   if (!isOpen || !certificate) return null;
@@ -18,7 +19,7 @@ const CertificateModal = ({ isOpen, onClose, certificate }) => {
       return;
     }
     const link = document.createElement('a');
-    link.href = certificate.image;
+    link.href = fixImageUrl(certificate.image);
     link.download = `${certificate.title || 'certificate'}.png`;
     link.target = '_blank';
     document.body.appendChild(link);
@@ -39,7 +40,7 @@ const CertificateModal = ({ isOpen, onClose, certificate }) => {
         {/* Certificate Image */}
         <div className="flex-1 flex items-center justify-center p-6 md:p-8 bg-bg-secondary min-h-[250px] md:min-h-[400px]">
           <img
-            src={certificate.image || "/certificate-placeholder.png"}
+            src={fixImageUrl(certificate.image) || "/certificate-placeholder.png"}
             alt={certificate.title}
             className="rounded-xl max-h-64 md:max-h-96 shadow-soft border border-border-theme"
           />
