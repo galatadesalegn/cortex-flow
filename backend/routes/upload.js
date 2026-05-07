@@ -84,7 +84,7 @@ router.post(
       });
     } else {
       // Serve file locally
-      const baseUrl = process.env.BACKEND_URL || 'http://localhost:8888';
+      const baseUrl = process.env.BACKEND_URL || 'https://galata-desalegn.onrender.com';
       const fileUrl = `/uploads/${req.file.filename}`;
       res.json({
         success: true,

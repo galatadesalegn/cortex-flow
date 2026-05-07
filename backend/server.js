@@ -139,7 +139,7 @@ app.get('/health', (req, res) => {
 // Test route
 app.post('/api/test-login', (req, res) => {
   const { email } = req.body;
-  res.json({ success: true, email });
+  res.json({ success: true, data: { email } });
 });
 
 // Routes
@@ -162,14 +162,20 @@ app.get('/api/health', async (req, res) => {
     const ok = await testConnection();
 
     res.json({
-      status: ok ? 'healthy' : 'unhealthy',
-      database: ok ? 'connected' : 'disconnected',
-      time: new Date().toISOString(),
+      success: true,
+      data: {
+        status: ok ? 'healthy' : 'unhealthy',
+        database: ok ? 'connected' : 'disconnected',
+        time: new Date().toISOString(),
+      }
     });
   } catch (err) {
     res.status(500).json({
-      status: 'unhealthy',
-      error: err.message,
+      success: false,
+      data: {
+        status: 'unhealthy',
+        error: err.message,
+      }
     });
   }
 });

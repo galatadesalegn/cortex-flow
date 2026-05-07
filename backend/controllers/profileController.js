@@ -3,6 +3,17 @@ import { asyncHandler } from '../middleware/asyncHandler.js';
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
+// Helper to clean strings from backticks, extra spaces and localhost references
+const cleanString = (str) => {
+  if (typeof str !== 'string') return str;
+  const cleaned = str.replace(/`/g, '').trim();
+  // Rule: If data contains "localhost", return null to remove it from production output
+  if (cleaned.includes('localhost') || cleaned.includes('127.0.0.1')) {
+    return null;
+  }
+  return cleaned;
+};
+
 // @desc    Get profile (public)
 // @route   GET /api/profile
 // @access  Public
@@ -22,12 +33,18 @@ export const getProfile = asyncHandler(async (req, res) => {
     profile = profile.toObject();
   }
 
-  // Transform URLs
-  profile.avatar = getFullImageUrl(profile.avatar);
-  profile.resume = getFullImageUrl(profile.resume);
+  // Clean data and transform URLs
+  profile.name = cleanString(profile.name);
+  profile.avatar = getFullImageUrl(cleanString(profile.avatar));
+  profile.resume = getFullImageUrl(cleanString(profile.resume));
+  profile.github = cleanString(profile.github);
+  profile.linkedin = cleanString(profile.linkedin);
   
-  if (profile.focusStats && profile.focusStats.image) {
-    profile.focusStats.image = getFullImageUrl(profile.focusStats.image);
+  if (profile.focusStats) {
+    profile.focusStats.title = cleanString(profile.focusStats.title);
+    if (profile.focusStats.image) {
+      profile.focusStats.image = getFullImageUrl(cleanString(profile.focusStats.image));
+    }
   }
 
   res.json({
