@@ -3,6 +3,7 @@ import { Briefcase, Plus, Trash2, Image as ImageIcon, Loader2 } from 'lucide-rea
 import { uploadService } from '../services';
 import { toast } from 'sonner';
 import { useTheme } from '../hooks';
+import { fixImageUrl } from '../../utils/imageHelper.js';
 
 const ExperienceEditor = ({ data, onChange }) => {
   const { isDark } = useTheme();
@@ -87,7 +88,7 @@ const ExperienceEditor = ({ data, onChange }) => {
             {/* Logo Upload Section */}
             <div className="flex gap-4 items-center mb-3 mt-1">
               {exp.logo && (
-                <img src={exp.logo} alt="Logo" className="w-10 h-10 rounded-lg object-cover bg-white" />
+                <img src={fixImageUrl(exp.logo)} alt="Logo" className="w-10 h-10 rounded-lg object-cover bg-white" />
               )}
               <label className="flex items-center gap-2 cursor-pointer w-fit text-xs text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-3 py-1.5 rounded disabled:opacity-50">
                 {uploadingState === index ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}

@@ -42,6 +42,7 @@ import { experienceService } from '../services/experienceService.js';
 import { educationService } from '../services/educationService.js';
 import { profileService } from '../services/profileService.js';
 import { toast } from 'sonner';
+import { fixImageUrl } from '../../utils/imageHelper.js';
 
 const Skills = () => {
   const { isDark } = useTheme();
@@ -929,7 +930,7 @@ const Skills = () => {
             {/* Decorative Card / Focus Image Preview */}
             <div className="bg-[#12121a] border border-gray-800 rounded-xl flex items-center justify-center min-h-[200px] overflow-hidden relative">
               {focusStats.image ? (
-                <img src={focusStats.image} alt="Focus" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={fixImageUrl(focusStats.image)} alt="Focus" className="absolute inset-0 w-full h-full object-cover" />
               ) : (
                 <Zap size={64} className="text-cyan-400/30" />
               )}
@@ -1005,7 +1006,7 @@ const Skills = () => {
                       {/* Company Logo Section */}
                       <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-gray-700">
                         {exp.logo ? (
-                          <img src={exp.logo} alt={exp.company} className="w-full h-full object-cover" />
+                          <img src={fixImageUrl(exp.logo)} alt={exp.company} className="w-full h-full object-cover" />
                         ) : (
                           <Building2 size={24} className="text-gray-600" />
                         )}
@@ -1126,7 +1127,7 @@ const Skills = () => {
                       {/* Institution Logo */}
                       <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 text-2xl overflow-hidden border border-gray-700">
                         {edu.logo ? (
-                          <img src={edu.logo} alt={edu.company} className="w-full h-full object-cover" />
+                          <img src={fixImageUrl(edu.logo)} alt={edu.company} className="w-full h-full object-cover" />
                         ) : (
                           edu.icon || '🎓'
                         )}
@@ -1535,7 +1536,7 @@ const Skills = () => {
                   <div className="flex items-center gap-4">
                     {expFormData.logo && (
                       <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
-                        <img src={expFormData.logo} alt="Logo Preview" className="w-full h-full object-contain" />
+                        <img src={fixImageUrl(expFormData.logo)} alt="Logo Preview" className="w-full h-full object-contain" />
                       </div>
                     )}
                     <div className="flex-1">
@@ -1597,7 +1598,8 @@ const Skills = () => {
                       isCurrent: false,
                       description: '',
                       tags: [],
-                      icon: ''
+                      icon: '',
+                      logo: ''
                     });
                   }}
                   className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
@@ -1651,7 +1653,8 @@ const Skills = () => {
                       isCurrent: false,
                       description: '',
                       tags: [],
-                      icon: ''
+                      icon: '',
+                      logo: ''
                     });
                   }}
                   className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
@@ -1799,7 +1802,7 @@ const Skills = () => {
                   <div className="flex items-center gap-4">
                     {eduFormData.logo && (
                       <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
-                        <img src={eduFormData.logo} alt="Logo Preview" className="w-full h-full object-contain" />
+                        <img src={fixImageUrl(eduFormData.logo)} alt="Logo Preview" className="w-full h-full object-contain" />
                       </div>
                     )}
                     <div className="flex-1">
@@ -1932,7 +1935,7 @@ const Skills = () => {
                   <div className="flex items-center gap-4">
                     {focusFormData.image && (
                       <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
-                        <img src={focusFormData.image} alt="Focus Preview" className="w-full h-full object-cover" />
+                        <img src={fixImageUrl(focusFormData.image)} alt="Focus Preview" className="w-full h-full object-cover" />
                       </div>
                     )}
                     <div className="flex-1">
