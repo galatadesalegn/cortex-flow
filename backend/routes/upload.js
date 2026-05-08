@@ -104,4 +104,40 @@ router.post(
   })
 );
 
+// @desc    Download CV by URL
+// @route   GET /api/upload/download
+// @access  Public
+router.get(
+  '/download',
+  asyncHandler(async (req, res) => {
+    const { url } = req.query;
+    
+    if (!url) {
+      res.status(400);
+      throw new Error('URL is required');
+    }
+
+    try {
+      // Fetch the file from Cloudinary
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch file');
+      }
+      
+      const buffer = await response.arrayBuffer();
+      
+      // Set headers for PDF download
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="resume.pdf"');
+      res.setHeader('Content-Length', buffer.byteLength);
+      
+      res.send(Buffer.from(buffer));
+    } catch (error) {
+      console.error('Download error:', error);
+      res.status(500);
+      throw new Error('Failed to download file');
+    }
+  })
+);
+
 export default router;
