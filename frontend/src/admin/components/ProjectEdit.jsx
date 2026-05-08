@@ -33,6 +33,60 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await uploadService.uploadImage(file);
+      if (result.success) {
+        handleChange('image', result.data.url);
+        toast.success('Image uploaded successfully');
+      } else {
+        toast.error(result.error || 'Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      toast.error('Error uploading image');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGalleryImageUpload = async (index, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await uploadService.uploadImage(file);
+      if (result.success) {
+        const newGallery = [...formData.galleryImages];
+        newGallery[index] = result.data.url;
+        handleChange('galleryImages', newGallery);
+        toast.success('Gallery image uploaded');
+      } else {
+        toast.error(result.error || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Gallery upload error:', error);
+      toast.error('Error uploading gallery image');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.title || !formData.description) {
       toast.error('Title and description are required');
