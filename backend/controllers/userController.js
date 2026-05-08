@@ -206,6 +206,48 @@ export const deleteUser = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Delete own account (self-deletion)
+// @route   DELETE /api/users/account/delete
+// @access  Private
+export const deleteAccount = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Verify password before allowing deletion
+  if (!password) {
+    res.status(400);
+    throw new Error('Password is required to delete your account');
+  }
+
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Incorrect password');
+  }
+
+  // Prevent super admin from deleting themselves if they're the only one
+  if (user.role === 'super_admin') {
+    const superAdminCount = await User.countDocuments({ role: 'super_admin' });
+    if (superAdminCount <= 1) {
+      res.status(400);
+      throw new Error('Cannot delete the only super admin account');
+    }
+  }
+
+  await user.deleteOne();
+
+  res.json({
+    success: true,
+    message: 'Your account has been deleted successfully'
+  });
+});
+
 // @desc    Update user permissions
 // @route   PUT /api/users/:id/permissions
 // @access  Private (Super Admin only)

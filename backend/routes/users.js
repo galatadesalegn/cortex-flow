@@ -5,6 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  deleteAccount,
   updatePermissions,
   changePassword
 } from '../controllers/userController.js';
@@ -19,6 +20,9 @@ router.use(protect);
 router.route('/')
   .get(admin, getUsers)
   .post(admin, createUser);
+
+router.route('/account/delete')
+  .delete(deleteAccount);
 
 router.route('/change-password')
   .put(changePassword);
