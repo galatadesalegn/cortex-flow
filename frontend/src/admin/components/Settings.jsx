@@ -39,6 +39,8 @@ const Settings = () => {
   const { isDark } = useTheme();
   const [activeTab, setActiveTab] = useState('general');
   const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -174,6 +176,46 @@ const Settings = () => {
       console.error('Failed to change password:', error);
       toast.error(error.response?.data?.message || 'Failed to change password');
     } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle delete account
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Please enter your password to confirm deletion');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
+      
+      const response = await fetch(`${API_URL}/api/users/account/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ password: deletePassword })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Your account has been deleted successfully');
+        // Clear auth and redirect to login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        toast.error(data.message || 'Failed to delete account');
+        setSaving(false);
+      }
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      toast.error('Failed to delete account. Please try again.');
       setSaving(false);
     }
   };
@@ -875,6 +917,21 @@ const Settings = () => {
                 </div>
               </div>
             </div>
+
+            {/* Delete Account */}
+            <div className="bg-[#12121a] border border-red-900/50 rounded-xl p-6">
+              <h3 className="text-sm font-semibold text-red-400 mb-2">Danger Zone</h3>
+              <p className="text-xs text-gray-500 mb-4">
+                Once you delete your account, there is no going back. This action cannot be undone.
+              </p>
+              <button
+                onClick={() => setShowDeleteAccountModal(true)}
+                className="px-4 py-2 rounded-lg bg-red-600/20 text-red-400 border border-red-600/50 hover:bg-red-600/30 transition-colors text-sm flex items-center gap-2"
+              >
+                <Trash2 size={16} />
+                Delete My Account
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1070,6 +1127,62 @@ const Settings = () => {
               >
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Modal */}
+      {showDeleteAccountModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#12121a] border border-red-900/50 rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                <AlertCircle size={20} className="text-red-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-white">Delete Account</h2>
+                <p className="text-xs text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
+              <p className="text-sm text-red-300">
+                <strong>Warning:</strong> All your data will be permanently deleted. This includes your profile, settings, and admin access.
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                Enter your password to confirm
+              </label>
+              <input
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                placeholder="Your current password"
+                className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteAccountModal(false);
+                  setDeletePassword('');
+                }}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={saving || !deletePassword}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                Delete Account
               </button>
             </div>
           </div>
