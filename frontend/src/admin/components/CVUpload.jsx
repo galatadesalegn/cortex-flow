@@ -5,7 +5,31 @@ import { toast } from 'sonner';
 
 const CVUpload = ({ resumeUrl, onChange }) => {
   const [uploading, setUploading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Download CV via backend proxy
+  const handleDownload = async () => {
+    if (!resumeUrl) return;
+    try {
+      setDownloading(true);
+      const backendUrl = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
+      const downloadUrl = `${backendUrl}/api/upload/download?url=${encodeURIComponent(resumeUrl)}`;
+      
+      // Create a temporary anchor to trigger download
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = 'resume.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Download failed');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
@@ -95,13 +119,14 @@ const CVUpload = ({ resumeUrl, onChange }) => {
               </div>
             </div>
             <div className="flex gap-2">
-              <a
-                href={resumeUrl}
-                className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                <ExternalLink size={16} />
-                Open CV
-              </a>
+                {downloading ? <Loader2 size={16} className="animate-spin" /> : <ExternalLink size={16} />}
+                {downloading ? 'Downloading...' : 'Download CV'}
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
