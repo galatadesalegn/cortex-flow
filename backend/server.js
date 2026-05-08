@@ -57,6 +57,9 @@ import { errorHandler, notFound } from './middleware/errorHandler.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy - required for express-rate-limit behind Render's proxy
+app.set('trust proxy', 1);
+
 // 1. CORS - MUST BE FIRST
 const allowedOrigins = [
   "https://galatadesalegn-xi.vercel.app",
