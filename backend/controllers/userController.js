@@ -46,7 +46,7 @@ export const createUser = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
-    throw new Error('User with this email already exists');
+    throw new Error(`User with email "${email}" already exists. Use the "Manage Admins" section to update their role instead.`);
   }
 
   // Check username if provided
