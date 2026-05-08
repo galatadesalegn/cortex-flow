@@ -113,8 +113,12 @@ router.get(
     const { url } = req.query;
     
     if (!url) {
-      res.status(400);
-      throw new Error('URL is required');
+      return res.status(400).json({ error: 'URL is required' });
+    }
+
+    // Verify URL is from Cloudinary to prevent abuse
+    if (!url.includes('cloudinary.com')) {
+      return res.status(400).json({ error: 'Invalid URL' });
     }
 
     try {
@@ -134,8 +138,7 @@ router.get(
       res.send(Buffer.from(buffer));
     } catch (error) {
       console.error('Download error:', error);
-      res.status(500);
-      throw new Error('Failed to download file');
+      res.status(500).json({ error: 'Failed to download file' });
     }
   })
 );
