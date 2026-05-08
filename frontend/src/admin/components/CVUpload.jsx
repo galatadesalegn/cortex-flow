@@ -6,32 +6,12 @@ import { fixImageUrl } from '../../utils/imageHelper.js';
 
 const CVUpload = ({ resumeUrl, onChange }) => {
   const [uploading, setUploading] = useState(false);
-  const [downloading, setDownloading] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Download CV by fetching and creating blob
-  const handleDownload = async () => {
+  // Open CV in new tab
+  const handleOpenCV = () => {
     if (!resumeUrl) return;
-    try {
-      setDownloading(true);
-      const fixedUrl = fixImageUrl(resumeUrl);
-      const response = await fetch(fixedUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'resume.pdf';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Download failed:', error);
-      // Fallback: open in new tab
-      window.open(fixImageUrl(resumeUrl), '_blank');
-    } finally {
-      setDownloading(false);
-    }
+    window.open(fixImageUrl(resumeUrl), '_blank');
   };
 
   const handleFileSelect = async (e) => {
@@ -123,12 +103,11 @@ const CVUpload = ({ resumeUrl, onChange }) => {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={handleDownload}
-                disabled={downloading}
-                className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                onClick={handleOpenCV}
+                className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                {downloading ? <Loader2 size={16} className="animate-spin" /> : <ExternalLink size={16} />}
-                {downloading ? 'Downloading...' : 'Download CV'}
+                <ExternalLink size={16} />
+                Open CV
               </button>
               <button
                 onClick={(e) => {
