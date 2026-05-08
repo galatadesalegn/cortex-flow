@@ -11,7 +11,7 @@ const CVUpload = ({ resumeUrl, onChange }) => {
   // Open CV in new tab
   const handleOpenCV = () => {
     if (!resumeUrl) return;
-    window.open(fixImageUrl(resumeUrl), '_blank');
+    window.open(resumeUrl, '_blank');
   };
 
   const handleFileSelect = async (e) => {

@@ -67,7 +67,7 @@ router.post(
       // Upload to Cloudinary
       const uploadOptions = {
         folder: 'portfolio',
-        resource_type: 'auto'
+        resource_type: isPdf ? 'raw' : 'auto'
       };
 
       const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
@@ -75,10 +75,17 @@ router.post(
       // Clean up local file
       fs.unlinkSync(req.file.path);
       
+      // For PDFs, add fl_attachment parameter to force download
+      let downloadUrl = result.secure_url;
+      if (isPdf) {
+        const separator = downloadUrl.includes('?') ? '&' : '?';
+        downloadUrl = `${downloadUrl}${separator}fl_attachment`;
+      }
+      
       res.json({
         success: true,
         data: {
-          url: result.secure_url,
+          url: downloadUrl,
           publicId: result.public_id,
         }
       });
