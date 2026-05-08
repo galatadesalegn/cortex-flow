@@ -195,6 +195,33 @@ const ExperienceItem = ({ exp, index }) => {
 		setIsHovered(false);
 	};
 
+	// Touch event support for mobile
+	const handleTouchMove = (e) => {
+		const el = cardRef.current;
+		if (!el) return;
+		const touch = e.touches[0];
+		const rect = el.getBoundingClientRect();
+		const x = touch.clientX - rect.left;
+		const y = touch.clientY - rect.top;
+		const cx = rect.width / 2;
+		const cy = rect.height / 2;
+		const px = (x - cx) / cx;
+		const py = (y - cy) / cy;
+		setMousePos({ x, y });
+		setCardStyle({
+			transform: `perspective(1000px) rotateX(${-py * 8}deg) rotateY(${px * 8}deg) scale(1.02)`,
+			transition: "transform 0.15s ease-out"
+		});
+	};
+
+	const handleTouchEnd = () => {
+		setCardStyle({
+			transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)",
+			transition: "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)"
+		});
+		setIsHovered(false);
+	};
+
 	const calculateDuration = (start, end) => {
 		if (!start || !end) return "";
 		const startStr = String(start);
@@ -234,6 +261,9 @@ const ExperienceItem = ({ exp, index }) => {
 				onMouseMove={handleMove}
 				onMouseLeave={handleLeave}
 				onMouseEnter={() => setIsHovered(true)}
+				onTouchMove={handleTouchMove}
+				onTouchEnd={handleTouchEnd}
+				onTouchStart={() => setIsHovered(true)}
 				className={`relative rounded-xl p-5 md:p-6 transition-all duration-500 w-full cursor-pointer overflow-hidden ${isHovered
 					? 'shadow-[0_0_30px_rgba(29,233,182,0.15)]'
 					: ''

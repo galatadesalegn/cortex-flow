@@ -27,12 +27,36 @@ function Card3D({ children, className = "" }) {
 		setStyle({ transform: "none", transition: "transform 500ms" });
 	};
 
+	// Touch event support for mobile
+	const handleTouchMove = (e) => {
+		const el = ref.current;
+		if (!el) return;
+		const touch = e.touches[0];
+		const rect = el.getBoundingClientRect();
+		const x = touch.clientX - rect.left;
+		const y = touch.clientY - rect.top;
+		const cx = rect.width / 2;
+		const cy = rect.height / 2;
+		const px = (x - cx) / cx;
+		const py = (y - cy) / cy;
+		setStyle({
+			transform: `perspective(800px) rotateX(${-py * 6}deg) rotateY(${px * 6}deg) scale(1.02)`,
+			transition: "transform 0.1s ease-out",
+		});
+	};
+
+	const handleTouchEnd = () => {
+		setStyle({ transform: "none", transition: "transform 500ms" });
+	};
+
 	return (
 		<div
 			ref={ref}
 			style={style}
 			onMouseMove={handleMove}
 			onMouseLeave={handleLeave}
+			onTouchMove={handleTouchMove}
+			onTouchEnd={handleTouchEnd}
 			className={className}
 		>
 			{children}

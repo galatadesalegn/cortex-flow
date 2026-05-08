@@ -54,6 +54,54 @@ const use3DTilt = (maxRotate = 6, maxTranslate = 12) => {
 		});
 	}, []);
 
+	// Touch event support for mobile
+	const onTouchMove = useCallback((e) => {
+		if (rafRef.current) return;
+		
+		rafRef.current = requestAnimationFrame(() => {
+			const el = ref.current;
+			if (!el) {
+				rafRef.current = null;
+				return;
+			}
+			
+			const touch = e.touches[0];
+			const rect = el.getBoundingClientRect();
+			const x = touch.clientX - rect.left;
+			const y = touch.clientY - rect.top;
+			
+			// Skip if position hasn't changed significantly
+			if (Math.abs(x - lastMoveRef.current.x) < 2 && Math.abs(y - lastMoveRef.current.y) < 2) {
+				rafRef.current = null;
+				return;
+			}
+			
+			lastMoveRef.current = { x, y };
+			const cx = rect.width / 2;
+			const cy = rect.height / 2;
+			const px = (x - cx) / cx;
+			const py = (y - cy) / cy;
+			
+			setStyle({
+				transform: `perspective(800px) rotateX(${-py * maxRotate}deg) rotateY(${px * maxRotate}deg) translateX(${px * maxTranslate}px) scale(1.02)`,
+				transition: "transform 0ms",
+			});
+			
+			rafRef.current = null;
+		});
+	}, [maxRotate, maxTranslate]);
+
+	const onTouchEnd = useCallback(() => {
+		if (rafRef.current) {
+			cancelAnimationFrame(rafRef.current);
+			rafRef.current = null;
+		}
+		setStyle({ 
+			transform: "none", 
+			transition: "transform 500ms cubic-bezier(.2,.8,.2,1)" 
+		});
+	}, []);
+
 	useEffect(() => {
 		return () => {
 			if (rafRef.current) {
@@ -62,7 +110,7 @@ const use3DTilt = (maxRotate = 6, maxTranslate = 12) => {
 		};
 	}, []);
 
-	return { ref, style, onMove, onLeave };
+	return { ref, style, onMove, onLeave, onTouchMove, onTouchEnd };
 };
 
 // Fade-in animation hook
@@ -103,9 +151,22 @@ const ContactInfoCard = memo(({ icon, label, value, tilt, className = "" }) => {
 		}
 	}, [tilt]);
 
+	const handleTouchMove = useCallback((e) => {
+		tilt.onTouchMove(e);
+		const rect = tilt.ref.current?.getBoundingClientRect();
+		if (rect && e.touches[0]) {
+			setMousePos({ x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top });
+		}
+	}, [tilt]);
+
 	const handleMouseEnter = useCallback(() => setHovered(true), []);
 	const handleMouseLeave = useCallback(() => {
 		tilt.onLeave();
+		setHovered(false);
+	}, [tilt]);
+
+	const handleTouchEnd = useCallback(() => {
+		tilt.onTouchEnd();
 		setHovered(false);
 	}, [tilt]);
 
@@ -121,6 +182,8 @@ const ContactInfoCard = memo(({ icon, label, value, tilt, className = "" }) => {
 			onMouseMove={handleMove}
 			onMouseLeave={handleMouseLeave}
 			onMouseEnter={handleMouseEnter}
+			onTouchMove={handleTouchMove}
+			onTouchEnd={handleTouchEnd}
 			className={`group relative p-4 rounded-xl border transition-all duration-500 overflow-hidden border-emerald-500/10 hover:border-[#1de9b6]/30 ${
 				hovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)]' : ''
 			} ${className}`}
@@ -170,9 +233,22 @@ const Contact = () => {
 		}
 	}, [formTilt]);
 
+	const handleFormTouchMove = useCallback((e) => {
+		formTilt.onTouchMove(e);
+		const rect = formTilt.ref.current?.getBoundingClientRect();
+		if (rect && e.touches[0]) {
+			setFormMousePos({ x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top });
+		}
+	}, [formTilt]);
+
 	const handleFormMouseEnter = useCallback(() => setFormHovered(true), []);
 	const handleFormMouseLeave = useCallback(() => {
 		formTilt.onLeave();
+		setFormHovered(false);
+	}, [formTilt]);
+
+	const handleFormTouchEnd = useCallback(() => {
+		formTilt.onTouchEnd();
 		setFormHovered(false);
 	}, [formTilt]);
 
@@ -295,6 +371,8 @@ const Contact = () => {
 							onMouseMove={handleFormMove}
 							onMouseLeave={handleFormMouseLeave}
 							onMouseEnter={handleFormMouseEnter}
+							onTouchMove={handleFormTouchMove}
+							onTouchEnd={handleFormTouchEnd}
 							className={`relative p-6 md:p-10 rounded-2xl border overflow-hidden border-emerald-500/10 transition-all duration-300 ${
 								formHovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)] hover:border-[#1de9b6]/30' : ''
 							}`}
