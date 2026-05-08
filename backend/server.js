@@ -143,6 +143,11 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Ping endpoint to keep backend awake
+app.get('/ping', (req, res) => {
+  res.send('awake');
+});
+
 // Test route
 app.post('/api/test-login', (req, res) => {
   const { email } = req.body;
