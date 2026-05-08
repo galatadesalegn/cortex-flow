@@ -80,18 +80,12 @@ router.post(
       // Clean up local file
       fs.unlinkSync(req.file.path);
       
-      // For PDFs, add fl_attachment parameter to force download
-      let downloadUrl = result.secure_url;
-      if (isPdf) {
-        const separator = downloadUrl.includes('?') ? '&' : '?';
-        downloadUrl = `${downloadUrl}${separator}fl_attachment`;
-        console.log('PDF download URL:', downloadUrl);
-      }
+      console.log('PDF uploaded to:', result.secure_url);
       
       res.json({
         success: true,
         data: {
-          url: downloadUrl,
+          url: result.secure_url,
           publicId: result.public_id,
         }
       });
