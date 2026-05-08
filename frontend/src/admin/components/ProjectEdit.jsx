@@ -87,6 +87,17 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
     }
   };
 
+  const addGalleryImage = () => {
+    if (formData.galleryImages.length < 4) {
+      handleChange('galleryImages', [...formData.galleryImages, '']);
+    }
+  };
+
+  const removeGalleryImage = (index) => {
+    const newGallery = formData.galleryImages.filter((_, i) => i !== index);
+    handleChange('galleryImages', newGallery);
+  };
+
   const handleSubmit = async () => {
     if (!formData.title || !formData.description) {
       toast.error('Title and description are required');
