@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { Upload, FileText, X, Loader2, ExternalLink } from 'lucide-react';
 import { uploadService } from '../services';
 import { toast } from 'sonner';
-import { fixImageUrl } from '../../utils/imageHelper.js';
 
 const CVUpload = ({ resumeUrl, onChange }) => {
   const [uploading, setUploading] = useState(false);
@@ -100,11 +99,10 @@ const CVUpload = ({ resumeUrl, onChange }) => {
                 href={resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                download="resume.pdf"
                 className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 <ExternalLink size={16} />
-                Download CV
+                View / Download CV
               </a>
               <button
                 onClick={(e) => {
