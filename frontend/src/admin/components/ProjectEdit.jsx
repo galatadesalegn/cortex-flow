@@ -98,6 +98,32 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
     handleChange('galleryImages', newGallery);
   };
 
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('Video size should be less than 50MB');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await uploadService.uploadImage(file);
+      if (result.success) {
+        handleChange('videoUrl', result.data.url);
+        toast.success('Video uploaded successfully');
+      } else {
+        toast.error(result.error || 'Failed to upload video');
+      }
+    } catch (error) {
+      console.error('Video upload error:', error);
+      toast.error('Error uploading video');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.title || !formData.description) {
       toast.error('Title and description are required');
