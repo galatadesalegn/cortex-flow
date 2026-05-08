@@ -70,7 +70,12 @@ router.post(
         resource_type: isPdf ? 'raw' : 'auto'
       };
 
+      console.log('Uploading file:', req.file.originalname, 'isPdf:', isPdf);
+      console.log('Upload options:', uploadOptions);
+
       const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
+      
+      console.log('Cloudinary result:', result);
       
       // Clean up local file
       fs.unlinkSync(req.file.path);
@@ -80,6 +85,7 @@ router.post(
       if (isPdf) {
         const separator = downloadUrl.includes('?') ? '&' : '?';
         downloadUrl = `${downloadUrl}${separator}fl_attachment`;
+        console.log('PDF download URL:', downloadUrl);
       }
       
       res.json({
