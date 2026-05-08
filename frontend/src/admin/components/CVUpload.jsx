@@ -8,6 +8,18 @@ const CVUpload = ({ resumeUrl, onChange }) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Convert Cloudinary URL to download URL
+  const getDownloadUrl = (url) => {
+    if (!url) return url;
+    const fixedUrl = fixImageUrl(url);
+    // Add Cloudinary parameter to force download
+    if (fixedUrl.includes('cloudinary.com')) {
+      const separator = fixedUrl.includes('?') ? '&' : '?';
+      return `${fixedUrl}${separator}fl_attachment`;
+    }
+    return fixedUrl;
+  };
+
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -97,10 +109,10 @@ const CVUpload = ({ resumeUrl, onChange }) => {
             </div>
             <div className="flex gap-2">
               <a
-                href={fixImageUrl(resumeUrl)}
+                href={getDownloadUrl(resumeUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
-                download
+                download="resume.pdf"
                 className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 <ExternalLink size={16} />
