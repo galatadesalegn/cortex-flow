@@ -46,7 +46,7 @@ export const createUser = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
-    throw new Error('User with this email already exists');
+    throw new Error(`User with email "${email}" already exists. Use the "Manage Admins" section to update their role instead.`);
   }
 
   // Check username if provided
@@ -82,18 +82,37 @@ export const createUser = asyncHandler(async (req, res) => {
     lastActive: new Date()
   });
 
-  // Send invitation email
+  // Send invitation email (non-blocking with timeout)
   const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://galatadesalegn.onrender.com'}/login`;
-  const emailResult = await sendInvitationEmail(email, name, userPassword, adminPanelUrl);
+  
+  // Check if email is configured
+  const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+  let emailResult = { success: false, error: 'Email not configured' };
+  
+  if (emailConfigured) {
+    // Use Promise.race to add timeout to email sending
+    const emailTimeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Email timeout')), 5000)
+    );
+    
+    try {
+      emailResult = await Promise.race([
+        sendInvitationEmail(email, name, userPassword, adminPanelUrl),
+        emailTimeout
+      ]);
+    } catch (emailError) {
+      console.error('Email sending failed or timed out:', emailError.message);
+      emailResult = { success: false, error: emailError.message };
+    }
+  } else {
+    console.log('Email not configured. Skipping invitation email.');
+  }
 
+  // Update user email status (fire and forget)
   if (emailResult.success) {
-    // Update user to mark invitation as sent
     user.invitationSent = true;
     user.invitationSentAt = new Date();
-    await user.save();
-  } else {
-    console.error('Failed to send invitation email:', emailResult.error);
-    // Don't fail the request if email fails, just log it
+    user.save().catch(err => console.error('Failed to update user email status:', err));
   }
 
   res.status(201).json({
@@ -184,6 +203,48 @@ export const deleteUser = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'User deleted successfully'
+  });
+});
+
+// @desc    Delete own account (self-deletion)
+// @route   DELETE /api/users/account/delete
+// @access  Private
+export const deleteAccount = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  // Verify password before allowing deletion
+  if (!password) {
+    res.status(400);
+    throw new Error('Password is required to delete your account');
+  }
+
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    res.status(401);
+    throw new Error('Incorrect password');
+  }
+
+  // Prevent super admin from deleting themselves if they're the only one
+  if (user.role === 'super_admin') {
+    const superAdminCount = await User.countDocuments({ role: 'super_admin' });
+    if (superAdminCount <= 1) {
+      res.status(400);
+      throw new Error('Cannot delete the only super admin account');
+    }
+  }
+
+  await user.deleteOne();
+
+  res.json({
+    success: true,
+    message: 'Your account has been deleted successfully'
   });
 });
 
