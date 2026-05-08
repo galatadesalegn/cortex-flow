@@ -498,4 +498,20 @@ body {
   }
 }
 
+/* Mobile-specific styles - simplified to avoid Tailwind conflicts */
+@media (max-width: 768px) {
+  body {
+    font-size: 1rem;
+  }
+  
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 
