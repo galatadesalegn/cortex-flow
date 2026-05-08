@@ -17,9 +17,15 @@ const CVUpload = ({ resumeUrl, onChange }) => {
       const backendUrl = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
       const downloadUrl = `${backendUrl}/api/upload/download?url=${encodeURIComponent(resumeUrl)}`;
       
+      console.log('Attempting download from:', downloadUrl);
+      
       const response = await fetch(downloadUrl);
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Download failed');
+        const errorText = await response.text();
+        console.error('Download error response:', errorText);
+        throw new Error(`Download failed: ${response.status}`);
       }
       
       const blob = await response.blob();
@@ -33,7 +39,7 @@ const CVUpload = ({ resumeUrl, onChange }) => {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Failed to download CV');
+      toast.error('Failed to download CV. Please re-upload your CV or right-click and save.');
       // Fallback: open in new tab
       window.open(resumeUrl, '_blank');
     } finally {
