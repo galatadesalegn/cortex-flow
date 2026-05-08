@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { ArrowLeft, Save, Send, Image as ImageIcon, Link2, Tag, Globe, Code, ExternalLink, Upload, X, Eye, AlertCircle, Loader2, Layers, Plus, Bold, Italic, List, Link } from 'lucide-react';
 import { projectService, uploadService } from '../services';
 import { toast } from 'sonner';
+import { useTheme } from '../hooks';
 
 const ProjectCreate = ({ onBack, onSave }) => {
+  const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
