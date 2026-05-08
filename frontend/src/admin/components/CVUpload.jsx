@@ -97,12 +97,10 @@ const CVUpload = ({ resumeUrl, onChange }) => {
             <div className="flex gap-2">
               <a
                 href={resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 <ExternalLink size={16} />
-                View / Download CV
+                Open CV
               </a>
               <button
                 onClick={(e) => {
