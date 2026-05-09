@@ -155,7 +155,7 @@ const TestimonialCard = ({ testimonial, index }) => {
         {/* Quote */}
         <div className="mb-8 flex-grow">
           <QuoteIcon />
-          <p className="text-sm md:text-base font-medium leading-relaxed mt-4 line-clamp-4 transition-colors duration-300 text-slate-200">
+          <p className="text-sm md:text-base font-medium leading-relaxed mt-4 transition-colors duration-300 text-slate-200">
             "{testimonial.content}"
           </p>
         </div>
