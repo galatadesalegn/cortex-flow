@@ -323,7 +323,7 @@ function FocusCard({ focusStats }) {
 
 			<div className="bg-bg-secondary min-h-[220px] flex items-center justify-center relative overflow-hidden">
 				{stats.image ? (
-					<img src={stats.image} alt="Focus" className="absolute inset-0 w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity duration-500" />
+					<img src={stats.image} alt="Focus" className="absolute inset-0 w-full h-full object-cover" />
 				) : (
 					<>
 						<div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-bg-secondary" />
