@@ -48,6 +48,7 @@ const Settings = () => {
   // Settings state - connected to profile API
   const [settings, setSettings] = useState({
     adminDisplayName: '',
+    professionalTitle: '',
     loginUsername: '',
     primaryEmail: '',
     directLine: '',
@@ -96,6 +97,7 @@ const Settings = () => {
         setSettings(prev => ({
           ...prev,
           adminDisplayName: profile.name || '',
+          professionalTitle: profile.subtitle || '',
           loginUsername: profile.username || '',
           primaryEmail: profile.email || '',
           socialLinks: {
@@ -132,6 +134,7 @@ const Settings = () => {
       setSaving(true);
       await profileService.updateProfile({
         name: settings.adminDisplayName,
+        subtitle: settings.professionalTitle,
         email: settings.primaryEmail,
         phone: settings.directLine,
         linkedin: settings.socialLinks.linkedin,
@@ -450,6 +453,19 @@ const Settings = () => {
                     value={settings.adminDisplayName}
                     onChange={(e) => setSettings({...settings, adminDisplayName: e.target.value})}
                     placeholder="Enter display name"
+                    className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-all ${
+                      isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
+                    }`}
+                  />
+                </div>
+                
+                <div>
+                  <label className={`block text-[10px] uppercase tracking-wider mb-2 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Professional Title (Frontend Display)</label>
+                  <input 
+                    type="text"
+                    value={settings.professionalTitle}
+                    onChange={(e) => setSettings({...settings, professionalTitle: e.target.value})}
+                    placeholder="e.g., Full-Stack Developer & AI Engineer"
                     className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-all ${
                       isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
                     }`}
