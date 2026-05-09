@@ -81,6 +81,10 @@ const profileSchema = new mongoose.Schema({
         { value: '99.9%', label: 'UPTIME PRECISION' }
       ]
     }
+  },
+  skillCategoryOrder: {
+    type: [String],
+    default: []
   }
 }, {
   timestamps: true
