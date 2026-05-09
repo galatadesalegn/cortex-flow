@@ -49,7 +49,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 // @route   PUT /api/profile
 // @access  Private
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, title, subtitle, bio, heroDescription, location, email, image, resume, github, linkedin, twitter, phone, focusStats, siteTitle, telegram } = req.body;
+  const { name, title, subtitle, bio, heroDescription, location, email, image, resume, github, linkedin, twitter, phone, focusStats, siteTitle, telegram, skillCategoryOrder } = req.body;
 
   // Validate image URLs
   if (image !== undefined && !validateImageUrl(image)) {
@@ -84,6 +84,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
   if (focusStats !== undefined) updateData.focusStats = focusStats;
   if (siteTitle !== undefined) updateData.siteTitle = siteTitle;
   if (telegram !== undefined) updateData.telegram = telegram;
+  if (skillCategoryOrder !== undefined) updateData.skillCategoryOrder = skillCategoryOrder;
 
   if (profile) {
     console.log('Updating existing profile with data:', updateData);
