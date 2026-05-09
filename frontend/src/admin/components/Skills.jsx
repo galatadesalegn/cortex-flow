@@ -592,29 +592,9 @@ const Skills = () => {
   useEffect(() => {
     if (skillCategories.length === 0) return;
 
-    // Check if custom order exists in profile
-    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
-      // Reorder categories based on saved order
-      const orderedCategories = [];
-      const remainingCategories = [...skillCategories];
-
-      // Add categories in saved order
-      profile.skillCategoryOrder.forEach(title => {
-        const index = remainingCategories.findIndex(cat => cat.title === title);
-        if (index !== -1) {
-          orderedCategories.push(remainingCategories[index]);
-          remainingCategories.splice(index, 1);
-        }
-      });
-
-      // Add any remaining categories not in saved order
-      orderedCategories.push(...remainingCategories);
-      setCategories(orderedCategories);
-    } else {
-      // Use default order if no custom order
-      setCategories(skillCategories);
-    }
-  }, [profile?.skillCategoryOrder, skillCategories.length]);
+    // Temporarily use default order to fix black screen
+    setCategories(skillCategories);
+  }, [skillCategories.length]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
