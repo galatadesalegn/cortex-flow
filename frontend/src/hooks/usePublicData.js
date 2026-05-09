@@ -74,14 +74,7 @@ export const useProfile = () => {
 
   const fetchProfile = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-      
-      if (!forceRefresh && isCacheValid && profile) {
-        setLoading(false);
-        return;
-      }
-
+      // Always fetch fresh profile data - no caching
       setLoading(true);
       setError(null);
       
@@ -100,7 +93,7 @@ export const useProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [profile]);
+  }, []);
 
   useEffect(() => {
     fetchProfile();
