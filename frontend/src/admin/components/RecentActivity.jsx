@@ -47,7 +47,7 @@ const RecentActivity = () => {
     
     // Add recent certificates
     if (certificates?.length > 0) {
-      certificates.slice(0, 2).forEach((cert) => {
+      certificates.forEach((cert) => {
         generatedActivities.push({
           context: cert.name || 'Certificate',
           action: 'Certificate Added',
