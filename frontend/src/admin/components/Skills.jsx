@@ -656,8 +656,13 @@ const Skills = () => {
       await profileService.updateProfile({
         skillCategoryOrder: categoryTitles
       });
+      // Clear profile cache so frontend will fetch fresh data
+      localStorage.removeItem('cached_profile_v2');
+      localStorage.removeItem('cached_profile');
+      toast.success('Category order saved and cache cleared');
     } catch (err) {
       console.error('Failed to save category order:', err);
+      toast.error('Failed to save category order');
     }
   };
 
