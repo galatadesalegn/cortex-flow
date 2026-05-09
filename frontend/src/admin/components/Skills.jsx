@@ -598,7 +598,7 @@ const Skills = () => {
 
   // Load custom order from profile
   useEffect(() => {
-    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
+    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0 && skillCategories.length > 0) {
       // Reorder categories based on saved order
       const orderedCategories = [];
       const remainingCategories = [...skillCategories];
@@ -616,7 +616,7 @@ const Skills = () => {
       orderedCategories.push(...remainingCategories);
       setCategories(orderedCategories);
     }
-  }, [profile?.skillCategoryOrder]);
+  }, [profile?.skillCategoryOrder, skillCategories]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
