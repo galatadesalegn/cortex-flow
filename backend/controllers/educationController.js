@@ -54,18 +54,26 @@ export const createEducation = async (req, res) => {
   try {
     const { logo, icon } = req.body;
 
-    // Validate image URLs
-    if (logo !== undefined && !validateImageUrl(logo)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid logo URL. Only Cloudinary or production URLs are allowed.'
-      });
+    // Validate image URLs - allow any valid URL
+    if (logo !== undefined && logo !== '' && logo !== null) {
+      try {
+        new URL(logo);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid logo URL format.'
+        });
+      }
     }
-    if (icon !== undefined && !validateImageUrl(icon)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid icon URL. Only Cloudinary or production URLs are allowed.'
-      });
+    if (icon !== undefined && icon !== '' && icon !== null) {
+      try {
+        new URL(icon);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid icon URL format.'
+        });
+      }
     }
 
     let education = await Education.create(req.body);
@@ -90,18 +98,26 @@ export const updateEducation = async (req, res) => {
   try {
     const { logo, icon } = req.body;
 
-    // Validate image URLs
-    if (logo !== undefined && !validateImageUrl(logo)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid logo URL. Only Cloudinary or production URLs are allowed.'
-      });
+    // Validate image URLs - allow any valid URL
+    if (logo !== undefined && logo !== '' && logo !== null) {
+      try {
+        new URL(logo);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid logo URL format.'
+        });
+      }
     }
-    if (icon !== undefined && !validateImageUrl(icon)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid icon URL. Only Cloudinary or production URLs are allowed.'
-      });
+    if (icon !== undefined && icon !== '' && icon !== null) {
+      try {
+        new URL(icon);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid icon URL format.'
+        });
+      }
     }
 
     let education = await Education.findByIdAndUpdate(
