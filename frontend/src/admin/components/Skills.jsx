@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../hooks';
 import {
   Code2,
@@ -589,12 +589,37 @@ const Skills = () => {
     });
 
   // Update categories state - load custom order or use default
+  const hasLoadedCustomOrder = useRef(false);
+
   useEffect(() => {
     if (skillCategories.length === 0) return;
+    if (hasLoadedCustomOrder.current) return;
 
-    // Temporarily use default order to fix black screen
-    setCategories(skillCategories);
-  }, [skillCategories.length]);
+    // Check if custom order exists in profile
+    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
+      // Reorder categories based on saved order
+      const orderedCategories = [];
+      const remainingCategories = [...skillCategories];
+
+      // Add categories in saved order
+      profile.skillCategoryOrder.forEach(title => {
+        const index = remainingCategories.findIndex(cat => cat.title === title);
+        if (index !== -1) {
+          orderedCategories.push(remainingCategories[index]);
+          remainingCategories.splice(index, 1);
+        }
+      });
+
+      // Add any remaining categories not in saved order
+      orderedCategories.push(...remainingCategories);
+      setCategories(orderedCategories);
+    } else {
+      // Use default order if no custom order
+      setCategories(skillCategories);
+    }
+
+    hasLoadedCustomOrder.current = true;
+  }, [skillCategories.length, profile?.skillCategoryOrder]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
