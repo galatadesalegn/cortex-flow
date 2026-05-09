@@ -36,7 +36,8 @@ import {
   Server,
   Bot,
   Image as ImageIcon,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from 'lucide-react';
 import { skillService } from '../services/skillService.js';
 import { experienceService } from '../services/experienceService.js';
@@ -886,6 +887,13 @@ const Skills = () => {
           </div>
           <button className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-gray-800/50 text-gray-400 hover:text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
             <Settings size={18} />
+          </button>
+          <button
+            onClick={() => window.open('/', '_blank')}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium"
+          >
+            <ExternalLink size={16} />
+            Preview
           </button>
         </div>
       </div>
