@@ -57,6 +57,7 @@ const Skills = () => {
   const [categories, setCategories] = useState([]);
   const [hasLoadedOrder, setHasLoadedOrder] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [orderModified, setOrderModified] = useState(false);
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -645,21 +646,21 @@ const Skills = () => {
 
     setCategories(newCategories);
     setDraggedIndex(null);
-
-    // Save custom order to backend
-    saveCategoryOrder(newCategories);
+    setOrderModified(true);
+    toast.success('Category order updated. Click "Save Order" to save permanently.');
   };
 
-  const saveCategoryOrder = async (order) => {
+  const saveCategoryOrder = async () => {
     try {
-      const categoryTitles = order.map(cat => cat.title);
+      const categoryTitles = categories.map(cat => cat.title);
       await profileService.updateProfile({
         skillCategoryOrder: categoryTitles
       });
       // Clear profile cache so frontend will fetch fresh data
       localStorage.removeItem('cached_profile_v2');
       localStorage.removeItem('cached_profile');
-      toast.success('Category order saved and cache cleared');
+      setOrderModified(false);
+      toast.success('Category order saved! Frontend will show new order on next load.');
     } catch (err) {
       console.error('Failed to save category order:', err);
       toast.error('Failed to save category order');
@@ -925,6 +926,18 @@ const Skills = () => {
             >
               <Plus size={16} />
               Add New Skill
+            </button>
+            <button
+              onClick={saveCategoryOrder}
+              disabled={!orderModified}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                orderModified
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              <Save size={16} />
+              Save Order
             </button>
           </div>
 
