@@ -9,7 +9,7 @@ import { getFullImageUrl } from '../utils/image.js';
 // @access  Public
 export const getExperiences = async (req, res) => {
   try {
-    let experiences = await Experience.find().sort({ startDate: -1 }).lean();
+    let experiences = await Experience.find().sort({ order: 1, startDate: -1 }).lean();
 
     res.status(200).json({
       success: true,
