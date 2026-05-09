@@ -149,12 +149,12 @@ const Hero = () => {
 		return () => clearTimeout(timer);
 	}, []);
 
-	// Set subtitle once when profile loads, don't change after
+	// Update subtitle whenever profile changes
 	useEffect(() => {
 		if (profile?.subtitle) {
 			setSubtitleText(profile.subtitle);
 		}
-	}, [profile?.subtitle]);
+	}, [profile]);
 
 	useEffect(() => {
 		// Reset animation when subtitle changes
