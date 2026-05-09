@@ -310,7 +310,7 @@ function FocusCard({ focusStats }) {
 					<span className="text-[12px] font-bold text-accent tracking-widest uppercase">{stats.subtitle}</span>
 				</div>
 				<h3 className="text-2xl md:text-3xl font-bold text-theme-primary mb-3 leading-tight">{stats.title}</h3>
-				<p className="text-slate-300 font-medium text-sm mb-6 leading-relaxed line-clamp-2">{stats.description}</p>
+				<p className="text-slate-300 font-medium text-sm mb-6 leading-relaxed">{stats.description}</p>
 				<div className="flex gap-8">
 					{stats.stats?.map((stat, i) => (
 						<div key={i}>
