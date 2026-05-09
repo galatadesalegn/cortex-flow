@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTheme } from '../hooks';
+import { useTheme, useNotification } from '../hooks';
+import PopupNotification from './PopupNotification.jsx';
 import {
   Code2,
   Plus,
@@ -43,12 +44,12 @@ import { skillService } from '../services/skillService.js';
 import { experienceService } from '../services/experienceService.js';
 import { educationService } from '../services/educationService.js';
 import { profileService } from '../services/profileService.js';
-import { toast } from 'sonner';
 import { fixImageUrl } from '../../utils/imageHelper.js';
 import Testimonials from './Testimonials.jsx';
 
 const Skills = () => {
   const { isDark } = useTheme();
+  const { notifications, success, error, info, removeNotification } = useNotification();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
@@ -97,10 +98,10 @@ const Skills = () => {
         } else {
           setEduFormData(prev => ({ ...prev, logo: result.data.url }));
         }
-        toast.success('Logo uploaded successfully');
+        success('Logo uploaded successfully');
       }
     } catch (err) {
-      toast.error('Failed to upload logo');
+      error('Failed to upload logo');
     } finally {
       setIsUploading(false);
     }
@@ -191,7 +192,7 @@ const Skills = () => {
     } catch (err) {
       console.error('Failed to fetch experiences:', err);
       setExpError('Failed to load experiences');
-      toast.error('Failed to load experiences');
+      error('Failed to load experiences');
     } finally {
       setExpLoading(false);
     }
@@ -206,7 +207,7 @@ const Skills = () => {
     } catch (err) {
       console.error('Failed to fetch educations:', err);
       setEduError('Failed to load educations');
-      toast.error('Failed to load educations');
+      error('Failed to load educations');
     } finally {
       setEduLoading(false);
     }
@@ -229,7 +230,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!expFormData.role || !expFormData.company || !expFormData.description) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -252,10 +253,10 @@ const Skills = () => {
         tags: [],
         logo: ''
       });
-      toast.success('Experience added successfully!');
+      success('Experience added successfully!');
     } catch (err) {
       console.error('Failed to create experience:', err);
-      toast.error('Failed to create experience: ' + (err.response?.data?.message || err.message));
+      error('Failed to create experience: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -264,7 +265,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!expFormData.role || !expFormData.company || !expFormData.description) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -287,10 +288,10 @@ const Skills = () => {
         tags: [],
         logo: ''
       });
-      toast.success('Experience updated successfully!');
+      success('Experience updated successfully!');
     } catch (err) {
       console.error('Failed to update experience:', err);
-      toast.error('Failed to update experience: ' + (err.response?.data?.message || err.message));
+      error('Failed to update experience: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -303,10 +304,10 @@ const Skills = () => {
       setExperiences(prev => prev.filter(exp => exp._id !== expId));
       setShowExpModal(false);
       setEditingExp(null);
-      toast.success('Experience deleted successfully!');
+      success('Experience deleted successfully!');
     } catch (err) {
       console.error('Failed to delete experience:', err);
-      toast.error('Failed to delete experience');
+      error('Failed to delete experience');
     }
   };
 
@@ -370,7 +371,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -394,10 +395,10 @@ const Skills = () => {
         icon: '',
         logo: ''
       });
-      toast.success('Education added successfully!');
+      success('Education added successfully!');
     } catch (err) {
       console.error('Failed to create education:', err);
-      toast.error('Failed to add education');
+      error('Failed to add education');
     }
   };
 
@@ -406,7 +407,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -416,10 +417,10 @@ const Skills = () => {
       setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
       setShowEduModal(false);
       setEditingEdu(null);
-      toast.success('Education updated successfully!');
+      success('Education updated successfully!');
     } catch (err) {
       console.error('Failed to update education:', err);
-      toast.error('Failed to update education');
+      error('Failed to update education');
     }
   };
 
@@ -432,10 +433,10 @@ const Skills = () => {
       setEducations(prev => prev.filter(edu => edu._id !== eduId));
       setShowEduModal(false);
       setEditingEdu(null);
-      toast.success('Education deleted successfully!');
+      success('Education deleted successfully!');
     } catch (err) {
       console.error('Failed to delete education:', err);
-      toast.error('Failed to delete education');
+      error('Failed to delete education');
     }
   };
 
@@ -507,10 +508,10 @@ const Skills = () => {
         setFocusStats(response.data.focusStats);
       }
       setEditingFocus(false);
-      toast.success('Focus section updated successfully!');
+      success('Focus section updated successfully!');
     } catch (err) {
       console.error('Failed to update focus:', err);
-      toast.error('Failed to update focus: ' + (err.response?.data?.message || err.message));
+      error('Failed to update focus: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -650,7 +651,7 @@ const Skills = () => {
     setCategories(newCategories);
     setDraggedIndex(null);
     setOrderModified(true);
-    toast.success('Category order updated. Click "Save Order" to save permanently.');
+    info('Category order updated. Click "Save Order" to save permanently.');
   };
 
   const saveCategoryOrder = async () => {
@@ -663,10 +664,10 @@ const Skills = () => {
       localStorage.removeItem('cached_profile_v2');
       localStorage.removeItem('cached_profile');
       setOrderModified(false);
-      toast.success('Category order saved! Frontend will show new order on next load.');
+      success('Category order saved! Frontend will show new order on next load.');
     } catch (err) {
       console.error('Failed to save category order:', err);
-      toast.error('Failed to save category order');
+      error('Failed to save category order');
     }
   };
 
@@ -759,7 +760,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!formData.name || !formData.category) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -781,10 +782,10 @@ const Skills = () => {
         proficiency: null,
         icon: ''
       });
-      toast.success('Skill created successfully!');
+      success('Skill created successfully!');
     } catch (err) {
       console.error('Failed to create skill:', err);
-      toast.error('Failed to create skill: ' + (err.response?.data?.message || err.message));
+      error('Failed to create skill: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -793,7 +794,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!formData.name || !formData.category) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -817,10 +818,10 @@ const Skills = () => {
         proficiency: null,
         icon: ''
       });
-      toast.success('Skill updated successfully!');
+      success('Skill updated successfully!');
     } catch (err) {
       console.error('Failed to update skill:', err);
-      toast.error('Failed to update skill: ' + (err.response?.data?.message || err.message));
+      error('Failed to update skill: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -831,10 +832,10 @@ const Skills = () => {
     try {
       await skillService.delete(skillId);
       setSkills(prev => prev.filter(skill => skill._id !== skillId));
-      toast.success('Skill deleted successfully!');
+      success('Skill deleted successfully!');
     } catch (err) {
       console.error('Failed to delete skill:', err);
-      toast.error('Failed to delete skill');
+      error('Failed to delete skill');
     }
   };
 
@@ -864,7 +865,19 @@ const Skills = () => {
   };
 
   return (
-    <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
+    <>
+      {/* Notifications */}
+      {notifications.map(notification => (
+        <PopupNotification
+          key={notification.id}
+          message={notification.message}
+          type={notification.type}
+          duration={notification.duration}
+          onClose={() => removeNotification(notification.id)}
+        />
+      ))}
+
+      <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -2190,6 +2203,7 @@ const Skills = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 
