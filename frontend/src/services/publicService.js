@@ -45,8 +45,8 @@ export const publicService = {
   },
 
   // Profile - Public
-  getProfile: async () => {
-    const response = await api.get('/profile');
+  getProfile: async (timestamp = '') => {
+    const response = await api.get(`/profile${timestamp}`);
     return response.data;
   },
 
