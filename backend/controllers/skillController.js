@@ -64,14 +64,18 @@ export const createSkill = asyncHandler(async (req, res) => {
     throw new Error('Skill level must be between 1 and 100');
   }
 
-  // Validate icon URL - allow any valid URL or data URI for skill icons
-  if (icon !== undefined && icon !== '' && icon !== null) {
-    try {
-      new URL(icon);
-    } catch {
-      res.status(400);
-      throw new Error('Invalid icon URL format.');
+  // Validate icon URL - allow any valid URL, data URI, or simple path for skill icons
+  if (icon !== undefined && icon !== '' && icon !== null && !icon.startsWith('data:')) {
+    // Only validate if it looks like a full URL (starts with http)
+    if (icon.startsWith('http')) {
+      try {
+        new URL(icon);
+      } catch {
+        res.status(400);
+        throw new Error('Invalid icon URL format.');
+      }
     }
+    // If it's a relative path or simple string, allow it
   }
 
   let skill = await Skill.create({
@@ -107,14 +111,18 @@ export const updateSkill = asyncHandler(async (req, res) => {
     throw new Error('Skill level must be between 1 and 100');
   }
 
-  // Validate icon URL - allow any valid URL or data URI for skill icons
-  if (icon !== undefined && icon !== '' && icon !== null) {
-    try {
-      new URL(icon);
-    } catch {
-      res.status(400);
-      throw new Error('Invalid icon URL format.');
+  // Validate icon URL - allow any valid URL, data URI, or simple path for skill icons
+  if (icon !== undefined && icon !== '' && icon !== null && !icon.startsWith('data:')) {
+    // Only validate if it looks like a full URL (starts with http)
+    if (icon.startsWith('http')) {
+      try {
+        new URL(icon);
+      } catch {
+        res.status(400);
+        throw new Error('Invalid icon URL format.');
+      }
     }
+    // If it's a relative path or simple string, allow it
   }
 
   const updateData = {};
