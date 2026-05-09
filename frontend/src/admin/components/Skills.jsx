@@ -53,6 +53,8 @@ const Skills = () => {
   const [showExpModal, setShowExpModal] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
   const [activeTab, setActiveTab] = useState('skills');
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -586,6 +588,36 @@ const Skills = () => {
       return finalOrderA - finalOrderB;
     });
 
+  // Update categories state when skillCategories changes
+  useEffect(() => {
+    setCategories(skillCategories);
+  }, [skillCategories]);
+
+  // Drag and drop handlers
+  const handleDragStart = (index) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (dropIndex) => {
+    if (draggedIndex === null || draggedIndex === dropIndex) return;
+
+    const newCategories = [...categories];
+    const draggedItem = newCategories[draggedIndex];
+    newCategories.splice(draggedIndex, 1);
+    newCategories.splice(dropIndex, 0, draggedItem);
+
+    setCategories(newCategories);
+    setDraggedIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
   // Focus stats - from API
   const [focusStats, setFocusStats] = useState({
     title: 'Intelligent System Orchestration',
@@ -661,7 +693,7 @@ const Skills = () => {
     { value: 'Other', label: '⚙️ Other' }
   ];
 
-  const filteredCategories = skillCategories.filter(cat =>
+  const filteredCategories = categories.filter(cat =>
     cat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cat.skills.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -864,18 +896,28 @@ const Skills = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {filteredCategories.map((category, index) => {
+              {categories.map((category, index) => {
                 const IconComponent = iconMap[category.icon] || Code2;
                 return (
                   <div
                     key={category.id}
-                    className="bg-[#12121a] border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group"
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(index)}
+                    onDragEnd={handleDragEnd}
+                    className={`bg-[#12121a] border rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group cursor-move ${
+                      draggedIndex === index ? 'opacity-50 border-cyan-400' : 'border-gray-800'
+                    }`}
                     style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
                   >
                     {/* Card Header */}
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
-                        <IconComponent size={20} className="text-cyan-400" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
+                          <IconComponent size={20} className="text-cyan-400" />
+                        </div>
+                        <GripVertical size={16} className="text-gray-600" />
                       </div>
                       <span className="text-[10px] text-gray-600 font-mono">0{index + 1}</span>
                     </div>
