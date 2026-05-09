@@ -52,38 +52,22 @@ const HeroProfileEditor = ({ data, onChange }) => {
           />
         </div>
 
-        {/* Subtitle - MOVED UP */}
+        {/* Professional Title - MOVED UP */}
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Type size={16} className="text-purple-400" />
+            <Briefcase size={16} className="text-orange-400" />
             <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-              Subtitle (Animated)
+              Professional Title (Frontend Display)
             </label>
           </div>
           <input
             type="text"
             value={subtitle || ''}
             onChange={(e) => onChange('subtitle', e.target.value)}
-            placeholder="e.g. Building modern web applications"
+            placeholder="e.g. Full-Stack Developer & AI Engineer"
             className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors"
           />
-        </div>
-
-        {/* Professional Title - MOVED DOWN */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Briefcase size={16} className="text-orange-400" />
-            <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-              Professional Title
-            </label>
-          </div>
-          <input
-            type="text"
-            value={title || ''}
-            onChange={(e) => onChange('title', e.target.value)}
-            placeholder="e.g. Full-Stack Developer"
-            className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors"
-          />
+          <p className="text-[10px] text-gray-500 mt-1">This appears in the typing animation on the frontend hero section</p>
         </div>
 
         {/* Bio */}
