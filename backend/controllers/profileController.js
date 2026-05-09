@@ -41,7 +41,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 // @route   PUT /api/profile
 // @access  Private
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, title, subtitle, bio, location, email, image, resume, github, linkedin, twitter, phone, focusStats } = req.body;
+  const { name, title, subtitle, bio, location, email, image, resume, github, linkedin, twitter, phone, focusStats, siteTitle, telegram } = req.body;
 
   // Validate image URLs
   if (image !== undefined && !validateImageUrl(image)) {
@@ -73,6 +73,8 @@ export const updateProfile = asyncHandler(async (req, res) => {
   if (twitter !== undefined) updateData.twitter = twitter;
   if (phone !== undefined) updateData.phone = phone;
   if (focusStats !== undefined) updateData.focusStats = focusStats;
+  if (siteTitle !== undefined) updateData.siteTitle = siteTitle;
+  if (telegram !== undefined) updateData.telegram = telegram;
 
   if (profile) {
     profile = await Profile.findByIdAndUpdate(
