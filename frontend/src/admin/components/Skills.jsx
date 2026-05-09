@@ -617,7 +617,8 @@ const Skills = () => {
     }
 
     setHasLoadedOrder(true);
-  }, [skillCategories.length, profile?.skillCategoryOrder, hasLoadedOrder]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skillCategories.length, profile?.skillCategoryOrder]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
