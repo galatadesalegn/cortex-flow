@@ -105,29 +105,21 @@ export const useProfile = () => {
 };
 
 export const useProjects = (page = 1, limit = 6) => {
-  const [projects, setProjects] = useState(() => {
-    const cached = localStorage.getItem(PROJECTS_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(projects.length === 0);
+  // Always fetch fresh projects data - no caching
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
 
   const fetchProjects = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-
-      if (!forceRefresh && isCacheValid && projects.length > 0) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       setError(null);
+      console.log('Fetching fresh projects data...');
       const response = await publicService.getProjects({ page, limit });
       const data = response.data || response || [];
+      console.log('Projects fetched:', data.length, 'projects');
       setProjects(data);
       setTotal(response.total || 0);
       setHasMore(data.length === limit);
@@ -139,7 +131,7 @@ export const useProjects = (page = 1, limit = 6) => {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, projects.length]);
+  }, [page, limit]);
 
   useEffect(() => {
     fetchProjects();
@@ -149,27 +141,19 @@ export const useProjects = (page = 1, limit = 6) => {
 };
 
 export const useCertificates = () => {
-  const [certificates, setCertificates] = useState(() => {
-    const cached = localStorage.getItem(CERTIFICATES_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(certificates.length === 0);
+  // Always fetch fresh certificates data - no caching
+  const [certificates, setCertificates] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchCertificates = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-
-      if (!forceRefresh && isCacheValid && certificates.length > 0) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       setError(null);
+      console.log('Fetching fresh certificates data...');
       const response = await publicService.getCertificates();
       const data = response.data || [];
+      console.log('Certificates fetched:', data.length, 'certificates');
       setCertificates(data);
       safeSetItem(CERTIFICATES_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
@@ -178,7 +162,7 @@ export const useCertificates = () => {
     } finally {
       setLoading(false);
     }
-  }, [certificates.length]);
+  }, []);
 
   useEffect(() => {
     fetchCertificates();
@@ -220,27 +204,19 @@ export const useSkills = () => {
 };
 
 export const useExperiences = () => {
-  const [experiences, setExperiences] = useState(() => {
-    const cached = localStorage.getItem(EXPERIENCES_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(experiences.length === 0);
+  // Always fetch fresh experiences data - no caching
+  const [experiences, setExperiences] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchExperiences = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-
-      if (!forceRefresh && isCacheValid && experiences.length > 0) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       setError(null);
+      console.log('Fetching fresh experiences data...');
       const response = await publicService.getExperiences();
       const data = response.data || [];
+      console.log('Experiences fetched:', data.length, 'experiences');
       setExperiences(data);
       safeSetItem(EXPERIENCES_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
@@ -249,7 +225,7 @@ export const useExperiences = () => {
     } finally {
       setLoading(false);
     }
-  }, [experiences.length]);
+  }, []);
 
   useEffect(() => {
     fetchExperiences();
@@ -259,29 +235,19 @@ export const useExperiences = () => {
 };
 
 export const useTestimonials = () => {
-  // Load cached testimonials immediately
-  const [testimonials, setTestimonials] = useState(() => {
-    const cached = localStorage.getItem(TESTIMONIALS_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(testimonials.length === 0);
+  // Always fetch fresh testimonials data - no caching
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchTestimonials = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-
-      if (!forceRefresh && isCacheValid && testimonials.length > 0) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       setError(null);
-
+      console.log('Fetching fresh testimonials data...');
       const response = await publicService.getTestimonials();
       const data = response.data || [];
+      console.log('Testimonials fetched:', data.length, 'testimonials');
       setTestimonials(data);
       safeSetItem(TESTIMONIALS_CACHE_KEY, JSON.stringify(data));
       safeSetItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
@@ -291,7 +257,7 @@ export const useTestimonials = () => {
     } finally {
       setLoading(false);
     }
-  }, [testimonials.length]);
+  }, []);
 
   useEffect(() => {
     fetchTestimonials();
@@ -301,27 +267,19 @@ export const useTestimonials = () => {
 };
 
 export const useServices = () => {
-  const [services, setServices] = useState(() => {
-    const cached = localStorage.getItem(SERVICES_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(services.length === 0);
+  // Always fetch fresh services data - no caching
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchServices = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-
-      if (!forceRefresh && isCacheValid && services.length > 0) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       setError(null);
+      console.log('Fetching fresh services data...');
       const response = await publicService.getServices();
       const data = response.data || [];
+      console.log('Services fetched:', data.length, 'services');
       setServices(data);
       safeSetItem(SERVICES_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
@@ -330,7 +288,7 @@ export const useServices = () => {
     } finally {
       setLoading(false);
     }
-  }, [services.length]);
+  }, []);
 
   useEffect(() => {
     fetchServices();
