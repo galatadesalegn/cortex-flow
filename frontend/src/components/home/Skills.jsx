@@ -256,7 +256,7 @@ function SkillCard({ title, percent, tags, icon }) {
 
 			{/* Tags */}
 			<div className="flex flex-wrap gap-1.5 mt-auto">
-				{tags.slice(0, 4).map((tag) => (
+				{tags.map((tag) => (
 					<span
 						key={tag}
 						className="px-3 py-1 rounded-lg text-[11px] font-black capitalize tracking-wider transition-all duration-300 bg-gradient-to-br from-[#1de9b6]/20 via-[#0a1a14]/95 to-[#0a1a14] text-[#1de9b6] border border-[#1de9b6]/40 shadow-sm cursor-default hover:scale-110 hover:shadow-[0_0_15px_rgba(29,233,182,0.4)] hover:-translate-y-0.5 active:scale-95"
