@@ -64,10 +64,14 @@ export const createSkill = asyncHandler(async (req, res) => {
     throw new Error('Skill level must be between 1 and 100');
   }
 
-  // Validate icon URL
-  if (icon !== undefined && !validateImageUrl(icon)) {
-    res.status(400);
-    throw new Error('Invalid icon URL. Only Cloudinary or production URLs are allowed.');
+  // Validate icon URL - allow any valid URL or data URI for skill icons
+  if (icon !== undefined && icon !== '' && icon !== null) {
+    try {
+      new URL(icon);
+    } catch {
+      res.status(400);
+      throw new Error('Invalid icon URL format.');
+    }
   }
 
   let skill = await Skill.create({
@@ -103,10 +107,14 @@ export const updateSkill = asyncHandler(async (req, res) => {
     throw new Error('Skill level must be between 1 and 100');
   }
 
-  // Validate icon URL
-  if (icon !== undefined && !validateImageUrl(icon)) {
-    res.status(400);
-    throw new Error('Invalid icon URL. Only Cloudinary or production URLs are allowed.');
+  // Validate icon URL - allow any valid URL or data URI for skill icons
+  if (icon !== undefined && icon !== '' && icon !== null) {
+    try {
+      new URL(icon);
+    } catch {
+      res.status(400);
+      throw new Error('Invalid icon URL format.');
+    }
   }
 
   const updateData = {};
