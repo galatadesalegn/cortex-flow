@@ -1,7 +1,7 @@
-import { Sparkles, User, Type, Activity, BarChart3, Briefcase } from 'lucide-react';
+import { Sparkles, User, Type, Activity, BarChart3, Briefcase, FileText } from 'lucide-react';
 
 const HeroProfileEditor = ({ data, onChange }) => {
-  const { statusBadge, name, subtitle, title, stats } = data;
+  const { statusBadge, name, subtitle, title, heroDescription, stats } = data;
 
   const updateStat = (index, field, value) => {
     const newStats = [...(stats || [])];
@@ -70,21 +70,40 @@ const HeroProfileEditor = ({ data, onChange }) => {
           <p className="text-[10px] text-gray-500 mt-1">This appears in the typing animation on the frontend hero section</p>
         </div>
 
+        {/* Hero Description */}
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <FileText size={16} className="text-yellow-400" />
+            <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              Hero Description (Frontend Display)
+            </label>
+          </div>
+          <textarea
+            value={heroDescription || ''}
+            onChange={(e) => onChange('heroDescription', e.target.value)}
+            placeholder="Description shown under professional title on hero section..."
+            rows={3}
+            className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors resize-none"
+          />
+          <p className="text-[10px] text-gray-500 mt-1">This appears under the professional title in the hero section</p>
+        </div>
+
         {/* Bio */}
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Type size={16} className="text-green-400" />
             <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-              Bio / Description
+              Bio / Description (About Section)
             </label>
           </div>
           <textarea
             value={data.bio || ''}
             onChange={(e) => onChange('bio', e.target.value)}
-            placeholder="Write a short bio about yourself..."
+            placeholder="Write a short bio about yourself for the About section..."
             rows={4}
             className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-colors resize-none"
           />
+          <p className="text-[10px] text-gray-500 mt-1">This appears in the About section of your portfolio</p>
         </div>
 
         {/* Stats */}

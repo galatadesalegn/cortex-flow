@@ -49,7 +49,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 // @route   PUT /api/profile
 // @access  Private
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, title, subtitle, bio, location, email, image, resume, github, linkedin, twitter, phone, focusStats, siteTitle, telegram } = req.body;
+  const { name, title, subtitle, bio, heroDescription, location, email, image, resume, github, linkedin, twitter, phone, focusStats, siteTitle, telegram } = req.body;
 
   // Validate image URLs
   if (image !== undefined && !validateImageUrl(image)) {
@@ -72,6 +72,7 @@ export const updateProfile = asyncHandler(async (req, res) => {
   if (title !== undefined) updateData.title = title;
   if (subtitle !== undefined) updateData.subtitle = subtitle;
   if (bio !== undefined) updateData.bio = bio;
+  if (heroDescription !== undefined) updateData.heroDescription = heroDescription;
   if (location !== undefined) updateData.location = location;
   if (email !== undefined) updateData.email = email;
   if (image !== undefined) updateData.avatar = image;

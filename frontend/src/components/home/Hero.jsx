@@ -196,7 +196,7 @@ const Hero = () => {
 	const defaultProfile = {
 		name: "Fu",
 		subtitle: "Full-Stack Developer & AI Engineer",
-		bio: "I’m a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact. I have a growing passion for artificial intelligence and enjoy integrating smart features into applications to create more efficient and user-friendly digital experiences.",
+		heroDescription: "I'm a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact. I have a growing passion for artificial intelligence and enjoy integrating smart features into applications to create more efficient and user-friendly digital experiences.",
 		statusBadge: "SYSTEM STATUS: ACTIVE",
 		stats: [
 			{ value: "2+", label: "Years Experience" },
@@ -270,7 +270,7 @@ const Hero = () => {
 						className={`text-base md:text-lg max-w-2xl mb-10 font-outfit transform transition-all duration-700 ease-out delay-400 leading-relaxed ${descVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
 							} text-slate-300 font-medium transition-all duration-300`}
 					>
-						{displayProfile.bio || "I'm a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact."}
+						{displayProfile.heroDescription || "I'm a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact."}
 					</p>
 					{/* Buttons - Slide up with delay */}
 					<div
