@@ -270,7 +270,7 @@ const Hero = () => {
 						className={`text-base md:text-lg max-w-2xl mb-10 font-outfit transform transition-all duration-700 ease-out delay-400 leading-relaxed ${descVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
 							} text-slate-300 font-medium transition-all duration-300`}
 					>
-						I’m a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact.
+						{displayProfile.bio || "I'm a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact."}
 					</p>
 					{/* Buttons - Slide up with delay */}
 					<div
