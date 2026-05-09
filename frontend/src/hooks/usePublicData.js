@@ -78,12 +78,14 @@ export const useProfile = () => {
       setLoading(true);
       setError(null);
       
+      console.log('Fetching fresh profile data...');
       const response = await publicService.getProfile();
       const responseData = response.data || response;
       const actualProfile = responseData?.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)
         ? responseData.data
         : responseData;
 
+      console.log('Profile fetched:', actualProfile);
       setProfile(actualProfile);
       safeSetItem(PROFILE_CACHE_KEY, JSON.stringify(actualProfile));
       safeSetItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
