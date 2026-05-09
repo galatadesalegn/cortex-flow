@@ -188,27 +188,20 @@ export const useCertificates = () => {
 };
 
 export const useSkills = () => {
-  const [skills, setSkills] = useState(() => {
-    const cached = localStorage.getItem(SKILLS_CACHE_KEY);
-    return cached ? JSON.parse(cached) : [];
-  });
-  const [loading, setLoading] = useState(skills.length === 0);
+  // Always fetch fresh skills data - no caching
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchSkills = useCallback(async (forceRefresh = false) => {
     try {
-      const cacheTime = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-      const isCacheValid = cacheTime && (Date.now() - parseInt(cacheTime)) < CACHE_DURATION;
-
-      if (!forceRefresh && isCacheValid && skills.length > 0) {
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
       setError(null);
+      
+      console.log('Fetching fresh skills data...');
       const response = await publicService.getSkills();
       const data = response.data || [];
+      console.log('Skills fetched:', data.length, 'skills');
       setSkills(data);
       safeSetItem(SKILLS_CACHE_KEY, JSON.stringify(data));
     } catch (err) {
@@ -217,7 +210,7 @@ export const useSkills = () => {
     } finally {
       setLoading(false);
     }
-  }, [skills.length]);
+  }, []);
 
   useEffect(() => {
     fetchSkills();
