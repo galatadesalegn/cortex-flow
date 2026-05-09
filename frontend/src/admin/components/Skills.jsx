@@ -44,6 +44,7 @@ import { educationService } from '../services/educationService.js';
 import { profileService } from '../services/profileService.js';
 import { toast } from 'sonner';
 import { fixImageUrl } from '../../utils/imageHelper.js';
+import Testimonials from './Testimonials.jsx';
 
 const Skills = () => {
   const { isDark } = useTheme();
@@ -1331,27 +1332,7 @@ const Skills = () => {
         </>
       ) : activeTab === 'testimonials' ? (
         /* Testimonials Tab */
-        <>
-          {/* Testimonials Header */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / TESTIMONIALS</p>
-            <button
-              onClick={() => toast.info('Testimonials management coming soon!')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-            >
-              <Plus size={18} />
-              Add Testimonial
-            </button>
-          </div>
-
-          {/* Testimonials Info */}
-          <div className="bg-[#12121a] border border-gray-800 rounded-xl p-8 text-center">
-            <MessageSquare size={48} className="mx-auto mb-4 text-gray-600" />
-            <h3 className="text-lg font-semibold text-white mb-2">Testimonials Management</h3>
-            <p className="text-gray-400 mb-4">Manage your testimonial reviews and client feedback.</p>
-            <p className="text-sm text-cyan-400">Full testimonials management coming in the next update!</p>
-          </div>
-        </>
+        <Testimonials />
       ) : null}
 
       {/* Add/Edit Skill Modal */}
