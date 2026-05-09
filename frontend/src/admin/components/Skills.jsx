@@ -116,7 +116,7 @@ const Skills = () => {
   // API data
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [pageError, setPageError] = useState(null);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -149,7 +149,7 @@ const Skills = () => {
           setSkills(skillsRes.value.data || []);
         } else {
           console.error('Failed to fetch skills:', skillsRes.reason);
-          setError('Failed to load skills');
+          setPageError('Failed to load skills');
         }
 
         // Handle experiences result
@@ -1078,9 +1078,9 @@ const Skills = () => {
                 <p className="text-gray-400">Loading skills...</p>
               </div>
             </div>
-          ) : error ? (
+          ) : pageError ? (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
-              <p className="text-red-400">{error}</p>
+              <p className="text-red-400">{pageError}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
