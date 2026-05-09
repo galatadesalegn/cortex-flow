@@ -15,6 +15,11 @@ const cleanString = (str) => {
 // @route   GET /api/profile
 // @access  Public
 export const getProfile = asyncHandler(async (req, res) => {
+  // Set cache control headers to prevent browser caching
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+
   let profile = await Profile.findOne().lean();
 
   // Create default profile if none exists
@@ -33,7 +38,10 @@ export const getProfile = asyncHandler(async (req, res) => {
   // Return profile as-is from MongoDB (no runtime mutations)
   res.json({
     success: true,
-    data: profile
+    data: {
+      ...profile,
+      _timestamp: new Date().toISOString()
+    }
   });
 });
 
@@ -77,13 +85,16 @@ export const updateProfile = asyncHandler(async (req, res) => {
   if (telegram !== undefined) updateData.telegram = telegram;
 
   if (profile) {
+    console.log('Updating existing profile with data:', updateData);
     profile = await Profile.findByIdAndUpdate(
       profile._id,
       updateData,
       { new: true, runValidators: true, upsert: true }
     );
 
+    console.log('Profile updated successfully, clearing cache...');
     clearCache('profile');
+    console.log('Cache cleared');
   } else {
     profile = await Profile.create({
       name: name || 'Your Name',
