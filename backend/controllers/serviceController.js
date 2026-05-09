@@ -93,7 +93,7 @@ export const updateService = async (req, res) => {
     let service = await Service.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: false }
     ).lean();
     if (!service) {
       return res.status(404).json({
