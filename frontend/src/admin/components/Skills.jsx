@@ -594,15 +594,18 @@ const Skills = () => {
   }, [skillCategories]);
 
   // Drag and drop handlers
-  const handleDragStart = (index) => {
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.effectAllowed = 'move';
     setDraggedIndex(index);
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (dropIndex) => {
+  const handleDrop = (e, dropIndex) => {
+    e.preventDefault();
     if (draggedIndex === null || draggedIndex === dropIndex) return;
 
     const newCategories = [...categories];
@@ -902,9 +905,9 @@ const Skills = () => {
                   <div
                     key={category.id}
                     draggable
-                    onDragStart={() => handleDragStart(index)}
+                    onDragStart={(e) => handleDragStart(e, index)}
                     onDragOver={handleDragOver}
-                    onDrop={() => handleDrop(index)}
+                    onDrop={(e) => handleDrop(e, index)}
                     onDragEnd={handleDragEnd}
                     className={`bg-[#12121a] border rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group cursor-move ${
                       draggedIndex === index ? 'opacity-50 border-cyan-400' : 'border-gray-800'
