@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useTheme, useNotification } from '../hooks';
+import { useTheme, useNotification, useInactivityLock } from '../hooks';
 import PopupNotification from './PopupNotification.jsx';
+import LockScreen from './LockScreen.jsx';
 import {
   Code2,
   Plus,
@@ -50,6 +51,7 @@ import Testimonials from './Testimonials.jsx';
 const Skills = () => {
   const { isDark } = useTheme();
   const { notifications, success, error, info, removeNotification } = useNotification();
+  const { isLocked, unlock, timeRemaining } = useInactivityLock(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
@@ -876,6 +878,15 @@ const Skills = () => {
           onClose={() => removeNotification(notification.id)}
         />
       ))}
+
+      {/* Lock Screen */}
+      {isLocked && (
+        <LockScreen 
+          onUnlock={unlock} 
+          timeRemaining={timeRemaining}
+          isDark={isDark}
+        />
+      )}
 
       <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
       {/* Header */}
