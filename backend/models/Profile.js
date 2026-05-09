@@ -18,6 +18,10 @@ const profileSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  heroDescription: {
+    type: String,
+    default: "I'm a full-stack developer focused on building modern web and mobile applications with clean design, strong performance, and real-world impact."
+  },
   avatar: {
     type: String,
     default: null
