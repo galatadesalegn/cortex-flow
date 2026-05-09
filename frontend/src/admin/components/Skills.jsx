@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../hooks';
 import {
   Code2,
@@ -55,6 +55,7 @@ const Skills = () => {
   const [activeTab, setActiveTab] = useState('skills');
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [hasLoadedOrder, setHasLoadedOrder] = useState(false);
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -589,11 +590,8 @@ const Skills = () => {
     });
 
   // Update categories state - load custom order or use default
-  const hasLoadedCustomOrder = useRef(false);
-
   useEffect(() => {
-    if (skillCategories.length === 0) return;
-    if (hasLoadedCustomOrder.current) return;
+    if (skillCategories.length === 0 || hasLoadedOrder) return;
 
     // Check if custom order exists in profile
     if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
@@ -618,8 +616,8 @@ const Skills = () => {
       setCategories(skillCategories);
     }
 
-    hasLoadedCustomOrder.current = true;
-  }, [skillCategories.length, profile?.skillCategoryOrder]);
+    setHasLoadedOrder(true);
+  }, [skillCategories.length, profile?.skillCategoryOrder, hasLoadedOrder]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
