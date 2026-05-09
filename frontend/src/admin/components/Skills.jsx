@@ -56,6 +56,7 @@ const Skills = () => {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [categories, setCategories] = useState([]);
   const [hasLoadedOrder, setHasLoadedOrder] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -158,6 +159,7 @@ const Skills = () => {
 
         // Handle profile result
         if (profileRes.status === 'fulfilled') {
+          setProfile(profileRes.value.data);
           if (profileRes.value.data?.focusStats) {
             setFocusStats(profileRes.value.data.focusStats);
           }
@@ -209,6 +211,7 @@ const Skills = () => {
   const fetchProfile = async () => {
     try {
       const response = await profileService.getProfile();
+      setProfile(response.data);
       if (response.data?.focusStats) {
         setFocusStats(response.data.focusStats);
       }
