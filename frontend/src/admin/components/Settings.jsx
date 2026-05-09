@@ -142,6 +142,8 @@ const Settings = () => {
         bio: settings.metaDescription
       });
       toast.success('Settings saved successfully');
+      // Re-fetch profile to get updated data
+      await fetchProfileSettings();
     } catch (error) {
       console.error('Failed to save settings:', error);
       toast.error('Failed to save settings');
