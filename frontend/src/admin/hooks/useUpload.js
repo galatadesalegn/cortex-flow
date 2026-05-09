@@ -16,8 +16,8 @@ export const useUpload = () => {
       setProgress(100);
       return { 
         success: true, 
-        url: response.url, 
-        publicId: response.publicId 
+        url: response.data.url, 
+        publicId: response.data.publicId 
       };
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Upload failed';
@@ -38,8 +38,8 @@ export const useUpload = () => {
       
       return {
         success: true,
-        urls: responses.map(r => r.url),
-        publicIds: responses.map(r => r.publicId),
+        urls: responses.map(r => r.data.url),
+        publicIds: responses.map(r => r.data.publicId),
       };
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Upload failed';
