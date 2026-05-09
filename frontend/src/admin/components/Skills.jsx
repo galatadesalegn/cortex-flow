@@ -35,7 +35,8 @@ import {
   Layout,
   Server,
   Bot,
-  Image as ImageIcon
+  Image as ImageIcon,
+  MessageSquare
 } from 'lucide-react';
 import { skillService } from '../services/skillService.js';
 import { experienceService } from '../services/experienceService.js';
@@ -893,7 +894,8 @@ const Skills = () => {
         {[
           { id: 'skills', label: 'Skills Matrix', icon: BarChart3 },
           { id: 'experience', label: 'Experience', icon: Briefcase },
-          { id: 'education', label: 'Education', icon: GraduationCap }
+          { id: 'education', label: 'Education', icon: GraduationCap },
+          { id: 'testimonials', label: 'Testimonials', icon: MessageSquare }
         ].map(tab => (
           <button
             key={tab.id}
@@ -1326,6 +1328,29 @@ const Skills = () => {
               )}
             </div>
           )}
+        </>
+      ) : activeTab === 'testimonials' ? (
+        /* Testimonials Tab */
+        <>
+          {/* Testimonials Header */}
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / TESTIMONIALS</p>
+            <button
+              onClick={() => toast.info('Testimonials management coming soon!')}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+            >
+              <Plus size={18} />
+              Add Testimonial
+            </button>
+          </div>
+
+          {/* Testimonials Info */}
+          <div className="bg-[#12121a] border border-gray-800 rounded-xl p-8 text-center">
+            <MessageSquare size={48} className="mx-auto mb-4 text-gray-600" />
+            <h3 className="text-lg font-semibold text-white mb-2">Testimonials Management</h3>
+            <p className="text-gray-400 mb-4">Manage your testimonial reviews and client feedback.</p>
+            <p className="text-sm text-cyan-400">Full testimonials management coming in the next update!</p>
+          </div>
         </>
       ) : null}
 
