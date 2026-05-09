@@ -46,6 +46,8 @@ const About = () => {
     
     if (result.success) {
       toast.success('Profile saved successfully!');
+      // Refetch to get fresh data
+      await fetchProfile();
     } else {
       toast.error(result.error || 'Failed to save profile');
     }
