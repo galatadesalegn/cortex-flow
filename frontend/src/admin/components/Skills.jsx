@@ -525,41 +525,66 @@ const Skills = () => {
     return acc;
   }, {});
 
-  // Transform to category display format
-  const skillCategories = Object.entries(skillsByCategory).map(([category, categorySkills]) => {
-    // Convert level 1-5 to percentage for display
-    const avgLevel = categorySkills.reduce((sum, s) => sum + s.level, 0) / categorySkills.length;
-    const percent = Math.round((avgLevel / 5) * 100);
+  // Transform to category display format with specific order
+  const categoryOrder = [
+    'Frontend Development',
+    'Backend Development',
+    'Database',
+    'DevOps',
+    'AI & ML',
+    'Mobile Development',
+    'UI/UX Design',
+    'Security',
+    'Data Science',
+    'Automation',
+    'Web Development',
+    'Tools & Deployment',
+    'Other'
+  ];
 
-    const categoryNames = {
-      frontend: 'Frontend Development',
-      backend: 'Backend Development',
-      database: 'Database',
-      devops: 'DevOps',
-      other: 'Other'
-    };
+  const skillCategories = Object.entries(skillsByCategory)
+    .map(([category, categorySkills]) => {
+      // Convert level 1-5 to percentage for display
+      const avgLevel = categorySkills.reduce((sum, s) => sum + s.level, 0) / categorySkills.length;
+      const percent = Math.round((avgLevel / 5) * 100);
 
-    const categoryIcons = {
-      frontend: 'Layers',
-      backend: 'Cpu',
-      database: 'Layers',
-      devops: 'Wrench',
-      other: 'Code2'
-    };
+      const categoryNames = {
+        frontend: 'Frontend Development',
+        backend: 'Backend Development',
+        database: 'Database',
+        devops: 'DevOps',
+        other: 'Other'
+      };
 
-    return {
-      id: category,
-      title: categoryNames[category] || category,
-      percent,
-      icon: categoryIcons[category] || 'Code2',
-      skills: categorySkills.map(s => ({
-        id: s._id,
-        name: s.name,
-        level: Math.round((s.level / 5) * 100),
-        rawLevel: s.level
-      }))
-    };
-  });
+      const categoryIcons = {
+        frontend: 'Layers',
+        backend: 'Cpu',
+        database: 'Layers',
+        devops: 'Wrench',
+        other: 'Code2'
+      };
+
+      return {
+        id: category,
+        title: categoryNames[category] || category,
+        percent,
+        icon: categoryIcons[category] || 'Code2',
+        skills: categorySkills.map(s => ({
+          id: s._id,
+          name: s.name,
+          level: Math.round((s.level / 5) * 100),
+          rawLevel: s.level
+        }))
+      };
+    })
+    .sort((a, b) => {
+      const orderA = categoryOrder.indexOf(a.title);
+      const orderB = categoryOrder.indexOf(b.title);
+      // If category not in order list, put it at the end
+      const finalOrderA = orderA === -1 ? categoryOrder.length : orderA;
+      const finalOrderB = orderB === -1 ? categoryOrder.length : orderB;
+      return finalOrderA - finalOrderB;
+    });
 
   // Focus stats - from API
   const [focusStats, setFocusStats] = useState({
