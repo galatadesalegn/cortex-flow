@@ -139,12 +139,31 @@ const Skills = () => {
 
 	// Transform API skills - calculate average proficiency
 	// If proficiency field is set, use it; otherwise convert level (1-5) to percentage (20-100%)
-	const skillData = Object.entries(skillsByCategory).map(([category, skills]) => ({
+	let skillData = Object.entries(skillsByCategory).map(([category, skills]) => ({
 		title: category,
 		percent: Math.round(skills.reduce((sum, s) => sum + (s.proficiency || (s.level * 20)), 0) / skills.length),
 		tags: skills.map(s => s.name),
 		icon: getIconForCategory(category),
 	}));
+
+	// Apply custom order from profile if available
+	if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
+		const orderedData = [];
+		const remainingData = [...skillData];
+
+		// Add categories in saved order
+		profile.skillCategoryOrder.forEach(title => {
+			const index = remainingData.findIndex(cat => cat.title === title);
+			if (index !== -1) {
+				orderedData.push(remainingData[index]);
+				remainingData.splice(index, 1);
+			}
+		});
+
+		// Add any remaining categories not in saved order
+		orderedData.push(...remainingData);
+		skillData = orderedData;
+	}
 
 	return (
 		<section
