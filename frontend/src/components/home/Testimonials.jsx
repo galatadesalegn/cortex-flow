@@ -176,7 +176,7 @@ const TestimonialCard = ({ testimonial, index }) => {
             </div>
           )}
           <div>
-            <h4 className="text-base font-black transition-colors duration-300 text-white uppercase tracking-tight group-hover:text-[#1de9b6]">{testimonial.name}</h4>
+            <h4 className="text-base font-black transition-colors duration-300 text-white tracking-tight group-hover:text-[#1de9b6]">{testimonial.name}</h4>
             <p className="text-[11px] font-bold uppercase tracking-widest transition-colors duration-300 text-slate-500 mt-0.5">
               {testimonial.role} @ {testimonial.company}
             </p>
