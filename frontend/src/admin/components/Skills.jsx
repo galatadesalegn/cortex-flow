@@ -588,10 +588,13 @@ const Skills = () => {
       return finalOrderA - finalOrderB;
     });
 
-  // Update categories state when skillCategories changes
+  // Update categories state when skillCategories changes (only on initial load or when skills actually change)
   useEffect(() => {
-    setCategories(skillCategories);
-  }, [skillCategories]);
+    // Only update if categories is empty or the structure has changed significantly
+    if (categories.length === 0 || categories.length !== skillCategories.length) {
+      setCategories(skillCategories);
+    }
+  }, [skillCategories.length]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
