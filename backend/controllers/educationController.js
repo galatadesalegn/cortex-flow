@@ -54,26 +54,34 @@ export const createEducation = async (req, res) => {
   try {
     const { logo, icon } = req.body;
 
-    // Validate image URLs - allow any valid URL
-    if (logo !== undefined && logo !== '' && logo !== null) {
-      try {
-        new URL(logo);
-      } catch {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid logo URL format.'
-        });
+    // Validate image URLs - allow any valid URL, data URI, or simple path
+    if (logo !== undefined && logo !== '' && logo !== null && !logo.startsWith('data:')) {
+      // Only validate if it looks like a full URL (starts with http)
+      if (logo.startsWith('http')) {
+        try {
+          new URL(logo);
+        } catch {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid logo URL format.'
+          });
+        }
       }
+      // If it's a relative path or simple string, allow it
     }
-    if (icon !== undefined && icon !== '' && icon !== null) {
-      try {
-        new URL(icon);
-      } catch {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid icon URL format.'
-        });
+    if (icon !== undefined && icon !== '' && icon !== null && !icon.startsWith('data:')) {
+      // Only validate if it looks like a full URL (starts with http)
+      if (icon.startsWith('http')) {
+        try {
+          new URL(icon);
+        } catch {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid icon URL format.'
+          });
+        }
       }
+      // If it's a relative path or simple string, allow it
     }
 
     let education = await Education.create(req.body);
@@ -98,26 +106,34 @@ export const updateEducation = async (req, res) => {
   try {
     const { logo, icon } = req.body;
 
-    // Validate image URLs - allow any valid URL
-    if (logo !== undefined && logo !== '' && logo !== null) {
-      try {
-        new URL(logo);
-      } catch {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid logo URL format.'
-        });
+    // Validate image URLs - allow any valid URL, data URI, or simple path
+    if (logo !== undefined && logo !== '' && logo !== null && !logo.startsWith('data:')) {
+      // Only validate if it looks like a full URL (starts with http)
+      if (logo.startsWith('http')) {
+        try {
+          new URL(logo);
+        } catch {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid logo URL format.'
+          });
+        }
       }
+      // If it's a relative path or simple string, allow it
     }
-    if (icon !== undefined && icon !== '' && icon !== null) {
-      try {
-        new URL(icon);
-      } catch {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid icon URL format.'
-        });
+    if (icon !== undefined && icon !== '' && icon !== null && !icon.startsWith('data:')) {
+      // Only validate if it looks like a full URL (starts with http)
+      if (icon.startsWith('http')) {
+        try {
+          new URL(icon);
+        } catch {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid icon URL format.'
+          });
+        }
       }
+      // If it's a relative path or simple string, allow it
     }
 
     let education = await Education.findByIdAndUpdate(
