@@ -64,6 +64,10 @@ const Skills = () => {
   const [hasLoadedOrder, setHasLoadedOrder] = useState(false);
   const [profile, setProfile] = useState(null);
   const [orderModified, setOrderModified] = useState(false);
+  const [expDraggedIndex, setExpDraggedIndex] = useState(null);
+  const [expOrderModified, setExpOrderModified] = useState(false);
+  const [eduDraggedIndex, setEduDraggedIndex] = useState(null);
+  const [eduOrderModified, setEduOrderModified] = useState(false);
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -677,6 +681,96 @@ const Skills = () => {
     setDraggedIndex(null);
   };
 
+  // Experience drag and drop handlers
+  const handleExpDragStart = (e, index) => {
+    e.dataTransfer.effectAllowed = 'move';
+    setExpDraggedIndex(index);
+  };
+
+  const handleExpDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleExpDrop = (e, dropIndex) => {
+    e.preventDefault();
+    if (expDraggedIndex === null || expDraggedIndex === dropIndex) return;
+
+    const newExperiences = [...experiences];
+    const draggedItem = newExperiences[expDraggedIndex];
+    newExperiences.splice(expDraggedIndex, 1);
+    newExperiences.splice(dropIndex, 0, draggedItem);
+
+    setExperiences(newExperiences);
+    setExpDraggedIndex(null);
+    setExpOrderModified(true);
+    info('Experience order updated. Click "Save Order" to save permanently.');
+  };
+
+  const handleExpDragEnd = () => {
+    setExpDraggedIndex(null);
+  };
+
+  const saveExperienceOrder = async () => {
+    try {
+      // Update order for each experience
+      const updatePromises = experiences.map((exp, index) => 
+        experienceService.update(exp._id, { ...exp, order: index })
+      );
+      await Promise.all(updatePromises);
+      setExpOrderModified(false);
+      success('Experience order saved successfully!');
+    } catch (err) {
+      console.error('Failed to save experience order:', err);
+      error('Failed to save experience order');
+    }
+  };
+
+  // Education drag and drop handlers
+  const handleEduDragStart = (e, index) => {
+    e.dataTransfer.effectAllowed = 'move';
+    setEduDraggedIndex(index);
+  };
+
+  const handleEduDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleEduDrop = (e, dropIndex) => {
+    e.preventDefault();
+    if (eduDraggedIndex === null || eduDraggedIndex === dropIndex) return;
+
+    const newEducations = [...educations];
+    const draggedItem = newEducations[eduDraggedIndex];
+    newEducations.splice(eduDraggedIndex, 1);
+    newEducations.splice(dropIndex, 0, draggedItem);
+
+    setEducations(newEducations);
+    setEduDraggedIndex(null);
+    setEduOrderModified(true);
+    info('Education order updated. Click "Save Order" to save permanently.');
+  };
+
+  const handleEduDragEnd = () => {
+    setEduDraggedIndex(null);
+  };
+
+  const saveEducationOrder = async () => {
+    try {
+      // Update order for each education
+      const updatePromises = educations.map((edu, index) => 
+        educationService.update(edu._id, { ...edu, order: index })
+      );
+      await Promise.all(updatePromises);
+      setEduOrderModified(false);
+      success('Education order saved successfully!');
+    } catch (err) {
+      console.error('Failed to save education order:', err);
+      error('Failed to save education order');
+    }
+  };
+
   // Focus stats - from API
   const [focusStats, setFocusStats] = useState({
     title: 'Intelligent System Orchestration',
@@ -1129,13 +1223,27 @@ const Skills = () => {
           {/* Experience Header */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EXPERIENCE</p>
-            <button
-              onClick={openExpAddModal}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-            >
-              <Plus size={18} />
-              Add Experience
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={saveExperienceOrder}
+                disabled={!expOrderModified}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  expOrderModified
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <Save size={16} />
+                Save Order
+              </button>
+              <button
+                onClick={openExpAddModal}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+              >
+                <Plus size={18} />
+                Add Experience
+              </button>
+            </div>
           </div>
 
           {/* Experience List */}
@@ -1164,12 +1272,23 @@ const Skills = () => {
                   <p>No experiences yet. Add your first experience!</p>
                 </div>
               ) : (
-                experiences.map((exp) => (
+                experiences.map((exp, index) => (
                   <div
                     key={exp._id}
-                    className="bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group"
+                    draggable
+                    onDragStart={(e) => handleExpDragStart(e, index)}
+                    onDragOver={handleExpDragOver}
+                    onDrop={(e) => handleExpDrop(e, index)}
+                    onDragEnd={handleExpDragEnd}
+                    className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${
+                      expDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
+                    }`}
                   >
                     <div className="flex items-start gap-4">
+                      {/* Drag Handle */}
+                      <div className="flex-shrink-0 pt-2">
+                        <GripVertical size={20} className="text-gray-600" />
+                      </div>
                       {/* Company Logo Section */}
                       <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-gray-700">
                         {exp.logo ? (
@@ -1250,13 +1369,27 @@ const Skills = () => {
           {/* Education Header */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EDUCATION</p>
-            <button
-              onClick={openEduAddModal}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-            >
-              <Plus size={18} />
-              Add Education
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={saveEducationOrder}
+                disabled={!eduOrderModified}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  eduOrderModified
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <Save size={16} />
+                Save Order
+              </button>
+              <button
+                onClick={openEduAddModal}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+              >
+                <Plus size={18} />
+                Add Education
+              </button>
+            </div>
           </div>
 
           {/* Education List */}
@@ -1285,12 +1418,23 @@ const Skills = () => {
                   <p>No education entries yet. Add your first education!</p>
                 </div>
               ) : (
-                educations.map((edu) => (
+                educations.map((edu, index) => (
                   <div
                     key={edu._id}
-                    className="bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group"
+                    draggable
+                    onDragStart={(e) => handleEduDragStart(e, index)}
+                    onDragOver={handleEduDragOver}
+                    onDrop={(e) => handleEduDrop(e, index)}
+                    onDragEnd={handleEduDragEnd}
+                    className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${
+                      eduDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
+                    }`}
                   >
                     <div className="flex items-start gap-4">
+                      {/* Drag Handle */}
+                      <div className="flex-shrink-0 pt-2">
+                        <GripVertical size={20} className="text-gray-600" />
+                      </div>
                       {/* Institution Logo */}
                       <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 text-2xl overflow-hidden border border-gray-700">
                         {edu.logo ? (
