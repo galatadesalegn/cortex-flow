@@ -596,6 +596,28 @@ const Skills = () => {
     }
   }, [skillCategories.length]);
 
+  // Load custom order from profile
+  useEffect(() => {
+    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
+      // Reorder categories based on saved order
+      const orderedCategories = [];
+      const remainingCategories = [...skillCategories];
+
+      // Add categories in saved order
+      profile.skillCategoryOrder.forEach(title => {
+        const index = remainingCategories.findIndex(cat => cat.title === title);
+        if (index !== -1) {
+          orderedCategories.push(remainingCategories[index]);
+          remainingCategories.splice(index, 1);
+        }
+      });
+
+      // Add any remaining categories not in saved order
+      orderedCategories.push(...remainingCategories);
+      setCategories(orderedCategories);
+    }
+  }, [profile?.skillCategoryOrder]);
+
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
     e.dataTransfer.effectAllowed = 'move';
@@ -618,6 +640,20 @@ const Skills = () => {
 
     setCategories(newCategories);
     setDraggedIndex(null);
+
+    // Save custom order to backend
+    saveCategoryOrder(newCategories);
+  };
+
+  const saveCategoryOrder = async (order) => {
+    try {
+      const categoryTitles = order.map(cat => cat.title);
+      await profileService.updateProfile({
+        skillCategoryOrder: categoryTitles
+      });
+    } catch (err) {
+      console.error('Failed to save category order:', err);
+    }
   };
 
   const handleDragEnd = () => {
