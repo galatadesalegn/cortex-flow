@@ -588,17 +588,12 @@ const Skills = () => {
       return finalOrderA - finalOrderB;
     });
 
-  // Update categories state when skillCategories changes (only on initial load or when skills actually change)
+  // Update categories state - load custom order or use default
   useEffect(() => {
-    // Only update if categories is empty or the structure has changed significantly
-    if (categories.length === 0 || categories.length !== skillCategories.length) {
-      setCategories(skillCategories);
-    }
-  }, [skillCategories.length]);
+    if (skillCategories.length === 0) return;
 
-  // Load custom order from profile
-  useEffect(() => {
-    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0 && skillCategories.length > 0) {
+    // Check if custom order exists in profile
+    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
       // Reorder categories based on saved order
       const orderedCategories = [];
       const remainingCategories = [...skillCategories];
@@ -615,8 +610,11 @@ const Skills = () => {
       // Add any remaining categories not in saved order
       orderedCategories.push(...remainingCategories);
       setCategories(orderedCategories);
+    } else {
+      // Use default order if no custom order
+      setCategories(skillCategories);
     }
-  }, [profile?.skillCategoryOrder, skillCategories]);
+  }, [profile?.skillCategoryOrder, skillCategories.length]);
 
   // Drag and drop handlers
   const handleDragStart = (e, index) => {
