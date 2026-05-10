@@ -58,6 +58,21 @@ router.post(
     const isVideo = req.file.mimetype.startsWith('video/');
     const isPdf = req.file.mimetype === 'application/pdf';
 
+    // For PDF files (CV), serve locally to avoid Cloudinary authentication issues
+    if (isPdf) {
+      const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
+      const fileUrl = `/uploads/${req.file.filename}`;
+      console.log('Serving CV file locally:', fileUrl);
+      res.json({
+        success: true,
+        data: {
+          url: `${baseUrl}${fileUrl}`,
+          localPath: fileUrl,
+        }
+      });
+      return;
+    }
+
     // Check if Cloudinary is configured
     const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME && 
                           process.env.CLOUDINARY_API_KEY && 
@@ -72,7 +87,8 @@ router.post(
         overwrite: true,
         invalidate: true,
         use_filename: true,
-        unique_filename: true
+        unique_filename: true,
+        access_mode: 'public' // Make the file publicly accessible
       };
 
       console.log('Uploading file:', req.file.originalname, 'isPdf:', isPdf);
@@ -121,13 +137,37 @@ router.get(
       return res.status(400).json({ error: 'URL is required' });
     }
 
-    // Verify URL is from Cloudinary to prevent abuse
-    if (!url.includes('cloudinary.com')) {
-      return res.status(400).json({ error: 'Invalid URL' });
-    }
-
     try {
       console.log('Downloading CV from:', url);
+
+      // Check if it's a local file
+      if (url.includes('/uploads/')) {
+        // Extract filename from URL
+        const urlParts = url.split('/uploads/');
+        const filename = urlParts[urlParts.length - 1];
+        const filePath = path.join('uploads', filename);
+
+        console.log('Serving local file:', filePath);
+
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+          return res.status(404).json({ error: 'File not found' });
+        }
+
+        // Set headers for download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+        // Stream the file
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+        return;
+      }
+
+      // For Cloudinary files, verify URL is from Cloudinary to prevent abuse
+      if (!url.includes('cloudinary.com')) {
+        return res.status(400).json({ error: 'Invalid URL' });
+      }
 
       // Import cloudinary config
       const cloudinary = await import('../config/cloudinary.js').then(m => m.default);
