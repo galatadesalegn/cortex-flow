@@ -2,6 +2,7 @@ import { Message } from '../models/index.js';
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { validateRequired, validateEmail } from '../utils/validation.js';
 import { clearCache } from '../utils/cache.js';
+import { sendReplyEmail } from '../utils/emailService.js';
 
 // @desc    Get all messages (admin only)
 // @route   GET /api/messages
@@ -106,10 +107,25 @@ export const replyMessage = asyncHandler(async (req, res) => {
     throw new Error('Message not found');
   }
 
+  // Send email to client
+  const emailSubject = subject || `Re: ${existingMessage.subject}`;
+  const emailResult = await sendReplyEmail(
+    existingMessage.email,
+    existingMessage.name,
+    emailSubject,
+    message,
+    existingMessage.message
+  );
+
+  if (!emailResult.success) {
+    res.status(500);
+    throw new Error('Failed to send reply email: ' + emailResult.error);
+  }
+
   // Add reply to the message
   existingMessage.replies.push({
     message,
-    subject: subject || `Re: ${existingMessage.subject}`,
+    subject: emailSubject,
     sentAt: new Date()
   });
 
@@ -120,7 +136,7 @@ export const replyMessage = asyncHandler(async (req, res) => {
 
   res.json({
     success: true,
-    message: 'Reply sent successfully',
+    message: 'Reply sent successfully to client email',
     data: existingMessage,
   });
 });
