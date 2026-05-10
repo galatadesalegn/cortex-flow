@@ -111,7 +111,7 @@ router.get(
   '/download',
   asyncHandler(async (req, res) => {
     const { url } = req.query;
-    
+
     if (!url) {
       return res.status(400).json({ error: 'URL is required' });
     }
@@ -122,23 +122,55 @@ router.get(
     }
 
     try {
-      // Fetch the file from Cloudinary
-      const response = await fetch(url);
+      console.log('Downloading CV from:', url);
+
+      // Import cloudinary config
+      const cloudinary = await import('../config/cloudinary.js').then(m => m.default);
+
+      // Extract public_id from Cloudinary URL
+      const urlParts = url.split('/');
+      const fileName = urlParts[urlParts.length - 1].split('.')[0];
+      const publicId = `portfolio/${fileName}`;
+
+      console.log('Extracted public ID:', publicId);
+
+      // Get signed URL for raw file download (bypasses authentication)
+      const signedUrl = cloudinary.url(publicId, {
+        resource_type: 'raw',
+        type: 'upload',
+        secure: true,
+        sign_url: true,
+        expires_at: Math.floor(Date.now() / 1000) + 300 // 5 minutes
+      });
+
+      console.log('Generated signed URL:', signedUrl);
+
+      // Fetch the file using signed URL
+      const response = await fetch(signedUrl);
+      console.log('Response status:', response.status);
+      console.log('Response content-type:', response.headers.get('content-type'));
+
       if (!response.ok) {
-        throw new Error('Failed to fetch file');
+        const errorText = await response.text();
+        console.error('Failed to fetch file:', errorText);
+        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
       }
-      
+
       const buffer = await response.arrayBuffer();
-      
-      // Set headers for PDF download
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="resume.pdf"');
+      console.log('Buffer size:', buffer.byteLength);
+
+      // Detect content type from response
+      const contentType = response.headers.get('content-type') || 'application/pdf';
+
+      // Set headers for download
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}.pdf"`);
       res.setHeader('Content-Length', buffer.byteLength);
-      
+
       res.send(Buffer.from(buffer));
     } catch (error) {
       console.error('Download error:', error);
-      res.status(500).json({ error: 'Failed to download file' });
+      res.status(500).json({ error: 'Failed to download file: ' + error.message });
     }
   })
 );
