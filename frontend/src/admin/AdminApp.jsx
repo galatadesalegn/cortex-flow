@@ -21,7 +21,8 @@ function AdminContent() {
   return (
     <>
       <Toaster
-        position="center"
+        position="top-center"
+        containerClassName="centered-toaster"
         toastOptions={{
           style: {
             background: 'linear-gradient(135deg, #0d1411 0%, #0a1a14 100%)',

@@ -16,3 +16,13 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #444;
 }
+
+/* Center toaster notifications */
+.centered-toaster {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  right: auto !important;
+  bottom: auto !important;
+}
