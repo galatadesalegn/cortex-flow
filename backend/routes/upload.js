@@ -67,7 +67,12 @@ router.post(
       // Upload to Cloudinary
       const uploadOptions = {
         folder: 'portfolio',
-        resource_type: isPdf ? 'raw' : 'auto'
+        resource_type: isPdf ? 'raw' : 'auto',
+        type: 'upload',
+        overwrite: true,
+        invalidate: true,
+        use_filename: true,
+        unique_filename: true
       };
 
       console.log('Uploading file:', req.file.originalname, 'isPdf:', isPdf);
@@ -134,19 +139,19 @@ router.get(
 
       console.log('Extracted public ID:', publicId);
 
-      // Get signed URL for raw file download (bypasses authentication)
-      const signedUrl = cloudinary.url(publicId, {
-        resource_type: 'raw',
-        type: 'upload',
-        secure: true,
-        sign_url: true,
-        expires_at: Math.floor(Date.now() / 1000) + 300 // 5 minutes
+      // Use Cloudinary's resource API to fetch the file
+      const resource = await cloudinary.api.resource(publicId, {
+        resource_type: 'raw'
       });
 
-      console.log('Generated signed URL:', signedUrl);
+      console.log('Cloudinary resource:', resource);
 
-      // Fetch the file using signed URL
-      const response = await fetch(signedUrl);
+      if (!resource || !resource.secure_url) {
+        throw new Error('File not found in Cloudinary');
+      }
+
+      // Fetch the file using the secure URL from Cloudinary
+      const response = await fetch(resource.secure_url);
       console.log('Response status:', response.status);
       console.log('Response content-type:', response.headers.get('content-type'));
 
