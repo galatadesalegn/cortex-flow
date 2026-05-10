@@ -222,7 +222,7 @@ const ProfileCard = memo(({ profile, loading }) => {
 
       <div className="flex gap-3 w-full mb-6">
         <a
-          href={profile?.resume || "#"}
+          href={profile?.resume ? `/api/upload/download?url=${encodeURIComponent(profile.resume)}` : "#"}
           download="resume.pdf"
           className="flex-1 text-center font-bold py-2.5 px-3 rounded-lg border text-[11px] uppercase tracking-[0.15em] hover:shadow-soft hover:-translate-y-0.5 transition-all duration-200 bg-[#1de9b6] text-[#0a1a14] border-transparent hover:bg-[#14b98a]"
         >
