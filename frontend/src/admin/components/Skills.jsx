@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useTheme } from '../hooks';
+import { useTheme, useNotification, useInactivityLock } from '../hooks';
+import PopupNotification from './PopupNotification.jsx';
+import LockScreen from './LockScreen.jsx';
 import {
   Code2,
   Plus,
@@ -35,17 +37,21 @@ import {
   Layout,
   Server,
   Bot,
-  Image as ImageIcon
+  Image as ImageIcon,
+  MessageSquare,
+  ExternalLink
 } from 'lucide-react';
 import { skillService } from '../services/skillService.js';
 import { experienceService } from '../services/experienceService.js';
 import { educationService } from '../services/educationService.js';
 import { profileService } from '../services/profileService.js';
-import { toast } from 'sonner';
 import { fixImageUrl } from '../../utils/imageHelper.js';
+import Testimonials from './Testimonials.jsx';
 
 const Skills = () => {
   const { isDark } = useTheme();
+  const { notifications, success, error, info, removeNotification } = useNotification();
+  const { isLocked, unlock, timeRemaining } = useInactivityLock(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSkill, setEditingSkill] = useState(null);
@@ -53,6 +59,15 @@ const Skills = () => {
   const [showExpModal, setShowExpModal] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
   const [activeTab, setActiveTab] = useState('skills');
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [hasLoadedOrder, setHasLoadedOrder] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [orderModified, setOrderModified] = useState(false);
+  const [expDraggedIndex, setExpDraggedIndex] = useState(null);
+  const [expOrderModified, setExpOrderModified] = useState(false);
+  const [eduDraggedIndex, setEduDraggedIndex] = useState(null);
+  const [eduOrderModified, setEduOrderModified] = useState(false);
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -89,10 +104,10 @@ const Skills = () => {
         } else {
           setEduFormData(prev => ({ ...prev, logo: result.data.url }));
         }
-        toast.success('Logo uploaded successfully');
+        success('Logo uploaded successfully');
       }
     } catch (err) {
-      toast.error('Failed to upload logo');
+      error('Failed to upload logo');
     } finally {
       setIsUploading(false);
     }
@@ -101,7 +116,7 @@ const Skills = () => {
   // API data
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [pageError, setPageError] = useState(null);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -134,7 +149,7 @@ const Skills = () => {
           setSkills(skillsRes.value.data || []);
         } else {
           console.error('Failed to fetch skills:', skillsRes.reason);
-          setError('Failed to load skills');
+          setPageError('Failed to load skills');
         }
 
         // Handle experiences result
@@ -155,6 +170,7 @@ const Skills = () => {
 
         // Handle profile result
         if (profileRes.status === 'fulfilled') {
+          setProfile(profileRes.value.data);
           if (profileRes.value.data?.focusStats) {
             setFocusStats(profileRes.value.data.focusStats);
           }
@@ -182,7 +198,7 @@ const Skills = () => {
     } catch (err) {
       console.error('Failed to fetch experiences:', err);
       setExpError('Failed to load experiences');
-      toast.error('Failed to load experiences');
+      error('Failed to load experiences');
     } finally {
       setExpLoading(false);
     }
@@ -197,7 +213,7 @@ const Skills = () => {
     } catch (err) {
       console.error('Failed to fetch educations:', err);
       setEduError('Failed to load educations');
-      toast.error('Failed to load educations');
+      error('Failed to load educations');
     } finally {
       setEduLoading(false);
     }
@@ -206,6 +222,7 @@ const Skills = () => {
   const fetchProfile = async () => {
     try {
       const response = await profileService.getProfile();
+      setProfile(response.data);
       if (response.data?.focusStats) {
         setFocusStats(response.data.focusStats);
       }
@@ -219,7 +236,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!expFormData.role || !expFormData.company || !expFormData.description) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -242,10 +259,10 @@ const Skills = () => {
         tags: [],
         logo: ''
       });
-      toast.success('Experience added successfully!');
+      success('Experience added successfully!');
     } catch (err) {
       console.error('Failed to create experience:', err);
-      toast.error('Failed to create experience: ' + (err.response?.data?.message || err.message));
+      error('Failed to create experience: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -254,7 +271,7 @@ const Skills = () => {
     e.preventDefault();
 
     if (!expFormData.role || !expFormData.company || !expFormData.description) {
-      toast.error('Please fill in all required fields');
+      error('Please fill in all required fields');
       return;
     }
 
@@ -277,451 +294,109 @@ const Skills = () => {
         tags: [],
         logo: ''
       });
-      toast.success('Experience updated successfully!');
+      success('Experience updated successfully!');
     } catch (err) {
       console.error('Failed to update experience:', err);
-      toast.error('Failed to update experience: ' + (err.response?.data?.message || err.message));
+      error('Failed to update experience: ' + (err.response?.data?.message || err.message));
     }
   };
 
-  // Handle delete experience
-  const handleDeleteExperience = async (expId) => {
-    if (!window.confirm('Are you sure you want to delete this experience?')) return;
+// Handle delete experience
+const handleDeleteExperience = async (id) => {
+  toast('Are you sure you want to delete this experience?', {
+    action: {
+      label: 'Delete',
+      onClick: async () => {
+        try {
+          await experienceService.delete(id);
+          setExperiences(prev => prev.filter(exp => exp._id !== id));
+          setShowExpModal(false);
+          setEditingExp(null);
+          success('Experience deleted successfully!');
+        } catch (err) {
+          console.error('Failed to delete experience:', err);
+          error('Failed to delete experience');
+        }
+      },
+    },
+    cancel: {
+      label: 'Cancel',
+      onClick: () => {},
+    },
+  });
+};
 
-    try {
-      await experienceService.delete(expId);
-      setExperiences(prev => prev.filter(exp => exp._id !== expId));
-      setShowExpModal(false);
-      setEditingExp(null);
-      toast.success('Experience deleted successfully!');
-    } catch (err) {
-      console.error('Failed to delete experience:', err);
-      toast.error('Failed to delete experience');
-    }
-  };
+// Handle update education
+const handleUpdateEducation = async (e) => {
+  e.preventDefault();
 
-  // Open experience edit modal
-  const openExpEditModal = (exp) => {
-    setEditingExp(exp);
-    setExpFormData({
-      role: exp.role || '',
-      company: exp.company || '',
-      location: exp.location || '',
-      startDate: exp.startDate || '',
-      endDate: exp.endDate || '',
-      isCurrent: exp.isCurrent || false,
-      description: exp.description || '',
-      tags: exp.tags || [],
-      icon: exp.icon || '',
-      logo: exp.logo || ''
-    });
-    setShowExpModal(true);
-  };
+  if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
+    error('Please fill in all required fields');
+    return;
+  }
 
-  // Open experience add modal
-  const openExpAddModal = () => {
-    setEditingExp(null);
-    setExpFormData({
-      role: '',
-      company: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      isCurrent: false,
-      description: '',
-      tags: [],
-      icon: '',
-      logo: ''
-    });
-    setShowExpModal(true);
-  };
+  try {
+    const response = await educationService.update(editingEdu._id, eduFormData);
 
-  // Add tag to experience
-  const handleAddTag = () => {
-    if (newTag.trim() && !expFormData.tags.includes(newTag.trim().toUpperCase())) {
-      setExpFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim().toUpperCase()]
-      }));
-      setNewTag('');
-    }
-  };
-
-  // Remove tag from experience
-  const handleRemoveTag = (tagToRemove) => {
-    setExpFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  // Handle create education
-  const handleCreateEducation = async (e) => {
-    e.preventDefault();
-
-    if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await educationService.create({
-        ...eduFormData,
-        order: educations.length
-      });
-
-      setEducations(prev => [...prev, response.data]);
-      setShowEduModal(false);
-      setEduFormData({
-        role: '',
-        company: '',
-        location: '',
-        startDate: '',
-        endDate: '',
-        isCurrent: false,
-        description: '',
-        tags: [],
-        icon: '',
-        logo: ''
-      });
-      toast.success('Education added successfully!');
-    } catch (err) {
-      console.error('Failed to create education:', err);
-      toast.error('Failed to add education');
-    }
-  };
-
-  // Handle update education
-  const handleUpdateEducation = async (e) => {
-    e.preventDefault();
-
-    if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await educationService.update(editingEdu._id, eduFormData);
-
-      setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
-      setShowEduModal(false);
-      setEditingEdu(null);
-      toast.success('Education updated successfully!');
-    } catch (err) {
-      console.error('Failed to update education:', err);
-      toast.error('Failed to update education');
-    }
-  };
-
-  // Handle delete education
-  const handleDeleteEducation = async (eduId) => {
-    if (!window.confirm('Are you sure you want to delete this education entry?')) return;
-
-    try {
-      await educationService.delete(eduId);
-      setEducations(prev => prev.filter(edu => edu._id !== eduId));
-      setShowEduModal(false);
-      setEditingEdu(null);
-      toast.success('Education deleted successfully!');
-    } catch (err) {
-      console.error('Failed to delete education:', err);
-      toast.error('Failed to delete education');
-    }
-  };
-
-  // Open education edit modal
-  const openEduEditModal = (edu) => {
-    setEditingEdu(edu);
-    setEduFormData({
-      role: edu.role || '',
-      company: edu.company || '',
-      location: edu.location || '',
-      startDate: edu.startDate || '',
-      endDate: edu.endDate || '',
-      isCurrent: edu.isCurrent || false,
-      description: edu.description || '',
-      tags: edu.tags || [],
-      icon: edu.icon || '',
-      logo: edu.logo || ''
-    });
-    setShowEduModal(true);
-  };
-
-  // Open education add modal
-  const openEduAddModal = () => {
+    setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
+    setShowEduModal(false);
     setEditingEdu(null);
-    setEduFormData({
-      role: '',
-      company: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      isCurrent: false,
-      description: '',
-      tags: [],
-      icon: '',
-      logo: ''
+    success('Education updated successfully!');
+  } catch (err) {
+    console.error('Failed to update education:', err);
+    error('Failed to update education');
+  }
+};
+
+// Handle delete education
+const handleDeleteEducation = async (id) => {
+  toast('Are you sure you want to delete this education?', {
+    action: {
+      label: 'Delete',
+      onClick: async () => {
+        try {
+          await educationService.delete(id);
+          setEducations(prev => prev.filter(edu => edu._id !== id));
+          setShowEduModal(false);
+          setEditingEdu(null);
+          success('Education deleted successfully!');
+        } catch (err) {
+          console.error('Failed to delete education:', err);
+          error('Failed to delete education');
+        }
+      },
+    },
+    cancel: {
+      label: 'Cancel',
+      onClick: () => {},
+    },
+  });
+};
+
+// Handle update skill
+const handleUpdateSkill = async (e) => {
+  e.preventDefault();
+
+  if (!formData.name || !formData.category) {
+    error('Please fill in all required fields');
+    return;
+  }
+
+  try {
+    const response = await skillService.update(editingSkill.id, {
+      name: formData.name,
+      category: formData.category,
+      level: parseInt(formData.level),
+      proficiency: formData.proficiency,
+      icon: formData.icon
     });
-    setShowEduModal(true);
-  };
 
-  // Add tag to education
-  const handleAddEduTag = () => {
-    if (newEduTag.trim() && !eduFormData.tags.includes(newEduTag.trim().toUpperCase())) {
-      setEduFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newEduTag.trim().toUpperCase()]
-      }));
-      setNewEduTag('');
-    }
-  };
-
-  // Remove tag from education
-  const handleRemoveEduTag = (tagToRemove) => {
-    setEduFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
-
-  // Handle update focus stats
-  const handleUpdateFocus = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await profileService.updateProfile({
-        focusStats: focusFormData
-      });
-
-      if (response.data?.focusStats) {
-        setFocusStats(response.data.focusStats);
-      }
-      setEditingFocus(false);
-      toast.success('Focus section updated successfully!');
-    } catch (err) {
-      console.error('Failed to update focus:', err);
-      toast.error('Failed to update focus: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  // Open focus edit modal
-  const openFocusEditModal = () => {
-    setFocusFormData({
-      title: focusStats.title,
-      subtitle: focusStats.subtitle,
-      description: focusStats.description,
-      image: focusStats.image || '',
-      stats: focusStats.stats.map(s => ({ ...s }))
-    });
-    setEditingFocus(true);
-  };
-
-  // Group skills by category for display
-  const skillsByCategory = skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) {
-      acc[skill.category] = [];
-    }
-    acc[skill.category].push(skill);
-    return acc;
-  }, {});
-
-  // Transform to category display format
-  const skillCategories = Object.entries(skillsByCategory).map(([category, categorySkills]) => {
-    // Convert level 1-5 to percentage for display
-    const avgLevel = categorySkills.reduce((sum, s) => sum + s.level, 0) / categorySkills.length;
-    const percent = Math.round((avgLevel / 5) * 100);
-
-    const categoryNames = {
-      frontend: 'Frontend Development',
-      backend: 'Backend Development',
-      database: 'Database',
-      devops: 'DevOps',
-      other: 'Other'
-    };
-
-    const categoryIcons = {
-      frontend: 'Layers',
-      backend: 'Cpu',
-      database: 'Layers',
-      devops: 'Wrench',
-      other: 'Code2'
-    };
-
-    return {
-      id: category,
-      title: categoryNames[category] || category,
-      percent,
-      icon: categoryIcons[category] || 'Code2',
-      skills: categorySkills.map(s => ({
-        id: s._id,
-        name: s.name,
-        level: Math.round((s.level / 5) * 100),
-        rawLevel: s.level
-      }))
-    };
-  });
-
-  // Focus stats - from API
-  const [focusStats, setFocusStats] = useState({
-    title: 'Intelligent System Orchestration',
-    subtitle: 'CURRENT FOCUS',
-    description: 'Developing autonomous agent workflows and AI-integrated web environments. Currently focused on bridging the gap between LLM reasoning and real-world automation within the MERN stack.',
-    stats: [
-      { value: '0.4ms', label: 'INTERFACE LATENCY' },
-      { value: '99.9%', label: 'UPTIME PRECISION' }
-    ],
-    image: ''
-  });
-  const [focusFormData, setFocusFormData] = useState({
-    title: '',
-    subtitle: '',
-    description: '',
-    image: '',
-    stats: [
-      { value: '', label: '' },
-      { value: '', label: '' }
-    ]
-  });
-
-  // Experience data - from API
-  const [experiences, setExperiences] = useState([]);
-  const [expLoading, setExpLoading] = useState(true);
-  const [expError, setExpError] = useState(null);
-  const [expFormData, setExpFormData] = useState({
-    role: '',
-    company: '',
-    location: '',
-    startDate: '',
-    endDate: '',
-    isCurrent: false,
-    description: '',
-    tags: [],
-    icon: '',
-    logo: ''
-  });
-  const [newTag, setNewTag] = useState('');
-
-  // Bottom stats - dynamic from API
-  const bottomStats = [
-    { title: 'Total Skills', value: skills.length.toString(), icon: Award, color: 'blue' },
-    { title: 'Categories', value: Object.keys(skillsByCategory).length.toString(), icon: Layers, color: 'cyan' },
-    { title: 'Avg Level', value: skills.length > 0 ? (skills.reduce((sum, s) => sum + s.level, 0) / skills.length).toFixed(1) : '0', icon: Target, color: 'purple' },
-    { title: 'Top Category', value: skillCategories[0]?.title?.split(' ')[0] || 'N/A', icon: TrendingUp, color: 'green' }
-  ];
-
-
-  const iconMap = {
-    Layers,
-    Cpu,
-    Zap,
-    Smartphone,
-    Palette,
-    Wrench,
-    Code2
-  };
-
-  const categoryOptions = [
-    { value: 'Frontend Development', label: '📦 Frontend Development' },
-    { value: 'Backend Development', label: '🗄️ Backend Development' },
-    { value: 'Database', label: '🗄️ Database' },
-    { value: 'DevOps', label: '☁️ DevOps / Cloud' },
-    { value: 'AI & ML', label: '🤖 AI & Machine Learning' },
-    { value: 'Mobile Development', label: '📱 Mobile Development' },
-    { value: 'UI/UX Design', label: '🎨 UI/UX Design' },
-    { value: 'Security', label: '🔒 Security' },
-    { value: 'Data Science', label: '📊 Data Science' },
-    { value: 'Automation', label: '⚡ Automation' },
-    { value: 'Web Development', label: '🌐 Web Development' },
-    { value: 'Tools & Deployment', label: '🛠️ Tools & Deployment' },
-    { value: 'Other', label: '⚙️ Other' }
-  ];
-
-  const filteredCategories = skillCategories.filter(cat =>
-    cat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cat.skills.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  // Handle create skill
-  const handleCreateSkill = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.category) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await skillService.create({
-        name: formData.name,
-        category: formData.category,
-        level: parseInt(formData.level),
-        proficiency: formData.proficiency,
-        icon: formData.icon
-      });
-
-      setSkills(prev => [...prev, response.data]);
-      setShowAddModal(false);
-      setFormData({
-        name: '',
-        category: 'Frontend Development',
-        level: 3,
-        proficiency: null,
-        icon: ''
-      });
-      toast.success('Skill created successfully!');
-    } catch (err) {
-      console.error('Failed to create skill:', err);
-      toast.error('Failed to create skill: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  // Handle update skill
-  const handleUpdateSkill = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.category) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await skillService.update(editingSkill.id, {
-        name: formData.name,
-        category: formData.category,
-        level: parseInt(formData.level),
-        proficiency: formData.proficiency,
-        icon: formData.icon
-      });
-
-      setSkills(prev => prev.map(skill =>
-        skill._id === editingSkill.id ? response.data : skill
-      ));
-      setEditingSkill(null);
-      setFormData({
-        name: '',
-        category: 'Frontend Development',
-        level: 3,
-        proficiency: null,
-        icon: ''
-      });
-      toast.success('Skill updated successfully!');
-    } catch (err) {
-      console.error('Failed to update skill:', err);
-      toast.error('Failed to update skill: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  // Handle delete skill
-  const handleDeleteSkill = async (skillId) => {
-    if (!window.confirm('Are you sure you want to delete this skill?')) return;
-
-    try {
-      await skillService.delete(skillId);
-      setSkills(prev => prev.filter(skill => skill._id !== skillId));
-      toast.success('Skill deleted successfully!');
+    setSkills(prev => prev.map(skill =>
+      skill._id === editingSkill.id ? response.data : skill
+    ));
     } catch (err) {
       console.error('Failed to delete skill:', err);
-      toast.error('Failed to delete skill');
+      error('Failed to delete skill');
     }
   };
 
@@ -751,7 +426,28 @@ const Skills = () => {
   };
 
   return (
-    <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
+    <>
+      {/* Notifications */}
+      {notifications.map(notification => (
+        <PopupNotification
+          key={notification.id}
+          message={notification.message}
+          type={notification.type}
+          duration={notification.duration}
+          onClose={() => removeNotification(notification.id)}
+        />
+      ))}
+
+      {/* Lock Screen */}
+      {isLocked && (
+        <LockScreen 
+          onUnlock={unlock} 
+          timeRemaining={timeRemaining}
+          isDark={isDark}
+        />
+      )}
+
+      <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-8">
         <div>
@@ -775,6 +471,13 @@ const Skills = () => {
           <button className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-gray-800/50 text-gray-400 hover:text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
             <Settings size={18} />
           </button>
+          <button
+            onClick={() => window.open('/', '_blank')}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium"
+          >
+            <ExternalLink size={16} />
+            Preview
+          </button>
         </div>
       </div>
 
@@ -783,7 +486,8 @@ const Skills = () => {
         {[
           { id: 'skills', label: 'Skills Matrix', icon: BarChart3 },
           { id: 'experience', label: 'Experience', icon: Briefcase },
-          { id: 'education', label: 'Education', icon: GraduationCap }
+          { id: 'education', label: 'Education', icon: GraduationCap },
+          { id: 'testimonials', label: 'Testimonials', icon: MessageSquare }
         ].map(tab => (
           <button
             key={tab.id}
@@ -817,6 +521,18 @@ const Skills = () => {
               <Plus size={16} />
               Add New Skill
             </button>
+            <button
+              onClick={saveCategoryOrder}
+              disabled={!orderModified}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                orderModified
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              <Save size={16} />
+              Save Order
+            </button>
           </div>
 
           {/* Skills Grid */}
@@ -827,9 +543,9 @@ const Skills = () => {
                 <p className="text-gray-400">Loading skills...</p>
               </div>
             </div>
-          ) : error ? (
+          ) : pageError ? (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
-              <p className="text-red-400">{error}</p>
+              <p className="text-red-400">{pageError}</p>
               <button
                 onClick={() => window.location.reload()}
                 className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -839,18 +555,28 @@ const Skills = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {filteredCategories.map((category, index) => {
+              {categories.map((category, index) => {
                 const IconComponent = iconMap[category.icon] || Code2;
                 return (
                   <div
                     key={category.id}
-                    className="bg-[#12121a] border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group"
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, index)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, index)}
+                    onDragEnd={handleDragEnd}
+                    className={`bg-[#12121a] border rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group cursor-move ${
+                      draggedIndex === index ? 'opacity-50 border-cyan-400' : 'border-gray-800'
+                    }`}
                     style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
                   >
                     {/* Card Header */}
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
-                        <IconComponent size={20} className="text-cyan-400" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
+                          <IconComponent size={20} className="text-cyan-400" />
+                        </div>
+                        <GripVertical size={16} className="text-gray-600" />
                       </div>
                       <span className="text-[10px] text-gray-600 font-mono">0{index + 1}</span>
                     </div>
@@ -962,13 +688,27 @@ const Skills = () => {
           {/* Experience Header */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EXPERIENCE</p>
-            <button
-              onClick={openExpAddModal}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-            >
-              <Plus size={18} />
-              Add Experience
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={saveExperienceOrder}
+                disabled={!expOrderModified}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  expOrderModified
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <Save size={16} />
+                Save Order
+              </button>
+              <button
+                onClick={openExpAddModal}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+              >
+                <Plus size={18} />
+                Add Experience
+              </button>
+            </div>
           </div>
 
           {/* Experience List */}
@@ -997,12 +737,23 @@ const Skills = () => {
                   <p>No experiences yet. Add your first experience!</p>
                 </div>
               ) : (
-                experiences.map((exp) => (
+                experiences.map((exp, index) => (
                   <div
                     key={exp._id}
-                    className="bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group"
+                    draggable
+                    onDragStart={(e) => handleExpDragStart(e, index)}
+                    onDragOver={handleExpDragOver}
+                    onDrop={(e) => handleExpDrop(e, index)}
+                    onDragEnd={handleExpDragEnd}
+                    className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${
+                      expDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
+                    }`}
                   >
                     <div className="flex items-start gap-4">
+                      {/* Drag Handle */}
+                      <div className="flex-shrink-0 pt-2">
+                        <GripVertical size={20} className="text-gray-600" />
+                      </div>
                       {/* Company Logo Section */}
                       <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-gray-700">
                         {exp.logo ? (
@@ -1083,13 +834,27 @@ const Skills = () => {
           {/* Education Header */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EDUCATION</p>
-            <button
-              onClick={openEduAddModal}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-            >
-              <Plus size={18} />
-              Add Education
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={saveEducationOrder}
+                disabled={!eduOrderModified}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  eduOrderModified
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <Save size={16} />
+                Save Order
+              </button>
+              <button
+                onClick={openEduAddModal}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+              >
+                <Plus size={18} />
+                Add Education
+              </button>
+            </div>
           </div>
 
           {/* Education List */}
@@ -1118,12 +883,23 @@ const Skills = () => {
                   <p>No education entries yet. Add your first education!</p>
                 </div>
               ) : (
-                educations.map((edu) => (
+                educations.map((edu, index) => (
                   <div
                     key={edu._id}
-                    className="bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group"
+                    draggable
+                    onDragStart={(e) => handleEduDragStart(e, index)}
+                    onDragOver={handleEduDragOver}
+                    onDrop={(e) => handleEduDrop(e, index)}
+                    onDragEnd={handleEduDragEnd}
+                    className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${
+                      eduDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
+                    }`}
                   >
                     <div className="flex items-start gap-4">
+                      {/* Drag Handle */}
+                      <div className="flex-shrink-0 pt-2">
+                        <GripVertical size={20} className="text-gray-600" />
+                      </div>
                       {/* Institution Logo */}
                       <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 text-2xl overflow-hidden border border-gray-700">
                         {edu.logo ? (
@@ -1195,6 +971,9 @@ const Skills = () => {
             </div>
           )}
         </>
+      ) : activeTab === 'testimonials' ? (
+        /* Testimonials Tab */
+        <Testimonials />
       ) : null}
 
       {/* Add/Edit Skill Modal */}
@@ -2044,6 +1823,7 @@ const Skills = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

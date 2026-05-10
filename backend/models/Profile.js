@@ -54,6 +54,10 @@ const profileSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  upworkUrl: {
+    type: String,
+    default: ''
+  },
   focusStats: {
     title: {
       type: String,
@@ -81,6 +85,10 @@ const profileSchema = new mongoose.Schema({
         { value: '99.9%', label: 'UPTIME PRECISION' }
       ]
     }
+  },
+  skillCategoryOrder: {
+    type: [String],
+    default: []
   }
 }, {
   timestamps: true

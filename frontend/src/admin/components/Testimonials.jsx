@@ -106,15 +106,24 @@ const Testimonials = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this testimonial?')) return;
-
-    const result = await deleteTestimonial(id);
-    if (result.success) {
-      toast.success('Testimonial deleted successfully');
-      refetch(true); // Force refresh after delete
-    } else {
-      toast.error(result.error || 'Failed to delete testimonial');
-    }
+    toast('Are you sure you want to delete this testimonial?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          const result = await deleteTestimonial(id);
+          if (result.success) {
+            toast.success('Testimonial deleted successfully');
+            refetch(true);
+          } else {
+            toast.error(result.error || 'Failed to delete testimonial');
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {},
+      },
+    });
   };
 
   const handleToggle = async (id) => {

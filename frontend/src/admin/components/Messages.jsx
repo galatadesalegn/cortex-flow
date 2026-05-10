@@ -196,19 +196,28 @@ const Messages = () => {
 
   // Delete message handler
   const handleDeleteMessage = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this message?')) return;
-
-    try {
-      await messageService.delete(id);
-      toast.success('Message deleted successfully');
-      setMessages(messages.filter(m => m.id !== id));
-      if (selectedMessage === id) {
-        setSelectedMessage(null);
-      }
-    } catch (error) {
-      console.error('Failed to delete message:', error);
-      toast.error('Failed to delete message');
-    }
+    toast('Are you sure you want to delete this message?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await messageService.delete(id);
+            toast.success('Message deleted successfully');
+            setMessages(messages.filter(m => m.id !== id));
+            if (selectedMessage === id) {
+              setSelectedMessage(null);
+            }
+          } catch (error) {
+            console.error('Failed to delete message:', error);
+            toast.error('Failed to delete message');
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {},
+      },
+    });
   };
 
   // Send reply handler

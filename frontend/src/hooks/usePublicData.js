@@ -79,7 +79,9 @@ export const useProfile = () => {
       setError(null);
       
       console.log('Fetching fresh profile data...');
-      const response = await publicService.getProfile();
+      // Add cache-busting timestamp when force refresh is needed
+      const timestamp = forceRefresh ? `?_t=${Date.now()}` : '';
+      const response = await publicService.getProfile(timestamp);
       const responseData = response.data || response;
       const actualProfile = responseData?.data && typeof responseData.data === 'object' && !Array.isArray(responseData.data)
         ? responseData.data
