@@ -303,16 +303,27 @@ const Skills = () => {
 
 // Handle delete experience
 const handleDeleteExperience = async (id) => {
-  try {
-    await experienceService.delete(id);
-    setExperiences(prev => prev.filter(exp => exp._id !== id));
-    setShowExpModal(false);
-    setEditingExp(null);
-    success('Experience deleted successfully!');
-  } catch (err) {
-    console.error('Failed to delete experience:', err);
-    error('Failed to delete experience');
-  }
+  toast('Are you sure you want to delete this experience?', {
+    action: {
+      label: 'Delete',
+      onClick: async () => {
+        try {
+          await experienceService.delete(id);
+          setExperiences(prev => prev.filter(exp => exp._id !== id));
+          setShowExpModal(false);
+          setEditingExp(null);
+          success('Experience deleted successfully!');
+        } catch (err) {
+          console.error('Failed to delete experience:', err);
+          error('Failed to delete experience');
+        }
+      },
+    },
+    cancel: {
+      label: 'Cancel',
+      onClick: () => {},
+    },
+  });
 };
 
 // Handle update education
@@ -339,16 +350,27 @@ const handleUpdateEducation = async (e) => {
 
 // Handle delete education
 const handleDeleteEducation = async (id) => {
-  try {
-    await educationService.delete(id);
-    setEducations(prev => prev.filter(edu => edu._id !== id));
-    setShowEduModal(false);
-    setEditingEdu(null);
-    success('Education deleted successfully!');
-  } catch (err) {
-    console.error('Failed to delete education:', err);
-    error('Failed to delete education');
-  }
+  toast('Are you sure you want to delete this education?', {
+    action: {
+      label: 'Delete',
+      onClick: async () => {
+        try {
+          await educationService.delete(id);
+          setEducations(prev => prev.filter(edu => edu._id !== id));
+          setShowEduModal(false);
+          setEditingEdu(null);
+          success('Education deleted successfully!');
+        } catch (err) {
+          console.error('Failed to delete education:', err);
+          error('Failed to delete education');
+        }
+      },
+    },
+    cancel: {
+      label: 'Cancel',
+      onClick: () => {},
+    },
+  });
 };
 
 // Handle update skill

@@ -31,16 +31,26 @@ const Projects = () => {
 
   const handleDelete = async (id) => {
     console.log('Deleting project with ID:', id);
-    const result = await deleteProject(id);
-    console.log('Delete result:', result);
-    
-    if (result.success) {
-      toast.success('Project deleted successfully!');
-      refetch();
-    } else {
-      toast.error(result.error || 'Failed to delete project');
-      console.error('Delete error:', result.error);
-    }
+    toast('Are you sure you want to delete this project?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          const result = await deleteProject(id);
+          console.log('Delete result:', result);
+          if (result.success) {
+            toast.success('Project deleted successfully!');
+            refetch();
+          } else {
+            toast.error(result.error || 'Failed to delete project');
+            console.error('Delete error:', result.error);
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {},
+      },
+    });
   };
 
   const handleSave = async () => {

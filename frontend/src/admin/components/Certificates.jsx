@@ -222,15 +222,25 @@ const Certificates = () => {
   };
 
   const handleDelete = async (id) => {
-    // Delete without confirmation
-
-    try {
-      await certificateService.delete(id);
-      setCertificates(prev => prev.filter(cert => cert._id !== id));
-    } catch (err) {
-      console.error('Failed to delete certificate:', err);
-      alert('Failed to delete certificate');
-    }
+    toast('Are you sure you want to delete this certificate?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await certificateService.delete(id);
+            setCertificates(prev => prev.filter(cert => cert._id !== id));
+            toast.success('Certificate deleted successfully');
+          } catch (err) {
+            console.error('Failed to delete certificate:', err);
+            toast.error('Failed to delete certificate');
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {},
+      },
+    });
   };
 
   const handleCreateCertificate = async (e) => {

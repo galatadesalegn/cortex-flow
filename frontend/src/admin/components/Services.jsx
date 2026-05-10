@@ -149,19 +149,28 @@ const Services = () => {
 
   // Delete service
   const handleDeleteService = async (id) => {
-    // Delete without confirmation
-
-    try {
-      await serviceService.delete(id);
-      toast.success('Service deleted successfully');
-      fetchServices();
-      if (editingService?._id === id) {
-        handleCloseModal();
-      }
-    } catch (error) {
-      console.error('Failed to delete service:', error);
-      toast.error('Failed to delete service');
-    }
+    toast('Are you sure you want to delete this service?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await serviceService.delete(id);
+            toast.success('Service deleted successfully');
+            fetchServices();
+            if (editingService?._id === id) {
+              handleCloseModal();
+            }
+          } catch (error) {
+            console.error('Failed to delete service:', error);
+            toast.error('Failed to delete service');
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {},
+      },
+    });
   };
 
   // Handle tag operations

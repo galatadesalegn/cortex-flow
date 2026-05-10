@@ -305,19 +305,28 @@ const Settings = () => {
 
   // Delete admin
   const handleDeleteAdmin = async (id) => {
-    // Delete admin without confirmation
-
-    try {
-      await settingService.deleteAdmin(id);
-      toast.success('Admin deleted successfully');
-      fetchAdmins();
-      if (editingAdmin?._id === id) {
-        setEditingAdmin(null);
-      }
-    } catch (error) {
-      console.error('Failed to delete admin:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete admin');
-    }
+    toast('Are you sure you want to delete this admin?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await settingService.deleteAdmin(id);
+            toast.success('Admin deleted successfully');
+            fetchAdmins();
+            if (editingAdmin?._id === id) {
+              setEditingAdmin(null);
+            }
+          } catch (error) {
+            console.error('Failed to delete admin:', error);
+            toast.error('Failed to delete admin');
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => {},
+      },
+    });
   };
 
   // Handle permission toggle with API
