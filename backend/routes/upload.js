@@ -58,21 +58,6 @@ router.post(
     const isVideo = req.file.mimetype.startsWith('video/');
     const isPdf = req.file.mimetype === 'application/pdf';
 
-    // For PDF files (CV), serve locally to avoid Cloudinary authentication issues
-    if (isPdf) {
-      const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
-      const fileUrl = `/uploads/${req.file.filename}`;
-      console.log('Serving CV file locally:', fileUrl);
-      res.json({
-        success: true,
-        data: {
-          url: `${baseUrl}${fileUrl}`,
-          localPath: fileUrl,
-        }
-      });
-      return;
-    }
-
     // Check if Cloudinary is configured
     const hasCloudinary = process.env.CLOUDINARY_CLOUD_NAME && 
                           process.env.CLOUDINARY_API_KEY && 
@@ -88,7 +73,7 @@ router.post(
         invalidate: true,
         use_filename: true,
         unique_filename: true,
-        access_mode: 'public' // Make the file publicly accessible
+        allowed_formats: isPdf ? ['pdf'] : undefined
       };
 
       console.log('Uploading file:', req.file.originalname, 'isPdf:', isPdf);
