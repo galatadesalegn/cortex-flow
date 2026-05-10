@@ -196,8 +196,6 @@ const Messages = () => {
 
   // Delete message handler
   const handleDeleteMessage = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this message?')) return;
-
     try {
       await messageService.delete(id);
       toast.success('Message deleted successfully');

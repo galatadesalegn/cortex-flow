@@ -106,8 +106,6 @@ const Testimonials = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this testimonial?')) return;
-
     const result = await deleteTestimonial(id);
     if (result.success) {
       toast.success('Testimonial deleted successfully');

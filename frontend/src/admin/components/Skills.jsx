@@ -301,634 +301,77 @@ const Skills = () => {
     }
   };
 
-  // Handle delete experience
-  const handleDeleteExperience = async (expId) => {
-    if (!window.confirm('Are you sure you want to delete this experience?')) return;
-
-    try {
-      await experienceService.delete(expId);
-      setExperiences(prev => prev.filter(exp => exp._id !== expId));
-      setShowExpModal(false);
-      setEditingExp(null);
-      success('Experience deleted successfully!');
-    } catch (err) {
-      console.error('Failed to delete experience:', err);
-      error('Failed to delete experience');
-    }
-  };
-
-  // Open experience edit modal
-  const openExpEditModal = (exp) => {
-    setEditingExp(exp);
-    setExpFormData({
-      role: exp.role || '',
-      company: exp.company || '',
-      location: exp.location || '',
-      startDate: exp.startDate || '',
-      endDate: exp.endDate || '',
-      isCurrent: exp.isCurrent || false,
-      description: exp.description || '',
-      tags: exp.tags || [],
-      icon: exp.icon || '',
-      logo: exp.logo || ''
-    });
-    setShowExpModal(true);
-  };
-
-  // Open experience add modal
-  const openExpAddModal = () => {
+// Handle delete experience
+const handleDeleteExperience = async (id) => {
+  try {
+    await experienceService.delete(id);
+    setExperiences(prev => prev.filter(exp => exp._id !== id));
+    setShowExpModal(false);
     setEditingExp(null);
-    setExpFormData({
-      role: '',
-      company: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      isCurrent: false,
-      description: '',
-      tags: [],
-      icon: '',
-      logo: ''
-    });
-    setShowExpModal(true);
-  };
+    success('Experience deleted successfully!');
+  } catch (err) {
+    console.error('Failed to delete experience:', err);
+    error('Failed to delete experience');
+  }
+};
 
-  // Add tag to experience
-  const handleAddTag = () => {
-    if (newTag.trim() && !expFormData.tags.includes(newTag.trim().toUpperCase())) {
-      setExpFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim().toUpperCase()]
-      }));
-      setNewTag('');
-    }
-  };
+// Handle update education
+const handleUpdateEducation = async (e) => {
+  e.preventDefault();
 
-  // Remove tag from experience
-  const handleRemoveTag = (tagToRemove) => {
-    setExpFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
+  if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
+    error('Please fill in all required fields');
+    return;
+  }
 
-  // Handle create education
-  const handleCreateEducation = async (e) => {
-    e.preventDefault();
+  try {
+    const response = await educationService.update(editingEdu._id, eduFormData);
 
-    if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-      error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await educationService.create({
-        ...eduFormData,
-        order: educations.length
-      });
-
-      setEducations(prev => [...prev, response.data]);
-      setShowEduModal(false);
-      setEduFormData({
-        role: '',
-        company: '',
-        location: '',
-        startDate: '',
-        endDate: '',
-        isCurrent: false,
-        description: '',
-        tags: [],
-        icon: '',
-        logo: ''
-      });
-      success('Education added successfully!');
-    } catch (err) {
-      console.error('Failed to create education:', err);
-      error('Failed to add education');
-    }
-  };
-
-  // Handle update education
-  const handleUpdateEducation = async (e) => {
-    e.preventDefault();
-
-    if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-      error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await educationService.update(editingEdu._id, eduFormData);
-
-      setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
-      setShowEduModal(false);
-      setEditingEdu(null);
-      success('Education updated successfully!');
-    } catch (err) {
-      console.error('Failed to update education:', err);
-      error('Failed to update education');
-    }
-  };
-
-  // Handle delete education
-  const handleDeleteEducation = async (eduId) => {
-    if (!window.confirm('Are you sure you want to delete this education entry?')) return;
-
-    try {
-      await educationService.delete(eduId);
-      setEducations(prev => prev.filter(edu => edu._id !== eduId));
-      setShowEduModal(false);
-      setEditingEdu(null);
-      success('Education deleted successfully!');
-    } catch (err) {
-      console.error('Failed to delete education:', err);
-      error('Failed to delete education');
-    }
-  };
-
-  // Open education edit modal
-  const openEduEditModal = (edu) => {
-    setEditingEdu(edu);
-    setEduFormData({
-      role: edu.role || '',
-      company: edu.company || '',
-      location: edu.location || '',
-      startDate: edu.startDate || '',
-      endDate: edu.endDate || '',
-      isCurrent: edu.isCurrent || false,
-      description: edu.description || '',
-      tags: edu.tags || [],
-      icon: edu.icon || '',
-      logo: edu.logo || ''
-    });
-    setShowEduModal(true);
-  };
-
-  // Open education add modal
-  const openEduAddModal = () => {
+    setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
+    setShowEduModal(false);
     setEditingEdu(null);
-    setEduFormData({
-      role: '',
-      company: '',
-      location: '',
-      startDate: '',
-      endDate: '',
-      isCurrent: false,
-      description: '',
-      tags: [],
-      icon: '',
-      logo: ''
-    });
-    setShowEduModal(true);
-  };
+    success('Education updated successfully!');
+  } catch (err) {
+    console.error('Failed to update education:', err);
+    error('Failed to update education');
+  }
+};
 
-  // Add tag to education
-  const handleAddEduTag = () => {
-    if (newEduTag.trim() && !eduFormData.tags.includes(newEduTag.trim().toUpperCase())) {
-      setEduFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newEduTag.trim().toUpperCase()]
-      }));
-      setNewEduTag('');
-    }
-  };
+// Handle delete education
+const handleDeleteEducation = async (id) => {
+  try {
+    await educationService.delete(id);
+    setEducations(prev => prev.filter(edu => edu._id !== id));
+    setShowEduModal(false);
+    setEditingEdu(null);
+    success('Education deleted successfully!');
+  } catch (err) {
+    console.error('Failed to delete education:', err);
+    error('Failed to delete education');
+  }
+};
 
-  // Remove tag from education
-  const handleRemoveEduTag = (tagToRemove) => {
-    setEduFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
-    }));
-  };
+// Handle update skill
+const handleUpdateSkill = async (e) => {
+  e.preventDefault();
 
-  // Handle update focus stats
-  const handleUpdateFocus = async (e) => {
-    e.preventDefault();
+  if (!formData.name || !formData.category) {
+    error('Please fill in all required fields');
+    return;
+  }
 
-    try {
-      const response = await profileService.updateProfile({
-        focusStats: focusFormData
-      });
-
-      if (response.data?.focusStats) {
-        setFocusStats(response.data.focusStats);
-      }
-      setEditingFocus(false);
-      success('Focus section updated successfully!');
-    } catch (err) {
-      console.error('Failed to update focus:', err);
-      error('Failed to update focus: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  // Open focus edit modal
-  const openFocusEditModal = () => {
-    setFocusFormData({
-      title: focusStats.title,
-      subtitle: focusStats.subtitle,
-      description: focusStats.description,
-      image: focusStats.image || '',
-      stats: focusStats.stats.map(s => ({ ...s }))
-    });
-    setEditingFocus(true);
-  };
-
-  // Group skills by category for display
-  const skillsByCategory = skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) {
-      acc[skill.category] = [];
-    }
-    acc[skill.category].push(skill);
-    return acc;
-  }, {});
-
-  // Transform to category display format with specific order
-  const categoryOrder = [
-    'Frontend Development',
-    'Backend Development',
-    'Database',
-    'DevOps',
-    'AI & ML',
-    'Mobile Development',
-    'UI/UX Design',
-    'Security',
-    'Data Science',
-    'Automation',
-    'Web Development',
-    'Tools & Deployment',
-    'Other'
-  ];
-
-  const skillCategories = Object.entries(skillsByCategory)
-    .map(([category, categorySkills]) => {
-      // Convert level 1-5 to percentage for display
-      const avgLevel = categorySkills.reduce((sum, s) => sum + s.level, 0) / categorySkills.length;
-      const percent = Math.round((avgLevel / 5) * 100);
-
-      const categoryNames = {
-        frontend: 'Frontend Development',
-        backend: 'Backend Development',
-        database: 'Database',
-        devops: 'DevOps',
-        other: 'Other'
-      };
-
-      const categoryIcons = {
-        frontend: 'Layers',
-        backend: 'Cpu',
-        database: 'Layers',
-        devops: 'Wrench',
-        other: 'Code2'
-      };
-
-      return {
-        id: category,
-        title: categoryNames[category] || category,
-        percent,
-        icon: categoryIcons[category] || 'Code2',
-        skills: categorySkills.map(s => ({
-          id: s._id,
-          name: s.name,
-          level: Math.round((s.level / 5) * 100),
-          rawLevel: s.level
-        }))
-      };
-    })
-    .sort((a, b) => {
-      const orderA = categoryOrder.indexOf(a.title);
-      const orderB = categoryOrder.indexOf(b.title);
-      // If category not in order list, put it at the end
-      const finalOrderA = orderA === -1 ? categoryOrder.length : orderA;
-      const finalOrderB = orderB === -1 ? categoryOrder.length : orderB;
-      return finalOrderA - finalOrderB;
+  try {
+    const response = await skillService.update(editingSkill.id, {
+      name: formData.name,
+      category: formData.category,
+      level: parseInt(formData.level),
+      proficiency: formData.proficiency,
+      icon: formData.icon
     });
 
-  // Update categories state - load custom order or use default
-  useEffect(() => {
-    if (skillCategories.length === 0 || hasLoadedOrder) return;
-
-    // Check if custom order exists in profile
-    if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
-      // Reorder categories based on saved order
-      const orderedCategories = [];
-      const remainingCategories = [...skillCategories];
-
-      // Add categories in saved order
-      profile.skillCategoryOrder.forEach(title => {
-        const index = remainingCategories.findIndex(cat => cat.title === title);
-        if (index !== -1) {
-          orderedCategories.push(remainingCategories[index]);
-          remainingCategories.splice(index, 1);
-        }
-      });
-
-      // Add any remaining categories not in saved order
-      orderedCategories.push(...remainingCategories);
-      setCategories(orderedCategories);
-    } else {
-      // Use default order if no custom order
-      setCategories(skillCategories);
-    }
-
-    setHasLoadedOrder(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [skillCategories.length, profile?.skillCategoryOrder]);
-
-  // Drag and drop handlers
-  const handleDragStart = (e, index) => {
-    e.dataTransfer.effectAllowed = 'move';
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e, dropIndex) => {
-    e.preventDefault();
-    if (draggedIndex === null || draggedIndex === dropIndex) return;
-
-    const newCategories = [...categories];
-    const draggedItem = newCategories[draggedIndex];
-    newCategories.splice(draggedIndex, 1);
-    newCategories.splice(dropIndex, 0, draggedItem);
-
-    setCategories(newCategories);
-    setDraggedIndex(null);
-    setOrderModified(true);
-    info('Category order updated. Click "Save Order" to save permanently.');
-  };
-
-  const saveCategoryOrder = async () => {
-    try {
-      const categoryTitles = categories.map(cat => cat.title);
-      await profileService.updateProfile({
-        skillCategoryOrder: categoryTitles
-      });
-      // Clear profile cache so frontend will fetch fresh data
-      localStorage.removeItem('cached_profile_v2');
-      localStorage.removeItem('cached_profile');
-      setOrderModified(false);
-      success('Category order saved! Frontend will show new order on next load.');
-    } catch (err) {
-      console.error('Failed to save category order:', err);
-      error('Failed to save category order');
-    }
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-  };
-
-  // Experience drag and drop handlers
-  const handleExpDragStart = (e, index) => {
-    e.dataTransfer.effectAllowed = 'move';
-    setExpDraggedIndex(index);
-  };
-
-  const handleExpDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleExpDrop = (e, dropIndex) => {
-    e.preventDefault();
-    if (expDraggedIndex === null || expDraggedIndex === dropIndex) return;
-
-    const newExperiences = [...experiences];
-    const draggedItem = newExperiences[expDraggedIndex];
-    newExperiences.splice(expDraggedIndex, 1);
-    newExperiences.splice(dropIndex, 0, draggedItem);
-
-    setExperiences(newExperiences);
-    setExpDraggedIndex(null);
-    setExpOrderModified(true);
-    info('Experience order updated. Click "Save Order" to save permanently.');
-  };
-
-  const handleExpDragEnd = () => {
-    setExpDraggedIndex(null);
-  };
-
-  const saveExperienceOrder = async () => {
-    try {
-      // Update order for each experience
-      const updatePromises = experiences.map((exp, index) => 
-        experienceService.update(exp._id, { ...exp, order: index })
-      );
-      await Promise.all(updatePromises);
-      setExpOrderModified(false);
-      success('Experience order saved successfully!');
-    } catch (err) {
-      console.error('Failed to save experience order:', err);
-      error('Failed to save experience order');
-    }
-  };
-
-  // Education drag and drop handlers
-  const handleEduDragStart = (e, index) => {
-    e.dataTransfer.effectAllowed = 'move';
-    setEduDraggedIndex(index);
-  };
-
-  const handleEduDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleEduDrop = (e, dropIndex) => {
-    e.preventDefault();
-    if (eduDraggedIndex === null || eduDraggedIndex === dropIndex) return;
-
-    const newEducations = [...educations];
-    const draggedItem = newEducations[eduDraggedIndex];
-    newEducations.splice(eduDraggedIndex, 1);
-    newEducations.splice(dropIndex, 0, draggedItem);
-
-    setEducations(newEducations);
-    setEduDraggedIndex(null);
-    setEduOrderModified(true);
-    info('Education order updated. Click "Save Order" to save permanently.');
-  };
-
-  const handleEduDragEnd = () => {
-    setEduDraggedIndex(null);
-  };
-
-  const saveEducationOrder = async () => {
-    try {
-      // Update order for each education
-      const updatePromises = educations.map((edu, index) => 
-        educationService.update(edu._id, { ...edu, order: index })
-      );
-      await Promise.all(updatePromises);
-      setEduOrderModified(false);
-      success('Education order saved successfully!');
-    } catch (err) {
-      console.error('Failed to save education order:', err);
-      error('Failed to save education order');
-    }
-  };
-
-  // Focus stats - from API
-  const [focusStats, setFocusStats] = useState({
-    title: 'Intelligent System Orchestration',
-    subtitle: 'CURRENT FOCUS',
-    description: 'Developing autonomous agent workflows and AI-integrated web environments. Currently focused on bridging the gap between LLM reasoning and real-world automation within the MERN stack.',
-    stats: [
-      { value: '0.4ms', label: 'INTERFACE LATENCY' },
-      { value: '99.9%', label: 'UPTIME PRECISION' }
-    ],
-    image: ''
-  });
-  const [focusFormData, setFocusFormData] = useState({
-    title: '',
-    subtitle: '',
-    description: '',
-    image: '',
-    stats: [
-      { value: '', label: '' },
-      { value: '', label: '' }
-    ]
-  });
-
-  // Experience data - from API
-  const [experiences, setExperiences] = useState([]);
-  const [expLoading, setExpLoading] = useState(true);
-  const [expError, setExpError] = useState(null);
-  const [expFormData, setExpFormData] = useState({
-    role: '',
-    company: '',
-    location: '',
-    startDate: '',
-    endDate: '',
-    isCurrent: false,
-    description: '',
-    tags: [],
-    icon: '',
-    logo: ''
-  });
-  const [newTag, setNewTag] = useState('');
-
-  // Bottom stats - dynamic from API
-  const bottomStats = [
-    { title: 'Total Skills', value: skills.length.toString(), icon: Award, color: 'blue' },
-    { title: 'Categories', value: Object.keys(skillsByCategory).length.toString(), icon: Layers, color: 'cyan' },
-    { title: 'Avg Level', value: skills.length > 0 ? (skills.reduce((sum, s) => sum + s.level, 0) / skills.length).toFixed(1) : '0', icon: Target, color: 'purple' },
-    { title: 'Top Category', value: skillCategories[0]?.title?.split(' ')[0] || 'N/A', icon: TrendingUp, color: 'green' }
-  ];
-
-
-  const iconMap = {
-    Layers,
-    Cpu,
-    Zap,
-    Smartphone,
-    Palette,
-    Wrench,
-    Code2
-  };
-
-  const categoryOptions = [
-    { value: 'Frontend Development', label: '📦 Frontend Development' },
-    { value: 'Backend Development', label: '🗄️ Backend Development' },
-    { value: 'Database', label: '🗄️ Database' },
-    { value: 'DevOps', label: '☁️ DevOps / Cloud' },
-    { value: 'AI & ML', label: '🤖 AI & Machine Learning' },
-    { value: 'Mobile Development', label: '📱 Mobile Development' },
-    { value: 'UI/UX Design', label: '🎨 UI/UX Design' },
-    { value: 'Security', label: '🔒 Security' },
-    { value: 'Data Science', label: '📊 Data Science' },
-    { value: 'Automation', label: '⚡ Automation' },
-    { value: 'Web Development', label: '🌐 Web Development' },
-    { value: 'Tools & Deployment', label: '🛠️ Tools & Deployment' },
-    { value: 'Other', label: '⚙️ Other' }
-  ];
-
-  const filteredCategories = categories.filter(cat =>
-    cat.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    cat.skills.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  // Handle create skill
-  const handleCreateSkill = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.category) {
-      error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await skillService.create({
-        name: formData.name,
-        category: formData.category,
-        level: parseInt(formData.level),
-        proficiency: formData.proficiency,
-        icon: formData.icon
-      });
-
-      setSkills(prev => [...prev, response.data]);
-      setShowAddModal(false);
-      setFormData({
-        name: '',
-        category: 'Frontend Development',
-        level: 3,
-        proficiency: null,
-        icon: ''
-      });
-      success('Skill created successfully!');
-    } catch (err) {
-      console.error('Failed to create skill:', err);
-      error('Failed to create skill: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  // Handle update skill
-  const handleUpdateSkill = async (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.category) {
-      error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const response = await skillService.update(editingSkill.id, {
-        name: formData.name,
-        category: formData.category,
-        level: parseInt(formData.level),
-        proficiency: formData.proficiency,
-        icon: formData.icon
-      });
-
-      setSkills(prev => prev.map(skill =>
-        skill._id === editingSkill.id ? response.data : skill
-      ));
-      setEditingSkill(null);
-      setFormData({
-        name: '',
-        category: 'Frontend Development',
-        level: 3,
-        proficiency: null,
-        icon: ''
-      });
-      success('Skill updated successfully!');
-    } catch (err) {
-      console.error('Failed to update skill:', err);
-      error('Failed to update skill: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  // Handle delete skill
-  const handleDeleteSkill = async (skillId) => {
-    if (!window.confirm('Are you sure you want to delete this skill?')) return;
-
-    try {
-      await skillService.delete(skillId);
-      setSkills(prev => prev.filter(skill => skill._id !== skillId));
-      success('Skill deleted successfully!');
+    setSkills(prev => prev.map(skill =>
+      skill._id === editingSkill.id ? response.data : skill
+    ));
     } catch (err) {
       console.error('Failed to delete skill:', err);
       error('Failed to delete skill');

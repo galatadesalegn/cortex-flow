@@ -30,8 +30,6 @@ const Projects = () => {
   }, [projects]);
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
-    
     console.log('Deleting project with ID:', id);
     const result = await deleteProject(id);
     console.log('Delete result:', result);

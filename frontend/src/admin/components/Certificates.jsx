@@ -196,7 +196,7 @@ const Certificates = () => {
     });
 
   const applySortAsDefault = async () => {
-    if (!window.confirm('This will overwrite your manual custom order with the current sort. Continue?')) return;
+  // Save order without confirmation
 
     try {
       const orders = filteredCertificates.map((cert, index) => ({
@@ -221,8 +221,8 @@ const Certificates = () => {
     }
   };
 
-  const handleDeleteCertificate = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this certificate?')) return;
+  const handleDelete = async (id) => {
+    // Delete without confirmation
 
     try {
       await certificateService.delete(id);

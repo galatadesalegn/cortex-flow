@@ -305,7 +305,7 @@ const Settings = () => {
 
   // Delete admin
   const handleDeleteAdmin = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this admin?')) return;
+    // Delete admin without confirmation
 
     try {
       await settingService.deleteAdmin(id);

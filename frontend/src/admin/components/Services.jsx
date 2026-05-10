@@ -149,7 +149,7 @@ const Services = () => {
 
   // Delete service
   const handleDeleteService = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this service?')) return;
+    // Delete without confirmation
 
     try {
       await serviceService.delete(id);
