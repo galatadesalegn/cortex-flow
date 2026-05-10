@@ -60,8 +60,8 @@ const PopupNotification = ({ message, type = 'success', onClose, duration = 3000
 
   return (
     <div
-      className={`fixed top-6 right-6 z-[9999] transform transition-all duration-300 ease-out ${
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999] transition-all duration-300 ease-out ${
+        isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
       }`}
     >
       <div
