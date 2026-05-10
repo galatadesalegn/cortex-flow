@@ -107,32 +107,24 @@ export const replyMessage = asyncHandler(async (req, res) => {
     throw new Error('Message not found');
   }
 
-  // Send email to client
+  // Add reply to the message (fast)
   const emailSubject = subject || `Re: ${existingMessage.subject}`;
-  const emailResult = await sendReplyEmail(
-    existingMessage.email,
-    existingMessage.name,
-    emailSubject,
-    message,
-    existingMessage.message
-  );
-
-  if (!emailResult.success) {
-    res.status(500);
-    throw new Error('Failed to send reply email: ' + emailResult.error);
-  }
-
-  // Add reply to the message
   existingMessage.replies.push({
     message,
     subject: emailSubject,
     sentAt: new Date()
   });
-
-  // Mark message as read when replied
   existingMessage.read = true;
-
   await existingMessage.save();
+
+  // Send email asynchronously (don't block response)
+  sendReplyEmail(
+    existingMessage.email,
+    existingMessage.name,
+    emailSubject,
+    message,
+    existingMessage.message
+  ).catch(err => console.error('Failed to send reply email:', err));
 
   res.json({
     success: true,
