@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from "react";
-import { useProfile } from "../../hooks";
+import { useProfile, useServices } from "../../hooks";
 import { useTheme } from "../../contexts/ThemeContext";
+import { Monitor, Smartphone, Brain, Palette } from 'lucide-react';
 
 // ============================================
 // PERFORMANCE OPTIMIZED ABOUT SECTION
@@ -243,7 +244,7 @@ const ProfileCard = memo(({ profile, loading }) => {
 
 ProfileCard.displayName = 'ProfileCard';
 
-const ServiceCard = memo(({ icon, title, description, color }) => {
+const ServiceCard = memo(({ icon: Icon, title, description }) => {
   const { ref, style, onMove, onLeave } = use3DTilt(3, 5);
   const [hovered, setHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -278,8 +279,8 @@ const ServiceCard = memo(({ icon, title, description, color }) => {
         hovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)]' : ''
       }`}
     >
-      <div className={`w-12 h-12 rounded-xl border flex items-center justify-center transition-all mb-4 bg-[#12221b] border-border-theme text-accent group-hover:border-accent`}>
-        {React.cloneElement(icon, { className: "w-6 h-6" })}
+      <div className="w-12 h-12 rounded-xl border flex items-center justify-center transition-all mb-4 bg-[#12221b] border-border-theme text-accent group-hover:border-accent">
+        <Icon className="w-6 h-6" />
       </div>
       <h4 className="font-bold text-lg md:text-xl font-outfit mb-2 transition-colors duration-300 text-slate-200">{title}</h4>
       <p className="text-base leading-relaxed font-outfit transition-colors duration-300 text-slate-300 font-medium">{description}</p>
@@ -289,37 +290,60 @@ const ServiceCard = memo(({ icon, title, description, color }) => {
 
 ServiceCard.displayName = 'ServiceCard';
 
-const SERVICES_DATA = [
-  {
-    title: "Full-Stack Development",
-    description: "Architecting robust end-to-end applications with modular patterns, scalable APIs, and modern frameworks.",
-    color: { text: "text-accent", bg: "bg-accent/10", border: "border-accent/20", hoverBg: "group-hover:bg-accent/20" },
-    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-  },
-  {
-    title: "Mobile Development",
-    description: "Crafting high-performance native experiences for iOS and Android with React Native and modern mobile frameworks.",
-    color: { text: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", hoverBg: "group-hover:bg-blue-500/20" },
-    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-  },
-  {
-    title: "AI Automation",
-    description: "Implementing neural networks, machine learning models, and LLM agents to automate workflows and enhance efficiency.",
-    color: { text: "text-purple-500", bg: "bg-purple-500/10", border: "border-purple-500/20", hoverBg: "group-hover:bg-purple-500/20" },
-    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-  },
-  {
-    title: "UI/UX Design",
-    description: "Designing intuitive interfaces that prioritize user clarity, accessibility, and precision for optimal digital experiences.",
-    color: { text: "text-pink-500", bg: "bg-pink-500/10", border: "border-pink-500/20", hoverBg: "group-hover:bg-pink-500/20" },
-    icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
-  },
-];
+// Helper to get Lucide icon by name
+const getIcon = (iconName) => {
+  const icons = {
+    'Monitor': Monitor,
+    'Smartphone': Smartphone,
+    'Brain': Brain,
+    'Palette': Palette,
+  };
+  return icons[iconName] || Monitor;
+};
 
 const About = () => {
   const { profile, loading } = useProfile();
+  const { services: apiServices, loading: servicesLoading } = useServices();
   const [sectionRef, isVisible] = useFadeIn();
   const { isDark } = useTheme();
+
+  // Transform backend services to frontend format
+  const servicesData = useMemo(() => {
+    if (!apiServices || apiServices.length === 0) {
+      // Fallback to default data if no services from backend
+      return [
+        {
+          title: "Full-Stack Development",
+          description: "Architecting robust end-to-end applications with modular patterns, scalable APIs, and modern frameworks.",
+          icon: Monitor
+        },
+        {
+          title: "Mobile Development",
+          description: "Crafting high-performance native experiences for iOS and Android with React Native and modern mobile frameworks.",
+          icon: Smartphone
+        },
+        {
+          title: "AI Automation",
+          description: "Implementing neural networks, machine learning models, and LLM agents to automate workflows and enhance efficiency.",
+          icon: Brain
+        },
+        {
+          title: "UI/UX Design",
+          description: "Designing intuitive interfaces that prioritize user clarity, accessibility, and precision for optimal digital experiences.",
+          icon: Palette
+        },
+      ];
+    }
+
+    return apiServices
+      .filter(s => s.status === 'active')
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map(service => ({
+        title: service.title,
+        description: service.description,
+        icon: getIcon(service.lucideIcon || 'Monitor')
+      }));
+  }, [apiServices]);
 
   const sectionClass = useMemo(() => 
     `min-h-screen flex items-center justify-center relative overflow-hidden transition-all duration-700 ease-out scroll-mt-20 bg-[#0a1a14] ${
@@ -358,13 +382,12 @@ const About = () => {
               </div>
               
               <div className="flex flex-col gap-4 w-full">
-                {SERVICES_DATA.map((service) => (
+                {servicesData.map((service) => (
                   <ServiceCard
                     key={service.title}
                     icon={service.icon}
                     title={service.title}
                     description={service.description}
-                    color={service.color}
                   />
                 ))}
               </div>

@@ -139,12 +139,31 @@ const Skills = () => {
 
 	// Transform API skills - calculate average proficiency
 	// If proficiency field is set, use it; otherwise convert level (1-5) to percentage (20-100%)
-	const skillData = Object.entries(skillsByCategory).map(([category, skills]) => ({
+	let skillData = Object.entries(skillsByCategory).map(([category, skills]) => ({
 		title: category,
 		percent: Math.round(skills.reduce((sum, s) => sum + (s.proficiency || (s.level * 20)), 0) / skills.length),
 		tags: skills.map(s => s.name),
 		icon: getIconForCategory(category),
 	}));
+
+	// Apply custom order from profile if available
+	if (profile?.skillCategoryOrder && profile.skillCategoryOrder.length > 0) {
+		const orderedData = [];
+		const remainingData = [...skillData];
+
+		// Add categories in saved order
+		profile.skillCategoryOrder.forEach(title => {
+			const index = remainingData.findIndex(cat => cat.title === title);
+			if (index !== -1) {
+				orderedData.push(remainingData[index]);
+				remainingData.splice(index, 1);
+			}
+		});
+
+		// Add any remaining categories not in saved order
+		orderedData.push(...remainingData);
+		skillData = orderedData;
+	}
 
 	return (
 		<section
@@ -310,7 +329,7 @@ function FocusCard({ focusStats }) {
 					<span className="text-[12px] font-bold text-accent tracking-widest uppercase">{stats.subtitle}</span>
 				</div>
 				<h3 className="text-2xl md:text-3xl font-bold text-theme-primary mb-3 leading-tight">{stats.title}</h3>
-				<p className="text-slate-300 font-medium text-sm mb-6 leading-relaxed line-clamp-2">{stats.description}</p>
+				<p className="text-slate-300 font-medium text-sm mb-6 leading-relaxed">{stats.description}</p>
 				<div className="flex gap-8">
 					{stats.stats?.map((stat, i) => (
 						<div key={i}>
@@ -323,7 +342,7 @@ function FocusCard({ focusStats }) {
 
 			<div className="bg-bg-secondary min-h-[220px] flex items-center justify-center relative overflow-hidden">
 				{stats.image ? (
-					<img src={stats.image} alt="Focus" className="absolute inset-0 w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity duration-500" />
+					<img src={stats.image} alt="Focus" className="absolute inset-0 w-full h-full object-cover" />
 				) : (
 					<>
 						<div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-bg-secondary" />

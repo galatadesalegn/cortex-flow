@@ -155,7 +155,7 @@ const TestimonialCard = ({ testimonial, index }) => {
         {/* Quote */}
         <div className="mb-8 flex-grow">
           <QuoteIcon />
-          <p className="text-sm md:text-base font-medium leading-relaxed mt-4 line-clamp-4 transition-colors duration-300 text-slate-200">
+          <p className="text-sm md:text-base font-medium leading-relaxed mt-4 transition-colors duration-300 text-slate-200">
             "{testimonial.content}"
           </p>
         </div>
@@ -176,7 +176,7 @@ const TestimonialCard = ({ testimonial, index }) => {
             </div>
           )}
           <div>
-            <h4 className="text-base font-black transition-colors duration-300 text-white uppercase tracking-tight group-hover:text-[#1de9b6]">{testimonial.name}</h4>
+            <h4 className="text-base font-black transition-colors duration-300 text-white tracking-tight group-hover:text-[#1de9b6]">{testimonial.name}</h4>
             <p className="text-[11px] font-bold uppercase tracking-widest transition-colors duration-300 text-slate-500 mt-0.5">
               {testimonial.role} @ {testimonial.company}
             </p>
@@ -229,23 +229,23 @@ const Testimonials = () => {
     <section
       id="testimonials"
       ref={sectionRef}
-      className={`min-h-screen flex items-center justify-center transition-all duration-1000 bg-bg-primary scroll-mt-20 ${
+      className={`transition-all duration-1000 bg-bg-primary scroll-mt-20 pb-4 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full py-12 md:py-16 relative z-10">
-        <div className="mb-8 text-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full py-8 md:py-10 relative z-10">
+        <div className="mb-6 text-center">
           <h2 className="text-2xl md:text-3xl font-bold font-playfair uppercase tracking-widest transition-colors duration-300 text-accent">
             Testimonials
           </h2>
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-20">
+          <div className="flex justify-center py-12">
             <div className="w-10 h-10 border-2 rounded-full animate-spin border-accent/20 border-t-accent" />
           </div>
         ) : error ? (
-          <div className="text-center py-10 text-red-400 font-bold uppercase tracking-widest">
+          <div className="text-center py-8 text-red-400 font-bold uppercase tracking-widest">
             Synchronization Failed
           </div>
         ) : (

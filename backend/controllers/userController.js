@@ -82,44 +82,37 @@ export const createUser = asyncHandler(async (req, res) => {
     lastActive: new Date()
   });
 
-  // Send invitation email (non-blocking with timeout)
+  // Send invitation email (fire and forget - non-blocking)
   const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://galatadesalegn.onrender.com'}/login`;
   
   // Check if email is configured
   const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-  let emailResult = { success: false, error: 'Email not configured' };
+  let emailSent = false;
   
   if (emailConfigured) {
-    // Use Promise.race to add timeout to email sending
-    const emailTimeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Email timeout')), 5000)
-    );
-    
-    try {
-      emailResult = await Promise.race([
-        sendInvitationEmail(email, name, userPassword, adminPanelUrl),
-        emailTimeout
-      ]);
-    } catch (emailError) {
-      console.error('Email sending failed or timed out:', emailError.message);
-      emailResult = { success: false, error: emailError.message };
-    }
+    // Send email asynchronously - don't wait for it
+    sendInvitationEmail(email, name, userPassword, adminPanelUrl)
+      .then(result => {
+        if (result.success) {
+          user.invitationSent = true;
+          user.invitationSentAt = new Date();
+          user.save().catch(err => console.error('Failed to update user email status:', err));
+          console.log('Invitation email sent successfully to:', email);
+        } else {
+          console.error('Failed to send invitation email:', result.error);
+        }
+      })
+      .catch(err => console.error('Invitation email error:', err.message));
+    emailSent = true; // Optimistically assume it will send
   } else {
     console.log('Email not configured. Skipping invitation email.');
   }
 
-  // Update user email status (fire and forget)
-  if (emailResult.success) {
-    user.invitationSent = true;
-    user.invitationSentAt = new Date();
-    user.save().catch(err => console.error('Failed to update user email status:', err));
-  }
-
   res.status(201).json({
     success: true,
-    message: emailResult.success 
-      ? 'Admin created successfully. Invitation email sent.' 
-      : 'Admin created successfully. Email failed to send.',
+    message: emailConfigured 
+      ? 'Admin created successfully. Invitation email is being sent.' 
+      : 'Admin created successfully. Email not configured.',
     data: {
       _id: user._id,
       name: user.name,
@@ -130,7 +123,7 @@ export const createUser = asyncHandler(async (req, res) => {
       status: user.status,
       lastActive: user.lastActive,
       permissions: user.getPermissions(),
-      invitationSent: emailResult.success
+      invitationSending: emailConfigured
     }
   });
 });

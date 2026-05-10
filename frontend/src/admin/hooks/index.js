@@ -8,3 +8,5 @@ export { useUpload } from './useUpload.js';
 export { useProfile } from './useProfile.js';
 export { useTestimonials, useTestimonial, useCreateTestimonial, useUpdateTestimonial, useDeleteTestimonial, useToggleTestimonial } from './useTestimonials.js';
 export { useTheme } from '../contexts/ThemeContext.jsx';
+export { useNotification } from './useNotification.js';
+export { useInactivityLock } from './useInactivityLock.js';
