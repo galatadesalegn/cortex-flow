@@ -79,15 +79,28 @@ const sendViaResend = async (to, subject, html, fromOverride = null) => {
 
 // Master send function that picks the available service
 const sendEmail = async (to, subject, html, options = {}) => {
-  // Try EmailJS first if credentials exist
-  if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_PUBLIC_KEY) {
+  const hasEmailJS = !!(process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_TEMPLATE_ID && process.env.EMAILJS_PUBLIC_KEY && process.env.EMAILJS_PRIVATE_KEY);
+  const hasResend = !!process.env.RESEND_API_KEY;
+
+  console.log('📬 Email attempt - Configuration:', { hasEmailJS, hasResend });
+
+  // Try EmailJS first if configured
+  if (hasEmailJS) {
+    console.log('🚀 Attempting to send via EmailJS...');
     const result = await sendViaEmailJS(to, subject, html, options.templateType);
     if (result.success) return result;
-    console.warn('EmailJS failed, falling back to Resend if available:', result.error);
+    console.warn('❌ EmailJS failed:', result.error);
+  } else if (process.env.EMAILJS_SERVICE_ID) {
+    console.warn('⚠️ EmailJS partially configured but missing required keys (Template ID or Private Key).');
   }
 
   // Fallback to Resend
-  return await sendViaResend(to, subject, html, options.fromOverride);
+  if (hasResend) {
+    console.log('🔄 Falling back to Resend...');
+    return await sendViaResend(to, subject, html, options.fromOverride);
+  }
+
+  return { success: false, error: 'No email service (EmailJS or Resend) is fully configured.' };
 };
 
 // Send invitation email to new admin
