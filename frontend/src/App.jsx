@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
+import { Toaster } from 'sonner';
 
 // ============================================
 // PERFORMANCE OPTIMIZED APP WITH CODE SPLITTING
@@ -43,10 +44,10 @@ const useHashRouter = () => {
 function App() {
   const { isDark } = useTheme();
   const location = useLocation();
-  
+
   // Check for admin path (non-hash)
   const isAdminPath = location.pathname.startsWith('/admin');
-  
+
   // Check for project-single (hash-based)
   const isProjectPage = location.hash.startsWith('#/project-single') || location.hash.startsWith('#project-single');
 
@@ -54,6 +55,7 @@ function App() {
   if (isAdminPath) {
     return (
       <Suspense fallback={<SectionLoader />}>
+        <Toaster theme={isDark ? 'dark' : 'light'} position="top-right" richColors expand={false} closeButton />
         <Routes>
           <Route path="/admin/*" element={<AdminApp />} />
         </Routes>
@@ -63,8 +65,23 @@ function App() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
+      <Toaster
+        theme={isDark ? 'dark' : 'light'}
+        position="top-right"
+        richColors
+        expand={false}
+        closeButton
+        toastOptions={{
+          style: {
+            background: isDark ? 'rgba(10, 26, 20, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(8px)',
+            border: isDark ? '1px solid rgba(29, 233, 182, 0.2)' : '1px solid rgba(10, 26, 20, 0.1)',
+            color: isDark ? '#fff' : '#000',
+          },
+        }}
+      />
       {!isProjectPage && <Navbar />}
-      
+
       <main>
         {isProjectPage ? (
           <Suspense fallback={<SectionLoader />}>
@@ -85,7 +102,7 @@ function App() {
           </Routes>
         )}
       </main>
-      
+
       <Footer />
     </div>
   );

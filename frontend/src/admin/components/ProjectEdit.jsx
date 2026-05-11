@@ -4,7 +4,7 @@ import { projectService, uploadService } from '../services';
 import { toast } from 'sonner';
 import { useTheme } from '../hooks';
 
-const ProjectEdit = ({ project, onBack, onSave }) => {
+const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
   const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -26,7 +26,7 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
   });
 
   // ... useEffect stays the same
-  
+
   const fileInputRef = useRef(null);
 
   const handleChange = (field, value) => {
@@ -132,7 +132,7 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
 
     try {
       setLoading(true);
-      
+
       const dataToSubmit = {
         title: formData.title.trim(),
         description: formData.description.trim(),
@@ -148,9 +148,9 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
         collaborationType: formData.collaborationType || 'Solo',
         videoUrl: formData.videoUrl?.trim() || null
       };
-      
+
       const result = await projectService.update(project._id, dataToSubmit);
-      
+
       if (result.success) {
         toast.success('Project updated successfully!');
         onSave?.();
@@ -175,9 +175,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
             <button
               onClick={onBack}
               disabled={loading}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all border disabled:opacity-50 backdrop-blur-sm ${
-                isDark ? 'bg-gray-800/50 text-gray-300 border-gray-700/50 hover:bg-gray-700/50' : 'bg-bg-secondary text-text-secondary border-border-theme hover:bg-bg-accent shadow-sm'
-              }`}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all border disabled:opacity-50 backdrop-blur-sm ${isDark ? 'bg-gray-800/50 text-gray-300 border-gray-700/50 hover:bg-gray-700/50' : 'bg-bg-secondary text-text-secondary border-border-theme hover:bg-bg-accent shadow-sm'
+                }`}
             >
               <ArrowLeft size={16} />
               <span className="text-sm font-semibold tracking-wide">Back</span>
@@ -187,16 +186,18 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
               <h1 className={`text-3xl font-black tracking-tight transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>{formData.title || 'Edit Project'}</h1>
             </div>
           </div>
-          <div className="flex gap-3">
-            <button 
-              onClick={handleSubmit}
-              disabled={loading}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all disabled:opacity-50 font-bold tracking-wide shadow-lg shadow-blue-600/20"
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-              <span className="text-sm">{loading ? 'Saving...' : 'Save Changes'}</span>
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="flex gap-3">
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all disabled:opacity-50 font-bold tracking-wide shadow-lg shadow-blue-600/20"
+              >
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                <span className="text-sm">{loading ? 'Saving...' : 'Save Changes'}</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -205,9 +206,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
         {/* Left Column - Main Form */}
         <div className="lg:col-span-2 space-y-8">
           {/* Project Identity */}
-          <div className={`border rounded-2xl p-8 transition-all duration-300 ${
-            isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
-          }`}>
+          <div className={`border rounded-2xl p-8 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
             <h2 className={`text-xl font-bold mb-6 flex items-center gap-3 tracking-wide transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Project Identity
@@ -222,9 +222,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   value={formData.title}
                   onChange={(e) => handleChange('title', e.target.value)}
                   placeholder="e.g. Quantum Flow Dashboard"
-                  className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                    isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                  }`}
+                  className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                    }`}
                 />
               </div>
               <div>
@@ -236,9 +235,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   onChange={(e) => handleChange('description', e.target.value)}
                   placeholder="Describe the project..."
                   rows={5}
-                  className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 resize-none backdrop-blur-sm ${
-                    isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                  }`}
+                  className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 resize-none backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                    }`}
                 />
               </div>
 
@@ -250,9 +248,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   <select
                     value={formData.category}
                     onChange={(e) => handleChange('category', e.target.value)}
-                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                      isDark ? 'bg-gray-800/30 border-gray-700/50 text-white' : 'bg-bg-secondary border-border-theme text-text-primary'
-                    }`}
+                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white' : 'bg-bg-secondary border-border-theme text-text-primary'
+                      }`}
                   >
                     <option value="Web App">Web App</option>
                     <option value="Mobile">Mobile</option>
@@ -270,9 +267,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                     value={formData.duration}
                     onChange={(e) => handleChange('duration', e.target.value)}
                     placeholder="e.g. 3 months"
-                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                      isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                    }`}
+                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                      }`}
                   />
                 </div>
               </div>
@@ -285,9 +281,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   <select
                     value={formData.collaborationType}
                     onChange={(e) => handleChange('collaborationType', e.target.value)}
-                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                      isDark ? 'bg-gray-800/30 border-gray-700/50 text-white' : 'bg-bg-secondary border-border-theme text-text-primary'
-                    }`}
+                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white' : 'bg-bg-secondary border-border-theme text-text-primary'
+                      }`}
                   >
                     <option value="Solo">Solo</option>
                     <option value="Team">Team</option>
@@ -302,9 +297,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                     value={formData.videoUrl}
                     onChange={(e) => handleChange('videoUrl', e.target.value)}
                     placeholder="https://youtube.com/..."
-                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                      isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                    }`}
+                    className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                      }`}
                   />
                 </div>
               </div>
@@ -318,18 +312,16 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   value={formData.techStack.join(', ')}
                   onChange={(e) => handleChange('techStack', e.target.value.split(',').map(t => t.trim()))}
                   placeholder="React, Node.js, MongoDB"
-                  className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                    isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                  }`}
+                  className={`w-full border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                    }`}
                 />
               </div>
             </div>
           </div>
 
           {/* Visual Assets */}
-          <div className={`border rounded-2xl p-8 transition-all duration-300 ${
-            isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
-          }`}>
+          <div className={`border rounded-2xl p-8 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
             <h2 className={`text-xl font-bold mb-8 flex items-center gap-3 tracking-wide transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Visual Assets
@@ -341,9 +333,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   Project Thumbnail
                 </label>
                 <div
-                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${
-                    isDark ? 'border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
-                  }`}
+                  className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer ${isDark ? 'border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
+                    }`}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <input
@@ -365,9 +356,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {formData.galleryImages.map((img, index) => (
-                    <div key={index} className={`aspect-square rounded-xl border overflow-hidden relative group transition-all duration-300 ${
-                      isDark ? 'bg-gray-800/30 border-gray-700/50 hover:border-blue-500/30' : 'bg-bg-secondary border-border-theme hover:border-accent/30 shadow-sm'
-                    }`}>
+                    <div key={index} className={`aspect-square rounded-xl border overflow-hidden relative group transition-all duration-300 ${isDark ? 'bg-gray-800/30 border-gray-700/50 hover:border-blue-500/30' : 'bg-bg-secondary border-border-theme hover:border-accent/30 shadow-sm'
+                      }`}>
                       <input
                         type="file"
                         accept="image/*"
@@ -402,9 +392,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                     <button
                       type="button"
                       onClick={addGalleryImage}
-                      className={`aspect-square rounded-lg border-2 border-dashed flex items-center justify-center transition-all ${
-                        isDark ? 'bg-gray-800/30 border-gray-700 hover:border-blue-500/50 hover:bg-gray-800/20' : 'bg-bg-secondary border-border-theme hover:border-accent/50 hover:bg-bg-accent shadow-sm'
-                      }`}
+                      className={`aspect-square rounded-lg border-2 border-dashed flex items-center justify-center transition-all ${isDark ? 'bg-gray-800/30 border-gray-700 hover:border-blue-500/50 hover:bg-gray-800/20' : 'bg-bg-secondary border-border-theme hover:border-accent/50 hover:bg-bg-accent shadow-sm'
+                        }`}
                     >
                       <Plus size={20} className={isDark ? 'text-gray-500' : 'text-text-muted'} />
                     </button>
@@ -426,9 +415,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   />
                   <label
                     htmlFor="video-upload"
-                    className={`block border-2 border-dashed rounded-xl p-6 text-center transition-all duration-500 cursor-pointer relative overflow-hidden group ${
-                      isDark ? 'border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
-                    }`}
+                    className={`block border-2 border-dashed rounded-xl p-6 text-center transition-all duration-500 cursor-pointer relative overflow-hidden group ${isDark ? 'border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
+                      }`}
                   >
                     {loading ? (
                       <div className="flex flex-col items-center py-4">
@@ -485,9 +473,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
           </div>
 
           {/* Links */}
-          <div className={`border rounded-2xl p-8 transition-all duration-300 ${
-            isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
-          }`}>
+          <div className={`border rounded-2xl p-8 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
             <h2 className={`text-xl font-bold mb-8 flex items-center gap-3 tracking-wide transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               External Links
@@ -504,9 +491,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   placeholder="Live Demo URL"
                   value={formData.liveDemo}
                   onChange={(e) => handleChange('liveDemo', e.target.value)}
-                  className={`flex-1 border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                    isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                  }`}
+                  className={`flex-1 border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                    }`}
                 />
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -519,18 +505,16 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   placeholder="GitHub Repository"
                   value={formData.githubLink}
                   onChange={(e) => handleChange('githubLink', e.target.value)}
-                  className={`flex-1 border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${
-                    isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                  }`}
+                  className={`flex-1 border rounded-xl px-5 py-3.5 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                    }`}
                 />
               </div>
             </div>
           </div>
 
           {/* Case Study */}
-          <div className={`border rounded-2xl p-8 transition-all duration-300 ${
-            isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
-          }`}>
+          <div className={`border rounded-2xl p-8 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
             <h2 className={`text-xl font-bold mb-8 flex items-center gap-3 tracking-wide transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Case Study
@@ -550,9 +534,8 @@ const ProjectEdit = ({ project, onBack, onSave }) => {
                   onChange={(e) => handleChange('challenge', e.target.value)}
                   placeholder="What challenges did you face and how did you overcome them?"
                   rows={4}
-                  className={`w-full border rounded-xl px-5 py-4 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 resize-none backdrop-blur-sm ${
-                    isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-                  }`}
+                  className={`w-full border rounded-xl px-5 py-4 text-base transition-all focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 resize-none backdrop-blur-sm ${isDark ? 'bg-gray-800/30 border-gray-700/50 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                    }`}
                 />
               </div>
             </div>

@@ -55,8 +55,7 @@ const Settings = () => {
       linkedin: '',
       github: '',
       telegram: '',
-      twitter: '',
-      upwork: ''
+      twitter: ''
     },
     siteMetaTitle: '',
     metaDescription: '',
@@ -103,8 +102,7 @@ const Settings = () => {
             linkedin: profile.linkedin || '',
             github: profile.github || '',
             telegram: profile.telegram || '',
-            twitter: profile.twitter || '',
-            upwork: profile.upworkUrl || ''
+            twitter: profile.twitter || ''
           },
           siteMetaTitle: profile.siteTitle || '',
           metaDescription: profile.bio || ''
@@ -140,7 +138,6 @@ const Settings = () => {
         github: settings.socialLinks.github,
         telegram: settings.socialLinks.telegram,
         twitter: settings.socialLinks.twitter,
-        upworkUrl: settings.socialLinks.upwork,
         siteTitle: settings.siteMetaTitle,
         bio: settings.metaDescription
       });
@@ -196,7 +193,7 @@ const Settings = () => {
       setSaving(true);
       const token = localStorage.getItem('token');
       const API_URL = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
-
+      
       const response = await fetch(`${API_URL}/api/users/account/delete`, {
         method: 'DELETE',
         headers: {
@@ -327,7 +324,7 @@ const Settings = () => {
       },
       cancel: {
         label: 'Cancel',
-        onClick: () => { },
+        onClick: () => {},
       },
     });
   };
@@ -381,7 +378,7 @@ const Settings = () => {
   ];
 
   const getRoleBadge = (role) => {
-    switch (role) {
+    switch(role) {
       case 'super_admin':
         return (
           <span className="flex items-center gap-1 px-2 py-1 rounded bg-purple-500/20 text-purple-400 text-xs font-medium border border-purple-500/30">
@@ -427,10 +424,11 @@ const Settings = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 shrink-0 ${activeTab === tab.id
+            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 shrink-0 ${
+              activeTab === tab.id 
                 ? isDark ? 'text-cyan-400 border-cyan-400' : 'text-accent border-accent'
                 : isDark ? 'text-gray-500 border-transparent hover:text-gray-300' : 'text-text-muted border-transparent hover:text-text-primary'
-              }`}
+            }`}
           >
             <tab.icon size={16} />
             {tab.label}
@@ -443,40 +441,43 @@ const Settings = () => {
           {/* Settings Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {/* Security Card */}
-            <div className={`border rounded-xl p-6 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
-              }`}>
+            <div className={`border rounded-xl p-6 transition-all duration-300 ${
+              isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
               <div className="flex items-center gap-3 mb-6">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-blue-500/10' : 'bg-blue-50'}`}>
                   <Shield size={20} className="text-blue-400" />
                 </div>
                 <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-text-primary'}`}>Security</h2>
               </div>
-
+              
               <div className="space-y-4">
                 <div>
                   <label className={`block text-[10px] uppercase tracking-wider mb-2 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Admin Display Name</label>
-                  <input
+                  <input 
                     type="text"
                     value={settings.adminDisplayName}
-                    onChange={(e) => setSettings({ ...settings, adminDisplayName: e.target.value })}
+                    onChange={(e) => setSettings({...settings, adminDisplayName: e.target.value})}
                     placeholder="Enter display name"
-                    className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-all ${isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
-                      }`}
+                    className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-all ${
+                      isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
+                    }`}
                   />
                 </div>
-
+                
                 <div>
                   <label className={`block text-[10px] uppercase tracking-wider mb-2 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Login Username</label>
-                  <input
+                  <input 
                     type="text"
                     value={settings.loginUsername}
-                    onChange={(e) => setSettings({ ...settings, loginUsername: e.target.value })}
-                    className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-all ${isDark ? 'bg-gray-800 border-gray-700 text-gray-300 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-secondary focus:border-accent'
-                      }`}
+                    onChange={(e) => setSettings({...settings, loginUsername: e.target.value})}
+                    className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none transition-all ${
+                      isDark ? 'bg-gray-800 border-gray-700 text-gray-300 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-secondary focus:border-accent'
+                    }`}
                   />
                 </div>
-
-                <button
+                
+                <button 
                   onClick={() => setActiveTab('security')}
                   className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors mt-4"
                 >
@@ -487,42 +488,45 @@ const Settings = () => {
             </div>
 
             {/* Contact Card */}
-            <div className={`border rounded-xl p-6 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
-              }`}>
+            <div className={`border rounded-xl p-6 transition-all duration-300 ${
+              isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
               <div className="flex items-center gap-3 mb-6">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-cyan-500/10' : 'bg-cyan-50'}`}>
                   <Mail size={20} className="text-cyan-400" />
                 </div>
                 <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-text-primary'}`}>Contact</h2>
               </div>
-
+              
               <div className="space-y-4">
                 <div>
                   <label className={`block text-[10px] uppercase tracking-wider mb-2 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Primary Email</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                    <input
+                    <input 
                       type="email"
                       value={settings.primaryEmail}
-                      onChange={(e) => setSettings({ ...settings, primaryEmail: e.target.value })}
+                      onChange={(e) => setSettings({...settings, primaryEmail: e.target.value})}
                       placeholder="@"
-                      className={`w-full border rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none transition-all ${isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-cyan-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
-                        }`}
+                      className={`w-full border rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none transition-all ${
+                        isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-cyan-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
+                      }`}
                     />
                   </div>
                 </div>
-
+                
                 <div>
                   <label className={`block text-[10px] uppercase tracking-wider mb-2 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Direct Line</label>
                   <div className="relative">
                     <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                    <input
+                    <input 
                       type="text"
                       value={settings.directLine}
-                      onChange={(e) => setSettings({ ...settings, directLine: e.target.value })}
+                      onChange={(e) => setSettings({...settings, directLine: e.target.value})}
                       placeholder="+X XXX XXX XXXX"
-                      className={`w-full border rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none transition-all ${isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-cyan-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
-                        }`}
+                      className={`w-full border rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none transition-all ${
+                        isDark ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-cyan-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
+                      }`}
                     />
                   </div>
                 </div>
@@ -530,15 +534,16 @@ const Settings = () => {
             </div>
 
             {/* Social Matrix Card */}
-            <div className={`border rounded-xl p-6 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
-              }`}>
+            <div className={`border rounded-xl p-6 transition-all duration-300 ${
+              isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
+            }`}>
               <div className="flex items-center gap-3 mb-6">
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-purple-500/10' : 'bg-purple-50'}`}>
                   <Link2 size={20} className="text-purple-400" />
                 </div>
                 <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-text-primary'}`}>Social Matrix</h2>
               </div>
-
+              
               <div className="space-y-4 max-h-48 overflow-y-auto pr-2 no-scrollbar">
                 {Object.entries(settings.socialLinks).map(([platform, url]) => (
                   <div key={platform}>
@@ -546,7 +551,7 @@ const Settings = () => {
                     <div className="flex gap-2">
                       <div className="relative flex-1">
                         <Link size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                        <input
+                        <input 
                           type="text"
                           value={url}
                           onChange={(e) => {
@@ -554,11 +559,12 @@ const Settings = () => {
                             setSettings({ ...settings, socialLinks: newLinks });
                           }}
                           placeholder={`https://${platform}.com/...`}
-                          className={`w-full border rounded-lg pl-10 pr-4 py-2 text-xs focus:outline-none transition-all ${isDark ? 'bg-gray-800 border-gray-700 text-gray-300 placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-secondary placeholder-text-muted'
-                            }`}
+                          className={`w-full border rounded-lg pl-10 pr-4 py-2 text-xs focus:outline-none transition-all ${
+                            isDark ? 'bg-gray-800 border-gray-700 text-gray-300 placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-secondary placeholder-text-muted'
+                          }`}
                         />
                       </div>
-                      <button
+                      <button 
                         onClick={() => {
                           const newLinks = { ...settings.socialLinks };
                           delete newLinks[platform];
@@ -571,11 +577,12 @@ const Settings = () => {
                     </div>
                   </div>
                 ))}
-
-                <button
+                
+                <button 
                   onClick={() => setShowAddPlatformModal(true)}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border transition-all text-sm mt-4 ${isDark ? 'border-gray-700 text-gray-400 hover:text-white hover:border-gray-600' : 'border-border-theme text-text-secondary hover:text-text-primary hover:bg-bg-secondary'
-                    }`}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border transition-all text-sm mt-4 ${
+                    isDark ? 'border-gray-700 text-gray-400 hover:text-white hover:border-gray-600' : 'border-border-theme text-text-secondary hover:text-text-primary hover:bg-bg-secondary'
+                  }`}
                 >
                   <Plus size={14} />
                   Add New Platform
@@ -594,7 +601,7 @@ const Settings = () => {
                       <input
                         type="text"
                         value={newPlatform.name}
-                        onChange={(e) => setNewPlatform({ ...newPlatform, name: e.target.value.toLowerCase() })}
+                        onChange={(e) => setNewPlatform({...newPlatform, name: e.target.value.toLowerCase()})}
                         placeholder="e.g., instagram, youtube, discord"
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
                       />
@@ -604,7 +611,7 @@ const Settings = () => {
                       <input
                         type="text"
                         value={newPlatform.url}
-                        onChange={(e) => setNewPlatform({ ...newPlatform, url: e.target.value })}
+                        onChange={(e) => setNewPlatform({...newPlatform, url: e.target.value})}
                         placeholder="https://..."
                         className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
                       />
@@ -654,7 +661,7 @@ const Settings = () => {
                 </div>
                 <h2 className="text-lg font-semibold text-white">Save Changes</h2>
               </div>
-
+              
               <div className="flex gap-3">
                 <button
                   onClick={fetchProfileSettings}
@@ -708,7 +715,7 @@ const Settings = () => {
               <h2 className="text-xl font-semibold text-white mb-1">Admin Management</h2>
               <p className="text-gray-500 text-sm">Manage access permissions and administrative rights.</p>
             </div>
-            <button
+            <button 
               onClick={() => setShowAddAdminModal(true)}
               className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
             >
@@ -718,11 +725,13 @@ const Settings = () => {
           </div>
 
           {/* Admin List */}
-          <div className={`border rounded-xl overflow-hidden transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
-            }`}>
+          <div className={`border rounded-xl overflow-hidden transition-all duration-300 ${
+            isDark ? 'bg-[#12121a] border-gray-800' : 'bg-bg-card border-border-theme shadow-soft'
+          }`}>
             {/* Table Header */}
-            <div className={`grid grid-cols-12 gap-4 p-4 border-b text-xs font-medium uppercase tracking-wider ${isDark ? 'border-gray-800 bg-gray-800/30 text-gray-400' : 'border-border-theme bg-bg-secondary text-text-muted'
-              }`}>
+            <div className={`grid grid-cols-12 gap-4 p-4 border-b text-xs font-medium uppercase tracking-wider ${
+              isDark ? 'border-gray-800 bg-gray-800/30 text-gray-400' : 'border-border-theme bg-bg-secondary text-text-muted'
+            }`}>
               <div className="col-span-3">Admin</div>
               <div className="col-span-2">Role</div>
               <div className="col-span-2">Status</div>
@@ -743,79 +752,83 @@ const Settings = () => {
               </div>
             ) : (
               admins.map((admin) => (
-                <div key={admin._id} className={`grid grid-cols-12 gap-4 p-4 border-b transition-colors items-center ${isDark ? 'border-gray-800 hover:bg-gray-800/20' : 'border-border-theme hover:bg-bg-secondary'
-                  }`}>
-                  {/* Admin Info */}
-                  <div className="col-span-3 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">
-                        {admin.name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div>
-                      <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-text-primary'}`}>{admin.name}</p>
-                      <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>{admin.email}</p>
-                    </div>
-                  </div>
-
-                  {/* Role */}
-                  <div className="col-span-2">
-                    {getRoleBadge(admin.role)}
-                  </div>
-
-                  {/* Status */}
-                  <div className="col-span-2">
-                    <span className={`flex items-center gap-1.5 text-sm ${admin.status === 'active' ? 'text-green-500' : 'text-gray-500'}`}>
-                      <span className={`w-2 h-2 rounded-full ${admin.status === 'active' ? 'bg-green-500' : 'bg-gray-500'}`}></span>
-                      {admin.status === 'active' ? 'Active' : 'Inactive'}
+              <div key={admin._id} className={`grid grid-cols-12 gap-4 p-4 border-b transition-colors items-center ${
+                isDark ? 'border-gray-800 hover:bg-gray-800/20' : 'border-border-theme hover:bg-bg-secondary'
+              }`}>
+                {/* Admin Info */}
+                <div className="col-span-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">
+                      {admin.name.split(' ').map(n => n[0]).join('')}
                     </span>
                   </div>
-
-                  {/* Last Active */}
-                  <div className={`col-span-2 text-sm ${isDark ? 'text-gray-400' : 'text-text-secondary'}`}>
-                    {admin.lastActive}
+                  <div>
+                    <p className={`text-sm font-medium ${isDark ? 'text-white' : 'text-text-primary'}`}>{admin.name}</p>
+                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>{admin.email}</p>
                   </div>
+                </div>
 
-                  {/* Permissions Summary */}
-                  <div className="col-span-2">
-                    <div className="flex items-center gap-1 flex-wrap">
-                      {Object.entries(admin.permissions)
-                        .filter(([_, value]) => value)
-                        .slice(0, 3)
-                        .map(([key]) => (
-                          <span key={key} className={`px-2 py-0.5 rounded text-[10px] border ${isDark ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-bg-secondary border-border-theme text-text-muted'
-                            }`}>
-                            {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                          </span>
-                        ))}
-                      {Object.values(admin.permissions).filter(Boolean).length > 3 && (
-                        <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>+{Object.values(admin.permissions).filter(Boolean).length - 3}</span>
-                      )}
-                    </div>
-                  </div>
+                {/* Role */}
+                <div className="col-span-2">
+                  {getRoleBadge(admin.role)}
+                </div>
 
-                  {/* Actions */}
-                  <div className="col-span-1 flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => setEditingAdmin(admin)}
-                      className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700' : 'bg-bg-secondary text-text-secondary hover:text-text-primary hover:bg-bg-accent'
-                        }`}
-                      title="Edit Permissions"
-                    >
-                      <Edit3 size={14} />
-                    </button>
-                    {admin.role !== 'super_admin' && (
-                      <button
-                        onClick={() => handleDeleteAdmin(admin._id)}
-                        className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-gray-800 text-gray-400 hover:text-red-400 hover:bg-red-500/10' : 'bg-bg-secondary text-text-secondary hover:text-red-600 hover:bg-red-50'
-                          }`}
-                        title="Remove Admin"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                {/* Status */}
+                <div className="col-span-2">
+                  <span className={`flex items-center gap-1.5 text-sm ${admin.status === 'active' ? 'text-green-500' : 'text-gray-500'}`}>
+                    <span className={`w-2 h-2 rounded-full ${admin.status === 'active' ? 'bg-green-500' : 'bg-gray-500'}`}></span>
+                    {admin.status === 'active' ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+
+                {/* Last Active */}
+                <div className={`col-span-2 text-sm ${isDark ? 'text-gray-400' : 'text-text-secondary'}`}>
+                  {admin.lastActive}
+                </div>
+
+                {/* Permissions Summary */}
+                <div className="col-span-2">
+                  <div className="flex items-center gap-1 flex-wrap">
+                    {Object.entries(admin.permissions)
+                      .filter(([_, value]) => value)
+                      .slice(0, 3)
+                      .map(([key]) => (
+                        <span key={key} className={`px-2 py-0.5 rounded text-[10px] border ${
+                          isDark ? 'bg-gray-800 border-gray-700 text-gray-300' : 'bg-bg-secondary border-border-theme text-text-muted'
+                        }`}>
+                          {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                        </span>
+                      ))}
+                    {Object.values(admin.permissions).filter(Boolean).length > 3 && (
+                      <span className={`text-xs ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>+{Object.values(admin.permissions).filter(Boolean).length - 3}</span>
                     )}
                   </div>
                 </div>
+
+                {/* Actions */}
+                <div className="col-span-1 flex items-center justify-end gap-1">
+                  <button 
+                    onClick={() => setEditingAdmin(admin)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isDark ? 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700' : 'bg-bg-secondary text-text-secondary hover:text-text-primary hover:bg-bg-accent'
+                    }`}
+                    title="Edit Permissions"
+                  >
+                    <Edit3 size={14} />
+                  </button>
+                  {admin.role !== 'super_admin' && (
+                    <button
+                      onClick={() => handleDeleteAdmin(admin._id)}
+                      className={`p-2 rounded-lg transition-colors ${
+                        isDark ? 'bg-gray-800 text-gray-400 hover:text-red-400 hover:bg-red-500/10' : 'bg-bg-secondary text-text-secondary hover:text-red-600 hover:bg-red-50'
+                      }`}
+                      title="Remove Admin"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
               ))
             )}
           </div>
@@ -849,7 +862,7 @@ const Settings = () => {
         /* Security Tab */
         <div className="max-w-2xl">
           <h2 className="text-xl font-semibold text-white mb-6">Security Settings</h2>
-
+          
           <div className="space-y-6">
             {/* Password Change */}
             <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6">
@@ -860,7 +873,7 @@ const Settings = () => {
                   <input
                     type="password"
                     value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                    onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
                     required
                   />
@@ -870,7 +883,7 @@ const Settings = () => {
                   <input
                     type="password"
                     value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                    onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
                     required
                     minLength={6}
@@ -881,7 +894,7 @@ const Settings = () => {
                   <input
                     type="password"
                     value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                    onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
                     className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
                     required
                   />
@@ -940,7 +953,7 @@ const Settings = () => {
           <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-white">Add New Admin</h2>
-              <button
+              <button 
                 onClick={() => setShowAddAdminModal(false)}
                 className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
               >
@@ -951,11 +964,11 @@ const Settings = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
-                <input
-                  type="text"
+                <input 
+                  type="text" 
                   placeholder="John Doe"
                   value={newAdmin.name}
-                  onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
+                  onChange={(e) => setNewAdmin({...newAdmin, name: e.target.value})}
                   className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
@@ -963,21 +976,21 @@ const Settings = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Email</label>
-                  <input
-                    type="email"
+                  <input 
+                    type="email" 
                     placeholder="admin@example.com"
                     value={newAdmin.email}
-                    onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                    onChange={(e) => setNewAdmin({...newAdmin, email: e.target.value})}
                     className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Username</label>
-                  <input
-                    type="text"
+                  <input 
+                    type="text" 
                     placeholder="john_doe"
                     value={newAdmin.username}
-                    onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                    onChange={(e) => setNewAdmin({...newAdmin, username: e.target.value})}
                     className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
                   />
                 </div>
@@ -985,9 +998,9 @@ const Settings = () => {
 
               <div>
                 <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Role</label>
-                <select
+                <select 
                   value={newAdmin.role}
-                  onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+                  onChange={(e) => setNewAdmin({...newAdmin, role: e.target.value})}
                   className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
                 >
                   <option value="super_admin">Super Admin</option>
@@ -1001,7 +1014,7 @@ const Settings = () => {
                 <div className="grid grid-cols-2 gap-2 bg-gray-800/30 rounded-lg p-4">
                   {Object.entries(newAdmin.permissions).map(([key, value]) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer">
-                      <input
+                      <input 
                         type="checkbox"
                         checked={value}
                         onChange={() => setNewAdmin({
@@ -1066,7 +1079,7 @@ const Settings = () => {
                   <p className="text-xs text-gray-500">{editingAdmin.email}</p>
                 </div>
               </div>
-              <button
+              <button 
                 onClick={() => setEditingAdmin(null)}
                 className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
               >
@@ -1076,9 +1089,9 @@ const Settings = () => {
 
             <div className="mb-4">
               <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Role</label>
-              <select
+              <select 
                 value={editingAdmin.role}
-                onChange={(e) => setEditingAdmin({ ...editingAdmin, role: e.target.value })}
+                onChange={(e) => setEditingAdmin({...editingAdmin, role: e.target.value})}
                 className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
               >
                 <option value="super_admin">Super Admin</option>
@@ -1092,7 +1105,7 @@ const Settings = () => {
               <div className="grid grid-cols-2 gap-3 bg-gray-800/30 rounded-lg p-4">
                 {Object.entries(editingAdmin.permissions).map(([key, value]) => (
                   <label key={key} className="flex items-center gap-2 cursor-pointer">
-                    <input
+                    <input 
                       type="checkbox"
                       checked={value}
                       onChange={() => handlePermissionToggle(editingAdmin.id, key)}

@@ -49,7 +49,7 @@ export const getProfile = asyncHandler(async (req, res) => {
 // @route   PUT /api/profile
 // @access  Private
 export const updateProfile = asyncHandler(async (req, res) => {
-  const { name, title, subtitle, bio, heroDescription, location, email, image, resume, github, linkedin, twitter, upworkUrl, phone, focusStats, siteTitle, telegram, skillCategoryOrder } = req.body;
+  const { name, title, subtitle, bio, heroDescription, location, email, image, resume, github, linkedin, twitter, phone, focusStats, siteTitle, telegram, skillCategoryOrder } = req.body;
 
   // Validate image URLs
   if (image !== undefined && !validateImageUrl(image)) {
@@ -80,7 +80,6 @@ export const updateProfile = asyncHandler(async (req, res) => {
   if (github !== undefined) updateData.github = github;
   if (linkedin !== undefined) updateData.linkedin = linkedin;
   if (twitter !== undefined) updateData.twitter = twitter;
-  if (upworkUrl !== undefined) updateData.upworkUrl = upworkUrl;
   if (phone !== undefined) updateData.phone = phone;
   if (focusStats !== undefined) updateData.focusStats = focusStats;
   if (siteTitle !== undefined) updateData.siteTitle = siteTitle;
@@ -111,7 +110,6 @@ export const updateProfile = asyncHandler(async (req, res) => {
       github,
       linkedin,
       twitter,
-      upworkUrl,
       phone,
     });
   }

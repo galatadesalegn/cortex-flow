@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import './config/env.js';
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -7,13 +7,8 @@ import mongoSanitize from 'express-mongo-sanitize';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Load env FIRST
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-dotenv.config({ path: join(__dirname, '.env') });
-
-console.log('Environment variable RESEND_API_KEY loaded:', process.env.RESEND_API_KEY ? 'YES (Starts with ' + process.env.RESEND_API_KEY.substring(0, 5) + '...)' : 'NO');
 
 // Environment variable validation
 const requiredEnvVars = ['MONGO_URL', 'JWT_SECRET'];

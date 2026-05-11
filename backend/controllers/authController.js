@@ -44,6 +44,9 @@ export const login = asyncHandler(async (req, res) => {
     user: {
       id: user._id.toString(),
       email: user.email,
+      name: user.name,
+      role: user.role,
+      permissions: user.getPermissions()
     },
   });
 });
@@ -52,7 +55,7 @@ export const login = asyncHandler(async (req, res) => {
 // @route   GET /api/auth/me
 // @access  Private
 export const getMe = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id).select('id email name');
+  const user = await User.findById(req.user.id);
 
   if (!user) {
     res.status(404);
@@ -65,6 +68,8 @@ export const getMe = asyncHandler(async (req, res) => {
       id: user._id.toString(),
       email: user.email,
       name: user.name,
+      role: user.role,
+      permissions: user.getPermissions()
     },
   });
 });
@@ -97,7 +102,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   // Send OTP email
   const emailResult = await sendOTPEmail(email, otp);
-  
+
   if (!emailResult.success) {
     console.error('Failed to send OTP email:', emailResult.error);
     res.status(500);
