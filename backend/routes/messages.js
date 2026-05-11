@@ -6,15 +6,20 @@ import {
   deleteMessage,
   replyMessage,
 } from '../controllers/messageController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, checkPermission } from '../middleware/auth.js';
 import { cacheMiddleware } from '../utils/cache.js';
 
 const router = express.Router();
 
-router.get('/', protect, cacheMiddleware(300), getMessages);
-router.get('/:id', protect, getMessage);
+// Public route to send message
 router.post('/', createMessage);
-router.post('/:id/reply', protect, replyMessage);
-router.delete('/:id', protect, deleteMessage);
+
+// Admin routes
+router.use(protect, checkPermission('messages'));
+
+router.get('/', cacheMiddleware(300), getMessages);
+router.get('/:id', getMessage);
+router.post('/:id/reply', replyMessage);
+router.delete('/:id', deleteMessage);
 
 export default router;

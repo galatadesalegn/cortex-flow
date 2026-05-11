@@ -4,10 +4,12 @@ import { toast } from 'sonner';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import CVUpload from '../components/CVUpload';
 import HeroProfileEditor from '../components/HeroProfileEditor';
-import { useProfile } from '../hooks';
+import { useProfile, useAuth } from '../hooks';
 
 const About = () => {
-  const { profile, loading, updateProfile } = useProfile();
+  const { profile, loading, updateProfile, fetchProfile } = useProfile();
+  const { user } = useAuth();
+  const isViewer = user?.role === 'viewer';
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -45,7 +47,7 @@ const About = () => {
 
   const handleSave = async () => {
     const result = await updateProfile(formData);
-    
+
     if (result.success) {
       toast.success('Profile saved successfully!');
       // Refetch to get fresh data
@@ -66,14 +68,16 @@ const About = () => {
           <h1 className="text-2xl font-bold text-white">About Section</h1>
           <p className="text-gray-500 mt-1">Manage your profile information and bio</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors"
-        >
-          <Save size={18} />
-          {loading ? 'Saving...' : 'Save Changes'}
-        </button>
+        {!isViewer && (
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          >
+            <Save size={18} />
+            {loading ? 'Saving...' : 'Save Changes'}
+          </button>
+        )}
       </div>
 
       {loading && !profile && (
@@ -84,23 +88,23 @@ const About = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Left Column - Hero & Profile Only */}
-        <HeroProfileEditor 
-          data={formData} 
-          onChange={handleChange} 
+        <HeroProfileEditor
+          data={formData}
+          onChange={handleChange}
         />
 
         {/* Right Column - Photo + CV */}
         <div className="space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-white">Profile Photo</h2>
-            <ProfileImageUpload 
+            <ProfileImageUpload
               image={formData.image}
               onChange={(url) => handleChange('image', url)}
             />
           </div>
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-white">CV / Resume</h2>
-            <CVUpload 
+            <CVUpload
               resumeUrl={formData.resume}
               onChange={(url) => handleChange('resume', url)}
             />

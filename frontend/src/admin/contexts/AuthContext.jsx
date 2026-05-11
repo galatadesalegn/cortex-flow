@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const { token, user: storedUser } = authService.getStoredAuth();
         console.log('🔐 AuthContext: Checking auth, token exists:', !!token);
-        
+
         if (token && storedUser) {
           // Verify token is still valid by fetching current user
           const response = await authService.getMe();
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await authService.login(email, password);
-      
+
       if (response.success) {
         authService.setAuth(response.token, response.user);
         setUser(response.user);
@@ -79,6 +79,13 @@ export const AuthProvider = ({ children }) => {
     setError(null);
   }, []);
 
+  // Permission check helper
+  const hasPermission = useCallback((permission) => {
+    if (!user) return false;
+    if (user.role === 'super_admin') return true;
+    return user.permissions?.[permission] || false;
+  }, [user]);
+
   const value = {
     user,
     isAuthenticated,
@@ -87,6 +94,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     clearError,
+    hasPermission,
   };
 
   return (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useTheme, useNotification, useInactivityLock } from '../hooks';
+import { useTheme, useNotification, useInactivityLock, useAuth } from '../hooks';
 import PopupNotification from './PopupNotification.jsx';
 import LockScreen from './LockScreen.jsx';
 import {
@@ -50,6 +50,8 @@ import Testimonials from './Testimonials.jsx';
 
 const Skills = () => {
   const { isDark } = useTheme();
+  const { user } = useAuth();
+  const isViewer = user?.role === 'viewer';
   const { notifications, success, error, info, removeNotification } = useNotification();
   const { isLocked, unlock, timeRemaining } = useInactivityLock(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -301,99 +303,99 @@ const Skills = () => {
     }
   };
 
-// Handle delete experience
-const handleDeleteExperience = async (id) => {
-  toast('Are you sure you want to delete this experience?', {
-    action: {
-      label: 'Delete',
-      onClick: async () => {
-        try {
-          await experienceService.delete(id);
-          setExperiences(prev => prev.filter(exp => exp._id !== id));
-          setShowExpModal(false);
-          setEditingExp(null);
-          success('Experience deleted successfully!');
-        } catch (err) {
-          console.error('Failed to delete experience:', err);
-          error('Failed to delete experience');
-        }
+  // Handle delete experience
+  const handleDeleteExperience = async (id) => {
+    toast('Are you sure you want to delete this experience?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await experienceService.delete(id);
+            setExperiences(prev => prev.filter(exp => exp._id !== id));
+            setShowExpModal(false);
+            setEditingExp(null);
+            success('Experience deleted successfully!');
+          } catch (err) {
+            console.error('Failed to delete experience:', err);
+            error('Failed to delete experience');
+          }
+        },
       },
-    },
-    cancel: {
-      label: 'Cancel',
-      onClick: () => {},
-    },
-  });
-};
-
-// Handle update education
-const handleUpdateEducation = async (e) => {
-  e.preventDefault();
-
-  if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
-    error('Please fill in all required fields');
-    return;
-  }
-
-  try {
-    const response = await educationService.update(editingEdu._id, eduFormData);
-
-    setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
-    setShowEduModal(false);
-    setEditingEdu(null);
-    success('Education updated successfully!');
-  } catch (err) {
-    console.error('Failed to update education:', err);
-    error('Failed to update education');
-  }
-};
-
-// Handle delete education
-const handleDeleteEducation = async (id) => {
-  toast('Are you sure you want to delete this education?', {
-    action: {
-      label: 'Delete',
-      onClick: async () => {
-        try {
-          await educationService.delete(id);
-          setEducations(prev => prev.filter(edu => edu._id !== id));
-          setShowEduModal(false);
-          setEditingEdu(null);
-          success('Education deleted successfully!');
-        } catch (err) {
-          console.error('Failed to delete education:', err);
-          error('Failed to delete education');
-        }
+      cancel: {
+        label: 'Cancel',
+        onClick: () => { },
       },
-    },
-    cancel: {
-      label: 'Cancel',
-      onClick: () => {},
-    },
-  });
-};
-
-// Handle update skill
-const handleUpdateSkill = async (e) => {
-  e.preventDefault();
-
-  if (!formData.name || !formData.category) {
-    error('Please fill in all required fields');
-    return;
-  }
-
-  try {
-    const response = await skillService.update(editingSkill.id, {
-      name: formData.name,
-      category: formData.category,
-      level: parseInt(formData.level),
-      proficiency: formData.proficiency,
-      icon: formData.icon
     });
+  };
 
-    setSkills(prev => prev.map(skill =>
-      skill._id === editingSkill.id ? response.data : skill
-    ));
+  // Handle update education
+  const handleUpdateEducation = async (e) => {
+    e.preventDefault();
+
+    if (!eduFormData.role || !eduFormData.company || !eduFormData.description) {
+      error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await educationService.update(editingEdu._id, eduFormData);
+
+      setEducations(prev => prev.map(edu => edu._id === editingEdu._id ? response.data : edu));
+      setShowEduModal(false);
+      setEditingEdu(null);
+      success('Education updated successfully!');
+    } catch (err) {
+      console.error('Failed to update education:', err);
+      error('Failed to update education');
+    }
+  };
+
+  // Handle delete education
+  const handleDeleteEducation = async (id) => {
+    toast('Are you sure you want to delete this education?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await educationService.delete(id);
+            setEducations(prev => prev.filter(edu => edu._id !== id));
+            setShowEduModal(false);
+            setEditingEdu(null);
+            success('Education deleted successfully!');
+          } catch (err) {
+            console.error('Failed to delete education:', err);
+            error('Failed to delete education');
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancel',
+        onClick: () => { },
+      },
+    });
+  };
+
+  // Handle update skill
+  const handleUpdateSkill = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.category) {
+      error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await skillService.update(editingSkill.id, {
+        name: formData.name,
+        category: formData.category,
+        level: parseInt(formData.level),
+        proficiency: formData.proficiency,
+        icon: formData.icon
+      });
+
+      setSkills(prev => prev.map(skill =>
+        skill._id === editingSkill.id ? response.data : skill
+      ));
     } catch (err) {
       console.error('Failed to delete skill:', err);
       error('Failed to delete skill');
@@ -440,1389 +442,1382 @@ const handleUpdateSkill = async (e) => {
 
       {/* Lock Screen */}
       {isLocked && (
-        <LockScreen 
-          onUnlock={unlock} 
+        <LockScreen
+          onUnlock={unlock}
           timeRemaining={timeRemaining}
           isDark={isDark}
         />
       )}
 
       <div className={`p-6 min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0a0a0f]' : 'bg-bg-primary'}`}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <p className={`text-xs uppercase tracking-widest mb-1 transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>ROOT / ENGINE / SKILLS_MATRIX</p>
-          <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>Skills Management</h1>
-          <p className={`transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Technical proficiency matrix and architectural competence index.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-            <input
-              type="text"
-              placeholder="Search system repository..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`border rounded-lg pl-10 pr-4 py-2 text-sm transition-all focus:outline-none focus:border-accent w-64 ${
-                isDark ? 'bg-gray-800/50 border-gray-700 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
-              }`}
-            />
+        {/* Header */}
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <p className={`text-xs uppercase tracking-widest mb-1 transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>ROOT / ENGINE / SKILLS_MATRIX</p>
+            <h1 className={`text-3xl font-bold mb-2 transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>Skills Management</h1>
+            <p className={`transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Technical proficiency matrix and architectural competence index.</p>
           </div>
-          <button className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-gray-800/50 text-gray-400 hover:text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
-            <Settings size={18} />
-          </button>
-          <button
-            onClick={() => window.open('/', '_blank')}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium"
-          >
-            <ExternalLink size={16} />
-            Preview
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+              <input
+                type="text"
+                placeholder="Search system repository..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`border rounded-lg pl-10 pr-4 py-2 text-sm transition-all focus:outline-none focus:border-accent w-64 ${isDark ? 'bg-gray-800/50 border-gray-700 text-white placeholder-gray-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted'
+                  }`}
+              />
+            </div>
+            <button className={`p-2 rounded-lg transition-colors ${isDark ? 'bg-gray-800/50 text-gray-400 hover:text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
+              <Settings size={18} />
+            </button>
+            <button
+              onClick={() => window.open('/', '_blank')}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium"
+            >
+              <ExternalLink size={16} />
+              Preview
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className={`flex items-center gap-1 mb-6 border-b transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-border-theme'}`}>
-        {[
-          { id: 'skills', label: 'Skills Matrix', icon: BarChart3 },
-          { id: 'experience', label: 'Experience', icon: Briefcase },
-          { id: 'education', label: 'Education', icon: GraduationCap },
-          { id: 'testimonials', label: 'Testimonials', icon: MessageSquare }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id
-              ? isDark ? 'text-cyan-400 border-cyan-400' : 'text-accent border-accent'
-              : isDark ? 'text-gray-500 border-transparent hover:text-gray-300' : 'text-text-muted border-transparent hover:text-text-primary'
-              }`}
-          >
-            <tab.icon size={16} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
+        {/* Tabs */}
+        <div className={`flex items-center gap-1 mb-6 border-b transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-border-theme'}`}>
+          {[
+            { id: 'skills', label: 'Skills Matrix', icon: BarChart3 },
+            { id: 'experience', label: 'Experience', icon: Briefcase },
+            { id: 'education', label: 'Education', icon: GraduationCap },
+            { id: 'testimonials', label: 'Testimonials', icon: MessageSquare }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${activeTab === tab.id
+                ? isDark ? 'text-cyan-400 border-cyan-400' : 'text-accent border-accent'
+                : isDark ? 'text-gray-500 border-transparent hover:text-gray-300' : 'text-text-muted border-transparent hover:text-text-primary'
+                }`}
+            >
+              <tab.icon size={16} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      {activeTab === 'skills' ? (
-        <>
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 mb-8">
-            <button
-              onClick={openFocusEditModal}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
-            >
-              <Edit2 size={16} />
-              Edit Focus
-            </button>
-            <button
-              onClick={openAddModal}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-              <Plus size={16} />
-              Add New Skill
-            </button>
-            <button
-              onClick={saveCategoryOrder}
-              disabled={!orderModified}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                orderModified
+        {activeTab === 'skills' ? (
+          <>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3 mb-8">
+              <button
+                onClick={openFocusEditModal}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
+              >
+                <Edit2 size={16} />
+                Edit Focus
+              </button>
+              <button
+                onClick={openAddModal}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                <Plus size={16} />
+                Add New Skill
+              </button>
+              <button
+                onClick={saveCategoryOrder}
+                disabled={!orderModified}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${orderModified
                   ? 'bg-green-600 text-white hover:bg-green-700'
                   : 'bg-gray-700 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              <Save size={16} />
-              Save Order
-            </button>
-          </div>
-
-          {/* Skills Grid */}
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading skills...</p>
-              </div>
-            </div>
-          ) : pageError ? (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
-              <p className="text-red-400">{pageError}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  }`}
               >
-                Retry
+                <Save size={16} />
+                Save Order
               </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {categories.map((category, index) => {
-                const IconComponent = iconMap[category.icon] || Code2;
-                return (
-                  <div
-                    key={category.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, index)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragEnd={handleDragEnd}
-                    className={`bg-[#12121a] border rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group cursor-move ${
-                      draggedIndex === index ? 'opacity-50 border-cyan-400' : 'border-gray-800'
-                    }`}
-                    style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
-                  >
-                    {/* Card Header */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
-                          <IconComponent size={20} className="text-cyan-400" />
+
+            {/* Skills Grid */}
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+                  <p className="text-gray-400">Loading skills...</p>
+                </div>
+              </div>
+            ) : pageError ? (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
+                <p className="text-red-400">{pageError}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {categories.map((category, index) => {
+                  const IconComponent = iconMap[category.icon] || Code2;
+                  return (
+                    <div
+                      key={category.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`bg-[#12121a] border rounded-xl p-5 hover:border-gray-700 transition-all duration-300 hover:transform hover:scale-[1.01] hover:shadow-2xl hover:shadow-cyan-400/10 hover:-translate-y-1 group cursor-move ${draggedIndex === index ? 'opacity-50 border-cyan-400' : 'border-gray-800'
+                        }`}
+                      style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
+                    >
+                      {/* Card Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
+                            <IconComponent size={20} className="text-cyan-400" />
+                          </div>
+                          <GripVertical size={16} className="text-gray-600" />
                         </div>
-                        <GripVertical size={16} className="text-gray-600" />
+                        <span className="text-[10px] text-gray-600 font-mono">0{index + 1}</span>
                       </div>
-                      <span className="text-[10px] text-gray-600 font-mono">0{index + 1}</span>
+
+                      {/* Category Title */}
+                      <h3 className="text-lg font-semibold text-white mb-4">{category.title}</h3>
+
+                      {/* Skills List */}
+                      <div className="space-y-3">
+                        {category.skills.map((skill) => (
+                          <div key={skill.id} className="group/skill">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm text-gray-400">{skill.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-cyan-400 font-medium">{skill.level}%</span>
+                                {/* Individual Skill Actions */}
+                                <div className="flex items-center gap-1 opacity-0 group-hover/skill:opacity-100 transition-opacity">
+                                  <button
+                                    onClick={() => openEditModal(skill)}
+                                    className="p-1 rounded bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors"
+                                    title="Edit Skill"
+                                  >
+                                    <Edit2 size={10} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteSkill(skill.id)}
+                                    className="p-1 rounded bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors"
+                                    title="Delete Skill"
+                                  >
+                                    <Trash2 size={10} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"
+                                style={{ width: `${skill.level}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
+            )}
 
-                    {/* Category Title */}
-                    <h3 className="text-lg font-semibold text-white mb-4">{category.title}</h3>
+            {/* Focus Card & Bottom Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              {/* Focus Card */}
+              <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300">
+                <div className="flex items-start justify-between mb-4">
+                  <span className="inline-block text-xs font-semibold text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full">
+                    {focusStats.subtitle}
+                  </span>
+                  <button
+                    onClick={openFocusEditModal}
+                    className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{focusStats.title}</h3>
+                <p className="text-gray-400 text-sm mb-6 leading-relaxed">{focusStats.description}</p>
+                <div className="flex gap-8">
+                  {focusStats.stats.map((stat, i) => (
+                    <div key={i}>
+                      <span className="block text-cyan-400 text-lg font-bold">{stat.value}</span>
+                      <span className="text-gray-500 text-[10px] uppercase tracking-wider">{stat.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                    {/* Skills List */}
-                    <div className="space-y-3">
-                      {category.skills.map((skill) => (
-                        <div key={skill.id} className="group/skill">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm text-gray-400">{skill.name}</span>
+              {/* Decorative Card / Focus Image Preview */}
+              <div className="bg-[#12121a] border border-gray-800 rounded-xl flex items-center justify-center min-h-[200px] overflow-hidden relative">
+                {focusStats.image ? (
+                  <img src={fixImageUrl(focusStats.image)} alt="Focus" className="absolute inset-0 w-full h-full object-cover" />
+                ) : (
+                  <Zap size={64} className="text-cyan-400/30" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] to-transparent opacity-40"></div>
+              </div>
+            </div>
+
+            {/* Bottom Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {bottomStats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="bg-[#12121a] border border-gray-800 rounded-xl p-4 flex items-center gap-3 hover:border-gray-700 transition-all duration-300"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
+                    <stat.icon size={18} className={`text-${stat.color}-400`} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">{stat.title}</p>
+                    <p className="text-lg font-bold text-white">{stat.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : activeTab === 'experience' ? (
+          /* Experience Tab */
+          <>
+            {/* Experience Header */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EXPERIENCE</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={saveExperienceOrder}
+                  disabled={!expOrderModified}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${expOrderModified
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    }`}
+                >
+                  <Save size={16} />
+                  Save Order
+                </button>
+                <button
+                  onClick={openExpAddModal}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+                >
+                  <Plus size={18} />
+                  Add Experience
+                </button>
+              </div>
+            </div>
+
+            {/* Experience List */}
+            {expLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+                  <p className="text-gray-400">Loading experiences...</p>
+                </div>
+              </div>
+            ) : expError ? (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
+                <p className="text-red-400">{expError}</p>
+                <button
+                  onClick={fetchExperiences}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-8">
+                {experiences.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Briefcase size={48} className="mx-auto mb-4 opacity-30" />
+                    <p>No experiences yet. Add your first experience!</p>
+                  </div>
+                ) : (
+                  experiences.map((exp, index) => (
+                    <div
+                      key={exp._id}
+                      draggable
+                      onDragStart={(e) => handleExpDragStart(e, index)}
+                      onDragOver={handleExpDragOver}
+                      onDrop={(e) => handleExpDrop(e, index)}
+                      onDragEnd={handleExpDragEnd}
+                      className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${expDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
+                        }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Drag Handle */}
+                        <div className="flex-shrink-0 pt-2">
+                          <GripVertical size={20} className="text-gray-600" />
+                        </div>
+                        {/* Company Logo Section */}
+                        <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-gray-700">
+                          {exp.logo ? (
+                            <img src={fixImageUrl(exp.logo)} alt={exp.company} className="w-full h-full object-cover" />
+                          ) : (
+                            <Building2 size={24} className="text-gray-600" />
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-white mb-1">{exp.role}</h3>
+                              <p className="text-sm text-cyan-400 mb-2">{exp.company} • {exp.location}</p>
+                            </div>
+
                             <div className="flex items-center gap-2">
-                              <span className="text-sm text-cyan-400 font-medium">{skill.level}%</span>
-                              {/* Individual Skill Actions */}
-                              <div className="flex items-center gap-1 opacity-0 group-hover/skill:opacity-100 transition-opacity">
+                              <div className="text-right">
+                                <span className="text-xs text-gray-500 bg-gray-800 px-3 py-1 rounded-full">
+                                  {exp.startDate} — {exp.endDate}
+                                </span>
+                                {exp.isCurrent && (
+                                  <span className="block text-[10px] text-green-400 mt-1 text-right uppercase tracking-wider">Current Role</span>
+                                )}
+                              </div>
+                              <div className="flex flex-col gap-1 ml-2">
                                 <button
-                                  onClick={() => openEditModal(skill)}
-                                  className="p-1 rounded bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors"
-                                  title="Edit Skill"
+                                  onClick={() => openExpEditModal(exp)}
+                                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                                  title="Edit"
                                 >
-                                  <Edit2 size={10} />
+                                  <Edit2 size={14} />
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteSkill(skill.id)}
-                                  className="p-1 rounded bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors"
-                                  title="Delete Skill"
+                                  onClick={() => handleDeleteExperience(exp._id)}
+                                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                  title="Delete"
                                 >
-                                  <Trash2 size={10} />
+                                  <Trash2 size={14} />
                                 </button>
                               </div>
                             </div>
                           </div>
-                          <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full"
-                              style={{ width: `${skill.level}%` }}
-                            />
+
+                          <p className="text-gray-400 text-sm mb-4 leading-relaxed">{exp.description}</p>
+
+                          {/* Tags */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {exp.tags?.map((tag, i) => (
+                              <span
+                                key={i}
+                                className="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
+                              >
+                                {tag}
+                              </span>
+                            ))}
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {/* End of Timeline */}
+                {experiences.length > 0 && (
+                  <div className="flex flex-col items-center py-8 text-gray-600">
+                    <Clock size={24} className="mb-2 opacity-50" />
+                    <span className="text-sm">End of Timeline</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        ) : activeTab === 'education' ? (
+          /* Education Tab */
+          <>
+            {/* Education Header */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EDUCATION</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={saveEducationOrder}
+                  disabled={!eduOrderModified}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${eduOrderModified
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                    }`}
+                >
+                  <Save size={16} />
+                  Save Order
+                </button>
+                <button
+                  onClick={openEduAddModal}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
+                >
+                  <Plus size={18} />
+                  Add Education
+                </button>
+              </div>
+            </div>
+
+            {/* Education List */}
+            {eduLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+                  <p className="text-gray-400">Loading education data...</p>
+                </div>
+              </div>
+            ) : eduError ? (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
+                <p className="text-red-400">{eduError}</p>
+                <button
+                  onClick={fetchEducations}
+                  className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-8">
+                {educations.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <GraduationCap size={48} className="mx-auto mb-4 opacity-30" />
+                    <p>No education entries yet. Add your first education!</p>
+                  </div>
+                ) : (
+                  educations.map((edu, index) => (
+                    <div
+                      key={edu._id}
+                      draggable
+                      onDragStart={(e) => handleEduDragStart(e, index)}
+                      onDragOver={handleEduDragOver}
+                      onDrop={(e) => handleEduDrop(e, index)}
+                      onDragEnd={handleEduDragEnd}
+                      className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${eduDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
+                        }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Drag Handle */}
+                        <div className="flex-shrink-0 pt-2">
+                          <GripVertical size={20} className="text-gray-600" />
+                        </div>
+                        {/* Institution Logo */}
+                        <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 text-2xl overflow-hidden border border-gray-700">
+                          {edu.logo ? (
+                            <img src={fixImageUrl(edu.logo)} alt={edu.company} className="w-full h-full object-cover" />
+                          ) : (
+                            edu.icon || '🎓'
+                          )}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <h3 className="text-lg font-semibold text-white mb-1">{edu.role}</h3>
+                              <p className="text-sm text-cyan-400 mb-2">{edu.company} {edu.location && `• ${edu.location}`}</p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <span className="text-xs text-gray-500 bg-gray-800 px-3 py-1 rounded-full">
+                                  {edu.startDate} — {edu.endDate}
+                                </span>
+                              </div>
+                              <div className="flex flex-col gap-1 ml-2">
+                                <button
+                                  onClick={() => openEduEditModal(edu)}
+                                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteEducation(edu._id)}
+                                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className="text-gray-400 text-sm mb-4 leading-relaxed">{edu.description}</p>
+
+                          {/* Tags */}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {edu.tags?.map((tag, i) => (
+                              <span
+                                key={i}
+                                className="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+
+                {/* End of Timeline */}
+                {educations.length > 0 && (
+                  <div className="flex flex-col items-center py-8 text-gray-600">
+                    <Clock size={24} className="mb-2 opacity-50" />
+                    <span className="text-sm">End of Timeline</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        ) : activeTab === 'testimonials' ? (
+          /* Testimonials Tab */
+          <Testimonials />
+        ) : null}
+
+        {/* Add/Edit Skill Modal */}
+        {(showAddModal || editingSkill) && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <form onSubmit={editingSkill ? handleUpdateSkill : handleCreateSkill}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-white">
+                    {editingSkill ? 'Edit Skill' : 'Add New Skill'}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddModal(false);
+                      setEditingSkill(null);
+                      setFormData({
+                        name: '',
+                        category: 'Frontend Development',
+                        level: 3,
+                        proficiency: null,
+                        icon: ''
+                      });
+                    }}
+                    className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Skill Name <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., React, Node.js, Python"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Category <span className="text-red-400">*</span>
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
+                    >
+                      {categoryOptions.map(opt => (
+                        <option key={opt.value} value={opt.value} className="bg-gray-800">{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Skill Level (1-5) <span className="text-red-400">*</span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        value={formData.level}
+                        onChange={(e) => setFormData(prev => ({ ...prev, level: parseInt(e.target.value) }))}
+                        className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className="text-cyan-400 font-bold w-8 text-center">{formData.level}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-gray-500 mt-1">
+                      <span>Beginner</span>
+                      <span>Intermediate</span>
+                      <span>Expert</span>
+                    </div>
+                  </div>
+
+                  {/* Overall Category Proficiency */}
+                  <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Overall Category Proficiency % <span className="text-gray-600">- Optional</span>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.proficiency || Math.round(formData.level * 20)}
+                        onChange={(e) => setFormData(prev => ({ ...prev, proficiency: parseInt(e.target.value) }))}
+                        className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <span className="text-cyan-400 font-bold w-12 text-center">{formData.proficiency || Math.round(formData.level * 20)}%</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">This overrides the auto-calculated proficiency for this skill category on the frontend</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Icon (Optional)
+                    </label>
+                    <select
+                      value={formData.icon || ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
+                    >
+                      <option value="" className="bg-gray-800">None</option>
+                      <option value="Layers" className="bg-gray-800">📦 Layers (Frontend)</option>
+                      <option value="Cpu" className="bg-gray-800">🗄️ Cpu (Backend)</option>
+                      <option value="Zap" className="bg-gray-800">⚡ Zap (AI/ML)</option>
+                      <option value="Smartphone" className="bg-gray-800">📱 Smartphone (Mobile)</option>
+                      <option value="Palette" className="bg-gray-800">🎨 Palette (Design)</option>
+                      <option value="Wrench" className="bg-gray-800">🛠️ Wrench (Tools)</option>
+                      <option value="Database" className="bg-gray-800">🗄️ Database</option>
+                      <option value="Cloud" className="bg-gray-800">☁️ Cloud (DevOps)</option>
+                      <option value="Bot" className="bg-gray-800">🤖 Bot (Automation)</option>
+                      <option value="Globe" className="bg-gray-800">🌐 Globe (Web)</option>
+                      <option value="Code2" className="bg-gray-800">💻 Code2 (General)</option>
+                      <option value="Terminal" className="bg-gray-800">⌨️ Terminal (Scripting)</option>
+                      <option value="Shield" className="bg-gray-800">🔒 Shield (Security)</option>
+                      <option value="BarChart" className="bg-gray-800">📊 BarChart (Data)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAddModal(false);
+                      setEditingSkill(null);
+                      setFormData({
+                        name: '',
+                        category: 'Frontend Development',
+                        level: 3,
+                        proficiency: null,
+                        icon: ''
+                      });
+                    }}
+                    className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <div className="flex-1"></div>
+                  {editingSkill && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSkill(editingSkill.id)}
+                      className="px-4 py-2.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 transition-colors text-sm font-medium border border-red-600/20 flex items-center gap-2"
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    <Save size={16} />
+                    {editingSkill ? 'Save Changes' : 'Add Skill'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add/Edit Experience Modal */}
+        {(showExpModal || editingExp) && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <form onSubmit={editingExp ? handleUpdateExperience : handleCreateExperience}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-white">
+                    {editingExp ? 'Edit Experience' : 'Add Experience'}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowExpModal(false);
+                      setEditingExp(null);
+                      setExpFormData({
+                        role: '',
+                        company: '',
+                        location: '',
+                        startDate: '',
+                        endDate: '',
+                        isCurrent: false,
+                        description: '',
+                        tags: []
+                      });
+                    }}
+                    className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Role / Title <span className="text-red-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Senior AI Engineer"
+                      value={expFormData.role}
+                      onChange={(e) => setExpFormData(prev => ({ ...prev, role: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                        Company <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Company Name"
+                        value={expFormData.company}
+                        onChange={(e) => setExpFormData(prev => ({ ...prev, company: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Location</label>
+                      <input
+                        type="text"
+                        placeholder="City, State"
+                        value={expFormData.location}
+                        onChange={(e) => setExpFormData(prev => ({ ...prev, location: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
+                      <input
+                        type="text"
+                        placeholder="Jan 2022"
+                        value={expFormData.startDate}
+                        onChange={(e) => setExpFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">End Date</label>
+                      <input
+                        type="text"
+                        placeholder="Present"
+                        value={expFormData.endDate}
+                        onChange={(e) => setExpFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Description <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      placeholder="Describe your responsibilities and achievements..."
+                      value={expFormData.description}
+                      onChange={(e) => setExpFormData(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 resize-none"
+                      required
+                    />
+                  </div>
+
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Tech Stack / Tags</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {expFormData.tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(tag)}
+                            className="hover:text-white"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
                       ))}
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Focus Card & Bottom Stats */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-            {/* Focus Card */}
-            <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300">
-              <div className="flex items-start justify-between mb-4">
-                <span className="inline-block text-xs font-semibold text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full">
-                  {focusStats.subtitle}
-                </span>
-                <button
-                  onClick={openFocusEditModal}
-                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                >
-                  <Edit2 size={14} />
-                </button>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">{focusStats.title}</h3>
-              <p className="text-gray-400 text-sm mb-6 leading-relaxed">{focusStats.description}</p>
-              <div className="flex gap-8">
-                {focusStats.stats.map((stat, i) => (
-                  <div key={i}>
-                    <span className="block text-cyan-400 text-lg font-bold">{stat.value}</span>
-                    <span className="text-gray-500 text-[10px] uppercase tracking-wider">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Decorative Card / Focus Image Preview */}
-            <div className="bg-[#12121a] border border-gray-800 rounded-xl flex items-center justify-center min-h-[200px] overflow-hidden relative">
-              {focusStats.image ? (
-                <img src={fixImageUrl(focusStats.image)} alt="Focus" className="absolute inset-0 w-full h-full object-cover" />
-              ) : (
-                <Zap size={64} className="text-cyan-400/30" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f] to-transparent opacity-40"></div>
-            </div>
-          </div>
-
-          {/* Bottom Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {bottomStats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-[#12121a] border border-gray-800 rounded-xl p-4 flex items-center gap-3 hover:border-gray-700 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
-                  <stat.icon size={18} className={`text-${stat.color}-400`} />
-                </div>
-                <div>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">{stat.title}</p>
-                  <p className="text-lg font-bold text-white">{stat.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : activeTab === 'experience' ? (
-        /* Experience Tab */
-        <>
-          {/* Experience Header */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EXPERIENCE</p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={saveExperienceOrder}
-                disabled={!expOrderModified}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  expOrderModified
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                <Save size={16} />
-                Save Order
-              </button>
-              <button
-                onClick={openExpAddModal}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-              >
-                <Plus size={18} />
-                Add Experience
-              </button>
-            </div>
-          </div>
-
-          {/* Experience List */}
-          {expLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading experiences...</p>
-              </div>
-            </div>
-          ) : expError ? (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
-              <p className="text-red-400">{expError}</p>
-              <button
-                onClick={fetchExperiences}
-                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4 mb-8">
-              {experiences.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <Briefcase size={48} className="mx-auto mb-4 opacity-30" />
-                  <p>No experiences yet. Add your first experience!</p>
-                </div>
-              ) : (
-                experiences.map((exp, index) => (
-                  <div
-                    key={exp._id}
-                    draggable
-                    onDragStart={(e) => handleExpDragStart(e, index)}
-                    onDragOver={handleExpDragOver}
-                    onDrop={(e) => handleExpDrop(e, index)}
-                    onDragEnd={handleExpDragEnd}
-                    className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${
-                      expDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Drag Handle */}
-                      <div className="flex-shrink-0 pt-2">
-                        <GripVertical size={20} className="text-gray-600" />
-                      </div>
-                      {/* Company Logo Section */}
-                      <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 relative overflow-hidden border border-gray-700">
-                        {exp.logo ? (
-                          <img src={fixImageUrl(exp.logo)} alt={exp.company} className="w-full h-full object-cover" />
-                        ) : (
-                          <Building2 size={24} className="text-gray-600" />
-                        )}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">{exp.role}</h3>
-                            <p className="text-sm text-cyan-400 mb-2">{exp.company} • {exp.location}</p>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <span className="text-xs text-gray-500 bg-gray-800 px-3 py-1 rounded-full">
-                                {exp.startDate} — {exp.endDate}
-                              </span>
-                              {exp.isCurrent && (
-                                <span className="block text-[10px] text-green-400 mt-1 text-right uppercase tracking-wider">Current Role</span>
-                              )}
-                            </div>
-                            <div className="flex flex-col gap-1 ml-2">
-                              <button
-                                onClick={() => openExpEditModal(exp)}
-                                className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-                                title="Edit"
-                              >
-                                <Edit2 size={14} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteExperience(exp._id)}
-                                className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                title="Delete"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="text-gray-400 text-sm mb-4 leading-relaxed">{exp.description}</p>
-
-                        {/* Tags */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {exp.tags?.map((tag, i) => (
-                            <span
-                              key={i}
-                              className="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Add tag..."
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                        className="flex-1 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddTag}
+                        className="px-3 py-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <Plus size={16} />
+                      </button>
                     </div>
                   </div>
-                ))
-              )}
 
-              {/* End of Timeline */}
-              {experiences.length > 0 && (
-                <div className="flex flex-col items-center py-8 text-gray-600">
-                  <Clock size={24} className="mb-2 opacity-50" />
-                  <span className="text-sm">End of Timeline</span>
-                </div>
-              )}
-            </div>
-          )}
-        </>
-      ) : activeTab === 'education' ? (
-        /* Education Tab */
-        <>
-          {/* Education Header */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-xs text-gray-500 uppercase tracking-widest">MAIN / EDUCATION</p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={saveEducationOrder}
-                disabled={!eduOrderModified}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  eduOrderModified
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                <Save size={16} />
-                Save Order
-              </button>
-              <button
-                onClick={openEduAddModal}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-cyan-500 text-black hover:bg-cyan-400 transition-colors text-sm font-semibold"
-              >
-                <Plus size={18} />
-                Add Education
-              </button>
-            </div>
-          </div>
-
-          {/* Education List */}
-          {eduLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading education data...</p>
-              </div>
-            </div>
-          ) : eduError ? (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-8">
-              <p className="text-red-400">{eduError}</p>
-              <button
-                onClick={fetchEducations}
-                className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Retry
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4 mb-8">
-              {educations.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <GraduationCap size={48} className="mx-auto mb-4 opacity-30" />
-                  <p>No education entries yet. Add your first education!</p>
-                </div>
-              ) : (
-                educations.map((edu, index) => (
-                  <div
-                    key={edu._id}
-                    draggable
-                    onDragStart={(e) => handleEduDragStart(e, index)}
-                    onDragOver={handleEduDragOver}
-                    onDrop={(e) => handleEduDrop(e, index)}
-                    onDragEnd={handleEduDragEnd}
-                    className={`bg-[#12121a] border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300 group cursor-move ${
-                      eduDraggedIndex === index ? 'opacity-50 border-cyan-500' : ''
-                    }`}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Drag Handle */}
-                      <div className="flex-shrink-0 pt-2">
-                        <GripVertical size={20} className="text-gray-600" />
-                      </div>
-                      {/* Institution Logo */}
-                      <div className="w-14 h-14 rounded-xl bg-gray-800 flex items-center justify-center flex-shrink-0 text-2xl overflow-hidden border border-gray-700">
-                        {edu.logo ? (
-                          <img src={fixImageUrl(edu.logo)} alt={edu.company} className="w-full h-full object-cover" />
-                        ) : (
-                          edu.icon || '🎓'
-                        )}
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <h3 className="text-lg font-semibold text-white mb-1">{edu.role}</h3>
-                            <p className="text-sm text-cyan-400 mb-2">{edu.company} {edu.location && `• ${edu.location}`}</p>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <div className="text-right">
-                              <span className="text-xs text-gray-500 bg-gray-800 px-3 py-1 rounded-full">
-                                {edu.startDate} — {edu.endDate}
-                              </span>
-                            </div>
-                            <div className="flex flex-col gap-1 ml-2">
-                              <button
-                                onClick={() => openEduEditModal(edu)}
-                                className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
-                                title="Edit"
-                              >
-                                <Edit2 size={14} />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteEducation(edu._id)}
-                                className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                title="Delete"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="text-gray-400 text-sm mb-4 leading-relaxed">{edu.description}</p>
-
-                        {/* Tags */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {edu.tags?.map((tag, i) => (
-                            <span
-                              key={i}
-                              className="px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-
-              {/* End of Timeline */}
-              {educations.length > 0 && (
-                <div className="flex flex-col items-center py-8 text-gray-600">
-                  <Clock size={24} className="mb-2 opacity-50" />
-                  <span className="text-sm">End of Timeline</span>
-                </div>
-              )}
-            </div>
-          )}
-        </>
-      ) : activeTab === 'testimonials' ? (
-        /* Testimonials Tab */
-        <Testimonials />
-      ) : null}
-
-      {/* Add/Edit Skill Modal */}
-      {(showAddModal || editingSkill) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <form onSubmit={editingSkill ? handleUpdateSkill : handleCreateSkill}>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-white">
-                  {editingSkill ? 'Edit Skill' : 'Add New Skill'}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingSkill(null);
-                    setFormData({
-                      name: '',
-                      category: 'Frontend Development',
-                      level: 3,
-                      proficiency: null,
-                      icon: ''
-                    });
-                  }}
-                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Skill Name <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., React, Node.js, Python"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Category <span className="text-red-400">*</span>
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
-                  >
-                    {categoryOptions.map(opt => (
-                      <option key={opt.value} value={opt.value} className="bg-gray-800">{opt.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Skill Level (1-5) <span className="text-red-400">*</span>
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={formData.level}
-                      onChange={(e) => setFormData(prev => ({ ...prev, level: parseInt(e.target.value) }))}
-                      className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <span className="text-cyan-400 font-bold w-8 text-center">{formData.level}</span>
-                  </div>
-                  <div className="flex justify-between text-[10px] text-gray-500 mt-1">
-                    <span>Beginner</span>
-                    <span>Intermediate</span>
-                    <span>Expert</span>
-                  </div>
-                </div>
-
-                {/* Overall Category Proficiency */}
-                <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Overall Category Proficiency % <span className="text-gray-600">- Optional</span>
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={formData.proficiency || Math.round(formData.level * 20)}
-                      onChange={(e) => setFormData(prev => ({ ...prev, proficiency: parseInt(e.target.value) }))}
-                      className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <span className="text-cyan-400 font-bold w-12 text-center">{formData.proficiency || Math.round(formData.level * 20)}%</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">This overrides the auto-calculated proficiency for this skill category on the frontend</p>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Icon (Optional)
-                  </label>
-                  <select
-                    value={formData.icon || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, icon: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
-                  >
-                    <option value="" className="bg-gray-800">None</option>
-                    <option value="Layers" className="bg-gray-800">📦 Layers (Frontend)</option>
-                    <option value="Cpu" className="bg-gray-800">🗄️ Cpu (Backend)</option>
-                    <option value="Zap" className="bg-gray-800">⚡ Zap (AI/ML)</option>
-                    <option value="Smartphone" className="bg-gray-800">📱 Smartphone (Mobile)</option>
-                    <option value="Palette" className="bg-gray-800">🎨 Palette (Design)</option>
-                    <option value="Wrench" className="bg-gray-800">🛠️ Wrench (Tools)</option>
-                    <option value="Database" className="bg-gray-800">🗄️ Database</option>
-                    <option value="Cloud" className="bg-gray-800">☁️ Cloud (DevOps)</option>
-                    <option value="Bot" className="bg-gray-800">🤖 Bot (Automation)</option>
-                    <option value="Globe" className="bg-gray-800">🌐 Globe (Web)</option>
-                    <option value="Code2" className="bg-gray-800">💻 Code2 (General)</option>
-                    <option value="Terminal" className="bg-gray-800">⌨️ Terminal (Scripting)</option>
-                    <option value="Shield" className="bg-gray-800">🔒 Shield (Security)</option>
-                    <option value="BarChart" className="bg-gray-800">📊 BarChart (Data)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingSkill(null);
-                    setFormData({
-                      name: '',
-                      category: 'Frontend Development',
-                      level: 3,
-                      proficiency: null,
-                      icon: ''
-                    });
-                  }}
-                  className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <div className="flex-1"></div>
-                {editingSkill && (
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteSkill(editingSkill.id)}
-                    className="px-4 py-2.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 transition-colors text-sm font-medium border border-red-600/20 flex items-center gap-2"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                )}
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2"
-                >
-                  <Save size={16} />
-                  {editingSkill ? 'Save Changes' : 'Add Skill'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Add/Edit Experience Modal */}
-      {(showExpModal || editingExp) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <form onSubmit={editingExp ? handleUpdateExperience : handleCreateExperience}>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-white">
-                  {editingExp ? 'Edit Experience' : 'Add Experience'}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowExpModal(false);
-                    setEditingExp(null);
-                    setExpFormData({
-                      role: '',
-                      company: '',
-                      location: '',
-                      startDate: '',
-                      endDate: '',
-                      isCurrent: false,
-                      description: '',
-                      tags: []
-                    });
-                  }}
-                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Role / Title <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Senior AI Engineer"
-                    value={expFormData.role}
-                    onChange={(e) => setExpFormData(prev => ({ ...prev, role: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
+                  {/* Icon */}
                   <div>
                     <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                      Company <span className="text-red-400">*</span>
+                      Icon (Emoji) <span className="text-gray-600">- Optional</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="Company Name"
-                      value={expFormData.company}
-                      onChange={(e) => setExpFormData(prev => ({ ...prev, company: e.target.value }))}
+                      placeholder="e.g., ⚛️, 🎓, 💼, 🚀"
+                      value={expFormData.icon}
+                      onChange={(e) => setExpFormData(prev => ({ ...prev, icon: e.target.value }))}
                       className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                      required
+                      maxLength={10}
                     />
+                    <p className="text-xs text-gray-500 mt-1">Add an emoji icon to represent this experience</p>
                   </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Location</label>
-                    <input
-                      type="text"
-                      placeholder="City, State"
-                      value={expFormData.location}
-                      onChange={(e) => setExpFormData(prev => ({ ...prev, location: e.target.value }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
-                    <input
-                      type="text"
-                      placeholder="Jan 2022"
-                      value={expFormData.startDate}
-                      onChange={(e) => setExpFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">End Date</label>
-                    <input
-                      type="text"
-                      placeholder="Present"
-                      value={expFormData.endDate}
-                      onChange={(e) => setExpFormData(prev => ({ ...prev, endDate: e.target.value }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Description <span className="text-red-400">*</span>
-                  </label>
-                  <textarea
-                    rows={4}
-                    placeholder="Describe your responsibilities and achievements..."
-                    value={expFormData.description}
-                    onChange={(e) => setExpFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 resize-none"
-                    required
-                  />
-                </div>
-
-                {/* Tags */}
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Tech Stack / Tags</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {expFormData.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTag(tag)}
-                          className="hover:text-white"
-                        >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Add tag..."
-                      value={newTag}
-                      onChange={(e) => setNewTag(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                      className="flex-1 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddTag}
-                      className="px-3 py-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Icon */}
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Icon (Emoji) <span className="text-gray-600">- Optional</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., ⚛️, 🎓, 💼, 🚀"
-                    value={expFormData.icon}
-                    onChange={(e) => setExpFormData(prev => ({ ...prev, icon: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    maxLength={10}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Add an emoji icon to represent this experience</p>
-                </div>
-
-                {/* Logo Upload */}
-                <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-3">Company Logo / Image</label>
-                  <div className="flex items-center gap-4">
-                    {expFormData.logo && (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
-                        <img src={fixImageUrl(expFormData.logo)} alt="Logo Preview" className="w-full h-full object-contain" />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        id="exp-logo-upload"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleLogoUpload(e.target.files[0], 'experience')}
-                      />
-                      <label
-                        htmlFor="exp-logo-upload"
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {isUploading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
-                        ) : (
-                          <ImageIcon size={16} className="text-gray-400" />
-                        )}
-                        <span className="text-sm text-gray-400">{expFormData.logo ? 'Change Logo' : 'Upload Logo'}</span>
-                      </label>
+                  {/* Logo Upload */}
+                  <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-3">Company Logo / Image</label>
+                    <div className="flex items-center gap-4">
                       {expFormData.logo && (
-                        <button
-                          type="button"
-                          onClick={() => setExpFormData(prev => ({ ...prev, logo: '' }))}
-                          className="text-xs text-red-500 mt-2 hover:underline"
-                        >
-                          Remove Logo
-                        </button>
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
+                          <img src={fixImageUrl(expFormData.logo)} alt="Logo Preview" className="w-full h-full object-contain" />
+                        </div>
                       )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          id="exp-logo-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleLogoUpload(e.target.files[0], 'experience')}
+                        />
+                        <label
+                          htmlFor="exp-logo-upload"
+                          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {isUploading ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
+                          ) : (
+                            <ImageIcon size={16} className="text-gray-400" />
+                          )}
+                          <span className="text-sm text-gray-400">{expFormData.logo ? 'Change Logo' : 'Upload Logo'}</span>
+                        </label>
+                        {expFormData.logo && (
+                          <button
+                            type="button"
+                            onClick={() => setExpFormData(prev => ({ ...prev, logo: '' }))}
+                            className="text-xs text-red-500 mt-2 hover:underline"
+                          >
+                            Remove Logo
+                          </button>
+                        )}
+                      </div>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="isCurrent"
+                      checked={expFormData.isCurrent}
+                      onChange={(e) => setExpFormData(prev => ({ ...prev, isCurrent: e.target.checked }))}
+                      className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-cyan-500"
+                    />
+                    <label htmlFor="isCurrent" className="text-sm text-gray-400">This is my current role</label>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isCurrent"
-                    checked={expFormData.isCurrent}
-                    onChange={(e) => setExpFormData(prev => ({ ...prev, isCurrent: e.target.checked }))}
-                    className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-cyan-500 focus:ring-cyan-500"
-                  />
-                  <label htmlFor="isCurrent" className="text-sm text-gray-400">This is my current role</label>
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowExpModal(false);
-                    setEditingExp(null);
-                    setExpFormData({
-                      role: '',
-                      company: '',
-                      location: '',
-                      startDate: '',
-                      endDate: '',
-                      isCurrent: false,
-                      description: '',
-                      tags: [],
-                      icon: '',
-                      logo: ''
-                    });
-                  }}
-                  className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <div className="flex-1"></div>
-                {editingExp && (
+                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
                   <button
                     type="button"
-                    onClick={() => handleDeleteExperience(editingExp._id)}
-                    className="px-4 py-2.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 transition-colors text-sm font-medium border border-red-600/20 flex items-center gap-2"
+                    onClick={() => {
+                      setShowExpModal(false);
+                      setEditingExp(null);
+                      setExpFormData({
+                        role: '',
+                        company: '',
+                        location: '',
+                        startDate: '',
+                        endDate: '',
+                        isCurrent: false,
+                        description: '',
+                        tags: [],
+                        icon: '',
+                        logo: ''
+                      });
+                    }}
+                    className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
                   >
-                    <Trash2 size={16} />
-                    Delete
+                    Cancel
                   </button>
-                )}
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2"
-                >
-                  <Save size={16} />
-                  {editingExp ? 'Save Changes' : 'Add Experience'}
-                </button>
-              </div>
-            </form>
+                  <div className="flex-1"></div>
+                  {editingExp && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteExperience(editingExp._id)}
+                      className="px-4 py-2.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 transition-colors text-sm font-medium border border-red-600/20 flex items-center gap-2"
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    <Save size={16} />
+                    {editingExp ? 'Save Changes' : 'Add Experience'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Add/Edit Education Modal */}
-      {(showEduModal || editingEdu) && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <form onSubmit={editingEdu ? handleUpdateEducation : handleCreateEducation}>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-white">
-                  {editingEdu ? 'Edit Education' : 'Add Education'}
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEduModal(false);
-                    setEditingEdu(null);
-                    setEduFormData({
-                      role: '',
-                      company: '',
-                      location: '',
-                      startDate: '',
-                      endDate: '',
-                      isCurrent: false,
-                      description: '',
-                      tags: [],
-                      icon: '',
-                      logo: ''
-                    });
-                  }}
-                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Degree / Certificate <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Bachelor of Computer Science"
-                    value={eduFormData.role}
-                    onChange={(e) => setEduFormData(prev => ({ ...prev, role: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    required
-                  />
+        {/* Add/Edit Education Modal */}
+        {(showEduModal || editingEdu) && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <form onSubmit={editingEdu ? handleUpdateEducation : handleCreateEducation}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-white">
+                    {editingEdu ? 'Edit Education' : 'Add Education'}
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEduModal(false);
+                      setEditingEdu(null);
+                      setEduFormData({
+                        role: '',
+                        company: '',
+                        location: '',
+                        startDate: '',
+                        endDate: '',
+                        isCurrent: false,
+                        description: '',
+                        tags: [],
+                        icon: '',
+                        logo: ''
+                      });
+                    }}
+                    className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-4">
                   <div>
                     <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                      Institution <span className="text-red-400">*</span>
+                      Degree / Certificate <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g., Addis Ababa University"
-                      value={eduFormData.company}
-                      onChange={(e) => setEduFormData(prev => ({ ...prev, company: e.target.value }))}
+                      placeholder="e.g., Bachelor of Computer Science"
+                      value={eduFormData.role}
+                      onChange={(e) => setEduFormData(prev => ({ ...prev, role: e.target.value }))}
                       className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Location</label>
-                    <input
-                      type="text"
-                      placeholder="City, State"
-                      value={eduFormData.location}
-                      onChange={(e) => setEduFormData(prev => ({ ...prev, location: e.target.value }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
-                    <input
-                      type="text"
-                      placeholder="2018"
-                      value={eduFormData.startDate}
-                      onChange={(e) => setEduFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">End Date</label>
-                    <input
-                      type="text"
-                      placeholder="2022"
-                      value={eduFormData.endDate}
-                      onChange={(e) => setEduFormData(prev => ({ ...prev, endDate: e.target.value }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Description <span className="text-red-400">*</span>
-                  </label>
-                  <textarea
-                    rows={4}
-                    placeholder="Describe your studies, achievements, and coursework..."
-                    value={eduFormData.description}
-                    onChange={(e) => setEduFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 resize-none"
-                    required
-                  />
-                </div>
-
-                {/* Tags */}
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Tags / Skills Learned</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {eduFormData.tags.map((tag, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveEduTag(tag)}
-                          className="hover:text-white"
-                        >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Add tag..."
-                      value={newEduTag}
-                      onChange={(e) => setNewEduTag(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddEduTag())}
-                      className="flex-1 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddEduTag}
-                      className="px-3 py-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Icon */}
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
-                    Icon (Emoji) <span className="text-gray-600">- Optional</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., 🎓, 📜, 🤖, 📚"
-                    value={eduFormData.icon}
-                    onChange={(e) => setEduFormData(prev => ({ ...prev, icon: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    maxLength={10}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Add an emoji icon to represent this education entry</p>
-                </div>
-
-                {/* Logo Upload */}
-                <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-3">Institution Logo / Image</label>
-                  <div className="flex items-center gap-4">
-                    {eduFormData.logo && (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
-                        <img src={fixImageUrl(eduFormData.logo)} alt="Logo Preview" className="w-full h-full object-contain" />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        id="edu-logo-upload"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleLogoUpload(e.target.files[0], 'education')}
-                      />
-                      <label
-                        htmlFor="edu-logo-upload"
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {isUploading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
-                        ) : (
-                          <ImageIcon className="text-gray-400" size={16} />
-                        )}
-                        <span className="text-sm text-gray-400">{eduFormData.logo ? 'Change Logo' : 'Upload Logo'}</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                        Institution <span className="text-red-400">*</span>
                       </label>
-                      {eduFormData.logo && (
-                        <button
-                          type="button"
-                          onClick={() => setEduFormData(prev => ({ ...prev, logo: '' }))}
-                          className="text-xs text-red-500 mt-2 hover:underline"
+                      <input
+                        type="text"
+                        placeholder="e.g., Addis Ababa University"
+                        value={eduFormData.company}
+                        onChange={(e) => setEduFormData(prev => ({ ...prev, company: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Location</label>
+                      <input
+                        type="text"
+                        placeholder="City, State"
+                        value={eduFormData.location}
+                        onChange={(e) => setEduFormData(prev => ({ ...prev, location: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Start Date</label>
+                      <input
+                        type="text"
+                        placeholder="2018"
+                        value={eduFormData.startDate}
+                        onChange={(e) => setEduFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">End Date</label>
+                      <input
+                        type="text"
+                        placeholder="2022"
+                        value={eduFormData.endDate}
+                        onChange={(e) => setEduFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Description <span className="text-red-400">*</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      placeholder="Describe your studies, achievements, and coursework..."
+                      value={eduFormData.description}
+                      onChange={(e) => setEduFormData(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 resize-none"
+                      required
+                    />
+                  </div>
+
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Tags / Skills Learned</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {eduFormData.tags.map((tag, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-400 text-xs font-medium border border-cyan-500/20"
                         >
-                          Remove Logo
-                        </button>
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveEduTag(tag)}
+                            className="hover:text-white"
+                          >
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Add tag..."
+                        value={newEduTag}
+                        onChange={(e) => setNewEduTag(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddEduTag())}
+                        className="flex-1 bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddEduTag}
+                        className="px-3 py-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Icon */}
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+                      Icon (Emoji) <span className="text-gray-600">- Optional</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., 🎓, 📜, 🤖, 📚"
+                      value={eduFormData.icon}
+                      onChange={(e) => setEduFormData(prev => ({ ...prev, icon: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      maxLength={10}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Add an emoji icon to represent this education entry</p>
+                  </div>
+
+                  {/* Logo Upload */}
+                  <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-3">Institution Logo / Image</label>
+                    <div className="flex items-center gap-4">
+                      {eduFormData.logo && (
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
+                          <img src={fixImageUrl(eduFormData.logo)} alt="Logo Preview" className="w-full h-full object-contain" />
+                        </div>
                       )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          id="edu-logo-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleLogoUpload(e.target.files[0], 'education')}
+                        />
+                        <label
+                          htmlFor="edu-logo-upload"
+                          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {isUploading ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
+                          ) : (
+                            <ImageIcon className="text-gray-400" size={16} />
+                          )}
+                          <span className="text-sm text-gray-400">{eduFormData.logo ? 'Change Logo' : 'Upload Logo'}</span>
+                        </label>
+                        {eduFormData.logo && (
+                          <button
+                            type="button"
+                            onClick={() => setEduFormData(prev => ({ ...prev, logo: '' }))}
+                            className="text-xs text-red-500 mt-2 hover:underline"
+                          >
+                            Remove Logo
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEduModal(false);
-                    setEditingEdu(null);
-                    setEduFormData({
-                      role: '',
-                      company: '',
-                      location: '',
-                      startDate: '',
-                      endDate: '',
-                      isCurrent: false,
-                      description: '',
-                      tags: [],
-                      icon: ''
-                    });
-                  }}
-                  className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <div className="flex-1"></div>
-                {editingEdu && (
+                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
                   <button
                     type="button"
-                    onClick={() => handleDeleteEducation(editingEdu._id)}
-                    className="px-4 py-2.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 transition-colors text-sm font-medium border border-red-600/20 flex items-center gap-2"
+                    onClick={() => {
+                      setShowEduModal(false);
+                      setEditingEdu(null);
+                      setEduFormData({
+                        role: '',
+                        company: '',
+                        location: '',
+                        startDate: '',
+                        endDate: '',
+                        isCurrent: false,
+                        description: '',
+                        tags: [],
+                        icon: ''
+                      });
+                    }}
+                    className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
                   >
-                    <Trash2 size={16} />
-                    Delete
+                    Cancel
                   </button>
-                )}
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2"
-                >
-                  <Save size={16} />
-                  {editingEdu ? 'Save Changes' : 'Add Education'}
-                </button>
-              </div>
-            </form>
+                  <div className="flex-1"></div>
+                  {editingEdu && (
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteEducation(editingEdu._id)}
+                      className="px-4 py-2.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 transition-colors text-sm font-medium border border-red-600/20 flex items-center gap-2"
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  )}
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    <Save size={16} />
+                    {editingEdu ? 'Save Changes' : 'Add Education'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Edit Focus Modal */}
-      {editingFocus && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg">
-            <form onSubmit={handleUpdateFocus}>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-white">Edit Focus Section</h2>
-                <button
-                  type="button"
-                  onClick={() => setEditingFocus(false)}
-                  className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Subtitle Label</label>
-                  <input
-                    type="text"
-                    value={focusFormData.subtitle}
-                    onChange={(e) => setFocusFormData(prev => ({ ...prev, subtitle: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Title</label>
-                  <input
-                    type="text"
-                    value={focusFormData.title}
-                    onChange={(e) => setFocusFormData(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Description</label>
-                  <textarea
-                    rows={3}
-                    value={focusFormData.description}
-                    onChange={(e) => setFocusFormData(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 resize-none"
-                  />
+        {/* Edit Focus Modal */}
+        {editingFocus && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6 w-full max-w-lg">
+              <form onSubmit={handleUpdateFocus}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold text-white">Edit Focus Section</h2>
+                  <button
+                    type="button"
+                    onClick={() => setEditingFocus(false)}
+                    className="p-2 rounded-lg bg-gray-800 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
                 </div>
 
-                {/* Focus Image Upload */}
-                <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
-                  <label className="block text-xs text-gray-500 uppercase tracking-wider mb-3">Focus Representation (Photo/Logo)</label>
-                  <div className="flex items-center gap-4">
-                    {focusFormData.image && (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
-                        <img src={fixImageUrl(focusFormData.image)} alt="Focus Preview" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        id="focus-image-upload"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleLogoUpload(e.target.files[0], 'focus')}
-                      />
-                      <label
-                        htmlFor="focus-image-upload"
-                        className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      >
-                        {isUploading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
-                        ) : (
-                          <ImageIcon className="text-gray-400" size={16} />
-                        )}
-                        <span className="text-sm text-gray-400">{focusFormData.image ? 'Change Photo' : 'Upload Photo'}</span>
-                      </label>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Subtitle Label</label>
+                    <input
+                      type="text"
+                      value={focusFormData.subtitle}
+                      onChange={(e) => setFocusFormData(prev => ({ ...prev, subtitle: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Title</label>
+                    <input
+                      type="text"
+                      value={focusFormData.title}
+                      onChange={(e) => setFocusFormData(prev => ({ ...prev, title: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Description</label>
+                    <textarea
+                      rows={3}
+                      value={focusFormData.description}
+                      onChange={(e) => setFocusFormData(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 resize-none"
+                    />
+                  </div>
+
+                  {/* Focus Image Upload */}
+                  <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
+                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-3">Focus Representation (Photo/Logo)</label>
+                    <div className="flex items-center gap-4">
                       {focusFormData.image && (
-                        <button
-                          type="button"
-                          onClick={() => setFocusFormData(prev => ({ ...prev, image: '' }))}
-                          className="text-xs text-red-500 mt-2 hover:underline"
-                        >
-                          Remove Photo
-                        </button>
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-700 bg-gray-800/30">
+                          <img src={fixImageUrl(focusFormData.image)} alt="Focus Preview" className="w-full h-full object-cover" />
+                        </div>
                       )}
+                      <div className="flex-1">
+                        <input
+                          type="file"
+                          id="focus-image-upload"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleLogoUpload(e.target.files[0], 'focus')}
+                        />
+                        <label
+                          htmlFor="focus-image-upload"
+                          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-gray-700 hover:border-cyan-500 hover:bg-cyan-500/5 cursor-pointer transition-all ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {isUploading ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-400"></div>
+                          ) : (
+                            <ImageIcon className="text-gray-400" size={16} />
+                          )}
+                          <span className="text-sm text-gray-400">{focusFormData.image ? 'Change Photo' : 'Upload Photo'}</span>
+                        </label>
+                        {focusFormData.image && (
+                          <button
+                            type="button"
+                            onClick={() => setFocusFormData(prev => ({ ...prev, image: '' }))}
+                            className="text-xs text-red-500 mt-2 hover:underline"
+                          >
+                            Remove Photo
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 1 Value</label>
+                      <input
+                        type="text"
+                        value={focusFormData.stats[0]?.value || ''}
+                        onChange={(e) => setFocusFormData(prev => ({
+                          ...prev,
+                          stats: [{ ...prev.stats[0], value: e.target.value }, prev.stats[1]]
+                        }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 1 Label</label>
+                      <input
+                        type="text"
+                        value={focusFormData.stats[0]?.label || ''}
+                        onChange={(e) => setFocusFormData(prev => ({
+                          ...prev,
+                          stats: [{ ...prev.stats[0], label: e.target.value }, prev.stats[1]]
+                        }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 2 Value</label>
+                      <input
+                        type="text"
+                        value={focusFormData.stats[1]?.value || ''}
+                        onChange={(e) => setFocusFormData(prev => ({
+                          ...prev,
+                          stats: [prev.stats[0], { ...prev.stats[1], value: e.target.value }]
+                        }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 2 Label</label>
+                      <input
+                        type="text"
+                        value={focusFormData.stats[1]?.label || ''}
+                        onChange={(e) => setFocusFormData(prev => ({
+                          ...prev,
+                          stats: [prev.stats[0], { ...prev.stats[1], label: e.target.value }]
+                        }))}
+                        className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                      />
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 1 Value</label>
-                    <input
-                      type="text"
-                      value={focusFormData.stats[0]?.value || ''}
-                      onChange={(e) => setFocusFormData(prev => ({
-                        ...prev,
-                        stats: [{ ...prev.stats[0], value: e.target.value }, prev.stats[1]]
-                      }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 1 Label</label>
-                    <input
-                      type="text"
-                      value={focusFormData.stats[0]?.label || ''}
-                      onChange={(e) => setFocusFormData(prev => ({
-                        ...prev,
-                        stats: [{ ...prev.stats[0], label: e.target.value }, prev.stats[1]]
-                      }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 2 Value</label>
-                    <input
-                      type="text"
-                      value={focusFormData.stats[1]?.value || ''}
-                      onChange={(e) => setFocusFormData(prev => ({
-                        ...prev,
-                        stats: [prev.stats[0], { ...prev.stats[1], value: e.target.value }]
-                      }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">Stat 2 Label</label>
-                    <input
-                      type="text"
-                      value={focusFormData.stats[1]?.label || ''}
-                      onChange={(e) => setFocusFormData(prev => ({
-                        ...prev,
-                        stats: [prev.stats[0], { ...prev.stats[1], label: e.target.value }]
-                      }))}
-                      className="w-full bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
-                <button
-                  type="button"
-                  onClick={() => setEditingFocus(false)}
-                  className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2 ml-auto"
-                >
-                  <Save size={16} />
-                  Save Changes
-                </button>
-              </div>
-            </form>
+                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-800">
+                  <button
+                    type="button"
+                    onClick={() => setEditingFocus(false)}
+                    className="px-4 py-2.5 rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-colors text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-colors text-sm font-medium flex items-center gap-2 ml-auto"
+                  >
+                    <Save size={16} />
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </>
   );
 };

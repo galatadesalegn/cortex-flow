@@ -1,4 +1,5 @@
 {
+  "homepage": "https://galatadesalegn.me",
   "name": "backend",
   "version": "1.0.0",
   "description": "Portfolio Management System Backend API (MongoDB + Express)",

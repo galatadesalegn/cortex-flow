@@ -30,10 +30,12 @@ import {
 import { certificateService } from '../services/certificateService.js';
 import { uploadService } from '../services/uploadService.js';
 import { toast } from 'sonner';
-import { useTheme } from '../hooks';
+import { useTheme, useAuth } from '../hooks';
 
 const Certificates = () => {
   const { isDark } = useTheme();
+  const { user } = useAuth();
+  const isViewer = user?.role === 'viewer';
   const [activeTab, setActiveTab] = useState('analytics');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -196,7 +198,7 @@ const Certificates = () => {
     });
 
   const applySortAsDefault = async () => {
-  // Save order without confirmation
+    // Save order without confirmation
 
     try {
       const orders = filteredCertificates.map((cert, index) => ({
@@ -238,7 +240,7 @@ const Certificates = () => {
       },
       cancel: {
         label: 'Cancel',
-        onClick: () => {},
+        onClick: () => { },
       },
     });
   };
@@ -415,18 +417,19 @@ const Certificates = () => {
               placeholder="Search credentials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full md:w-64 border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none transition-all ${
-                isDark ? 'bg-gray-800/50 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
-              }`}
+              className={`w-full md:w-64 border rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none transition-all ${isDark ? 'bg-gray-800/50 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500' : 'bg-bg-secondary border-border-theme text-text-primary placeholder-text-muted focus:border-accent'
+                }`}
             />
           </div>
-          <button 
-            onClick={() => setShowNewCertModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all font-bold text-sm shadow-lg shadow-blue-600/20"
-          >
-            <Plus size={18} />
-            Add Entry
-          </button>
+          {!isViewer && (
+            <button
+              onClick={() => setShowNewCertModal(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all font-bold text-sm shadow-lg shadow-blue-600/20"
+            >
+              <Plus size={18} />
+              Add Entry
+            </button>
+          )}
         </div>
       </div>
 
@@ -456,25 +459,22 @@ const Certificates = () => {
         {stats.map((stat, index) => (
           <div
             key={index}
-            className={`border rounded-2xl p-5 transition-all duration-300 ${
-              isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft hover:shadow-md'
-            }`}
+            className={`border rounded-2xl p-5 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700 shadow-xl' : 'bg-bg-card border-border-theme shadow-soft hover:shadow-md'
+              }`}
           >
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-2.5 rounded-xl ${
-                stat.color === 'blue' ? 'bg-blue-500/10 text-blue-400' :
-                  stat.color === 'cyan' ? 'bg-cyan-500/10 text-cyan-400' :
-                    stat.color === 'purple' ? 'bg-purple-500/10 text-purple-400' :
-                      'bg-orange-500/10 text-orange-400'
-              }`}>
+              <div className={`p-2.5 rounded-xl ${stat.color === 'blue' ? 'bg-blue-500/10 text-blue-400' :
+                stat.color === 'cyan' ? 'bg-cyan-500/10 text-cyan-400' :
+                  stat.color === 'purple' ? 'bg-purple-500/10 text-purple-400' :
+                    'bg-orange-500/10 text-orange-400'
+                }`}>
                 <stat.icon size={20} />
               </div>
-              <div className={`h-1 w-12 rounded-full bg-gradient-to-r ${
-                stat.color === 'blue' ? 'from-blue-500/40' :
-                  stat.color === 'cyan' ? 'from-cyan-500/40' :
-                    stat.color === 'purple' ? 'from-purple-500/40' :
-                      'from-orange-500/40'
-              } to-transparent`}></div>
+              <div className={`h-1 w-12 rounded-full bg-gradient-to-r ${stat.color === 'blue' ? 'from-blue-500/40' :
+                stat.color === 'cyan' ? 'from-cyan-500/40' :
+                  stat.color === 'purple' ? 'from-purple-500/40' :
+                    'from-orange-500/40'
+                } to-transparent`}></div>
             </div>
             <h3 className={`text-2xl font-black mb-1 transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>{stat.value}</h3>
             <p className={`text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>{stat.title}</p>
@@ -504,9 +504,8 @@ const Certificates = () => {
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-xs font-bold uppercase tracking-widest mr-2 transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>Sort:</span>
-          <button className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold ${
-            isDark ? 'bg-gray-800/50 text-gray-400 border-gray-700 hover:text-white' : 'bg-bg-secondary text-text-muted border-border-theme hover:text-text-primary'
-          }`}>
+          <button className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold ${isDark ? 'bg-gray-800/50 text-gray-400 border-gray-700 hover:text-white' : 'bg-bg-secondary text-text-muted border-border-theme hover:text-text-primary'
+            }`}>
             Date Issued (Recent)
             <ArrowUpDown size={14} />
           </button>
@@ -536,9 +535,8 @@ const Certificates = () => {
           {filteredCertificates.map(cert => (
             <div
               key={cert._id}
-              className={`border rounded-2xl overflow-hidden transition-all duration-300 group relative ${
-                isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700' : 'bg-bg-card border-border-theme shadow-soft hover:shadow-md'
-              }`}
+              className={`border rounded-2xl overflow-hidden transition-all duration-300 group relative ${isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700' : 'bg-bg-card border-border-theme shadow-soft hover:shadow-md'
+                }`}
             >
               {/* Drag Handle (Hidden as Reordering is disabled) */}
               {/* <div className="absolute top-3 left-3 z-20 p-1.5 rounded-md bg-black/40 backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
@@ -608,20 +606,24 @@ const Certificates = () => {
                       <Save size={16} />
                     </button>
                   )}
-                  <button
-                    onClick={() => setEditingCert(cert)}
-                    className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    title="Edit Certificate"
-                  >
-                    <Edit2 size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCertificate(cert._id)}
-                    className="p-2 rounded-lg bg-red-600/80 text-white hover:bg-red-600 transition-colors"
-                    title="Delete"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {!isViewer && (
+                    <>
+                      <button
+                        onClick={() => setEditingCert(cert)}
+                        className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                        title="Edit Certificate"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCertificate(cert._id)}
+                        className="p-2 rounded-lg bg-red-600/80 text-white hover:bg-red-600 transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -660,9 +662,8 @@ const Certificates = () => {
                   {cert.link ? (
                     <button
                       onClick={() => window.open(cert.link, '_blank')}
-                      className={`flex-1 flex items-center gap-1 text-xs px-2 py-1.5 rounded transition-colors ${
-                        isDark ? 'text-blue-400 hover:text-blue-300 bg-blue-500/10' : 'text-accent hover:text-accent/80 bg-bg-secondary border border-border-theme'
-                      }`}
+                      className={`flex-1 flex items-center gap-1 text-xs px-2 py-1.5 rounded transition-colors ${isDark ? 'text-blue-400 hover:text-blue-300 bg-blue-500/10' : 'text-accent hover:text-accent/80 bg-bg-secondary border border-border-theme'
+                        }`}
                     >
                       <Link size={12} />
                       <span className="truncate font-bold">View Link</span>
@@ -690,22 +691,23 @@ const Certificates = () => {
           ))}
 
           {/* Add New Entry Card */}
-          <button
-            onClick={() => setShowNewCertModal(true)}
-            className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all min-h-[280px] group ${
-              isDark ? 'border-gray-800 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
-            }`}
-          >
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-gray-800 group-hover:bg-gray-700' : 'bg-bg-primary group-hover:bg-bg-accent shadow-sm'}`}>
-              <Plus size={28} className={isDark ? 'text-gray-500 group-hover:text-blue-400' : 'text-text-muted group-hover:text-accent'} />
-            </div>
-            <div className="text-center">
-              <p className={`text-sm font-bold mb-1 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-text-primary'}`}>Add New Entry</p>
-              <p className={`text-xs text-center max-w-[200px] transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
-                Upload a digital certificate or manual verification hash
-              </p>
-            </div>
-          </button>
+          {!isViewer && (
+            <button
+              onClick={() => setShowNewCertModal(true)}
+              className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all min-h-[280px] group ${isDark ? 'border-gray-800 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
+                }`}
+            >
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-gray-800 group-hover:bg-gray-700' : 'bg-bg-primary group-hover:bg-bg-accent shadow-sm'}`}>
+                <Plus size={28} className={isDark ? 'text-gray-500 group-hover:text-blue-400' : 'text-text-muted group-hover:text-accent'} />
+              </div>
+              <div className="text-center">
+                <p className={`text-sm font-bold mb-1 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-text-primary'}`}>Add New Entry</p>
+                <p className={`text-xs text-center max-w-[200px] transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
+                  Upload a digital certificate or manual verification hash
+                </p>
+              </div>
+            </button>
+          )}
         </div>
       )}
 

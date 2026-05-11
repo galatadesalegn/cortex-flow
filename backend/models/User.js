@@ -40,10 +40,12 @@ const userSchema = new mongoose.Schema({
     dashboard: { type: Boolean, default: false },
     projects: { type: Boolean, default: false },
     experience: { type: Boolean, default: false },
+    education: { type: Boolean, default: false },
     skills: { type: Boolean, default: false },
     certificates: { type: Boolean, default: false },
     services: { type: Boolean, default: false },
     messages: { type: Boolean, default: false },
+    testimonials: { type: Boolean, default: false },
     settings: { type: Boolean, default: false },
     manageAdmins: { type: Boolean, default: false }
   },
@@ -78,36 +80,38 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 // Compare password method
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Update last active
-userSchema.methods.updateLastActive = async function() {
+userSchema.methods.updateLastActive = async function () {
   this.lastActive = new Date();
   return await this.save();
 };
 
 // Get permissions based on role
-userSchema.methods.getPermissions = function() {
+userSchema.methods.getPermissions = function () {
   if (this.role === 'super_admin') {
     return {
       dashboard: true,
       projects: true,
       experience: true,
+      education: true,
       skills: true,
       certificates: true,
       services: true,
       messages: true,
+      testimonials: true,
       settings: true,
       manageAdmins: true
     };
@@ -116,7 +120,7 @@ userSchema.methods.getPermissions = function() {
 };
 
 // Generate OTP for password reset
-userSchema.methods.generateOTP = function() {
+userSchema.methods.generateOTP = function () {
   // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   this.resetOTP = otp;
@@ -126,14 +130,14 @@ userSchema.methods.generateOTP = function() {
 };
 
 // Verify OTP
-userSchema.methods.verifyOTP = function(otp) {
+userSchema.methods.verifyOTP = function (otp) {
   if (this.resetOTP !== otp) return false;
   if (Date.now() > this.resetOTPExpires) return false;
   return true;
 };
 
 // Clear OTP
-userSchema.methods.clearOTP = function() {
+userSchema.methods.clearOTP = function () {
   this.resetOTP = null;
   this.resetOTPExpires = null;
 };
