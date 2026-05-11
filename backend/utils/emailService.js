@@ -1,20 +1,51 @@
+import emailjs from '@emailjs/nodejs';
+
 /**
- * HTTP-based Email Service using Resend API
- * This avoids SMTP port blocking issues on platforms like Render.
+ * Integrated Email Service
+ * Supports Resend (HTTP) and EmailJS (NodeJS SDK)
  */
 
+// Helper to send email via EmailJS (Node.js SDK)
+const sendViaEmailJS = async (toEmail, subject, html, templateType = 'general') => {
+  const serviceId = process.env.EMAILJS_SERVICE_ID;
+  const templateId = process.env.EMAILJS_TEMPLATE_ID;
+  const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY;
+
+  if (!serviceId || !templateId || !publicKey || !privateKey) {
+    return { success: false, error: 'EmailJS credentials incomplete' };
+  }
+
+  try {
+    const result = await emailjs.send(
+      serviceId,
+      templateId,
+      {
+        to_email: toEmail,
+        subject: subject,
+        message_html: html, // The template in EmailJS must have {{message_html}} variable
+        template_type: templateType
+      },
+      {
+        publicKey,
+        privateKey,
+      }
+    );
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('EmailJS SDK Error:', error);
+    return { success: false, error: typeof error === 'object' ? JSON.stringify(error) : error };
+  }
+};
+
 // Helper to send email via Resend HTTP API
-const sendEmail = async (to, subject, html, fromOverride = null) => {
+const sendViaResend = async (to, subject, html, fromOverride = null) => {
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
-    console.error('❌ EMAIL ERROR: RESEND_API_KEY is missing in process.env');
-    return { success: false, error: 'Email service not configured. RESEND_API_KEY is missing.' };
+    return { success: false, error: 'Resend API Key missing' };
   }
 
-  // Resend requires a verified domain to send from custom addresses.
-  // If no domain is verified, you MUST use 'onboarding@resend.dev'
-  // and can only send to your own verified email address.
   const from = fromOverride || process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
   try {
@@ -41,9 +72,22 @@ const sendEmail = async (to, subject, html, fromOverride = null) => {
       return { success: false, error: result.message || 'API request failed' };
     }
   } catch (error) {
-    console.error('Email Send Error (HTTP):', error);
+    console.error('Resend Fetch Error:', error);
     return { success: false, error: error.message };
   }
+};
+
+// Master send function that picks the available service
+const sendEmail = async (to, subject, html, options = {}) => {
+  // Try EmailJS first if credentials exist
+  if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_PUBLIC_KEY) {
+    const result = await sendViaEmailJS(to, subject, html, options.templateType);
+    if (result.success) return result;
+    console.warn('EmailJS failed, falling back to Resend if available:', result.error);
+  }
+
+  // Fallback to Resend
+  return await sendViaResend(to, subject, html, options.fromOverride);
 };
 
 // Send invitation email to new admin
@@ -99,7 +143,7 @@ export const sendInvitationEmail = async (email, name, tempPassword, adminPanelU
       </div>
     </div>
   `;
-  return await sendEmail(email, subject, html);
+  return await sendEmail(email, subject, html, { templateType: 'invitation' });
 };
 
 // Send OTP for password reset
@@ -144,7 +188,7 @@ export const sendOTPEmail = async (email, otp) => {
       </div>
     </div>
   `;
-  return await sendEmail(email, subject, html);
+  return await sendEmail(email, subject, html, { templateType: 'otp' });
 };
 
 // Send reply email to client
@@ -180,9 +224,8 @@ export const sendReplyEmail = async (clientEmail, clientName, subject, replyMess
       </div>
     </div>
   `;
-  return await sendEmail(clientEmail, subject, html);
+  return await sendEmail(clientEmail, subject, html, { templateType: 'reply' });
 };
-
 
 // Send password changed confirmation email
 export const sendPasswordChangedEmail = async (email, name) => {
@@ -225,5 +268,5 @@ export const sendPasswordChangedEmail = async (email, name) => {
       </div>
     </div>
   `;
-  return await sendEmail(email, subject, html);
+  return await sendEmail(email, subject, html, { templateType: 'security' });
 };

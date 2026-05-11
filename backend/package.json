@@ -21,6 +21,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@emailjs/nodejs": "^5.0.2",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
