@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#1de9b6" stroke="#0a1a14" stroke-width="1"/>
+  <!-- Letter G -->
+  <text x="16" y="23" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="bold" fill="#0a1a14" text-anchor="middle">G</text>
+</svg>
