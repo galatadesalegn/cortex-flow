@@ -54,10 +54,6 @@ const profileSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  upworkUrl: {
-    type: String,
-    default: ''
-  },
   focusStats: {
     title: {
       type: String,

@@ -6,15 +6,18 @@ import {
   updateEducation,
   deleteEducation,
 } from '../controllers/educationController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, checkPermission } from '../middleware/auth.js';
 import { cacheMiddleware } from '../utils/cache.js';
 
 const router = express.Router();
 
 router.get('/', cacheMiddleware(600), getEducations);
 router.get('/:id', getEducation);
-router.post('/', protect, createEducation);
-router.put('/:id', protect, updateEducation);
-router.delete('/:id', protect, deleteEducation);
+
+router.use(protect, checkPermission('education'));
+
+router.post('/', createEducation);
+router.put('/:id', updateEducation);
+router.delete('/:id', deleteEducation);
 
 export default router;

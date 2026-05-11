@@ -9,30 +9,28 @@ import {
   updatePermissions,
   changePassword
 } from '../controllers/userController.js';
-import { protect, admin } from '../middleware/auth.js';
+import { protect, checkPermission } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// All routes are protected and require admin access
+// Self-service routes
 router.use(protect);
+router.route('/account/delete').delete(deleteAccount);
+router.route('/change-password').put(changePassword);
 
-// Routes for admin management (super admin only)
+// User management routes (requires manageAdmins permission)
+router.use(checkPermission('manageAdmins'));
+
 router.route('/')
-  .get(admin, getUsers)
-  .post(admin, createUser);
-
-router.route('/account/delete')
-  .delete(deleteAccount);
-
-router.route('/change-password')
-  .put(changePassword);
+  .get(getUsers)
+  .post(createUser);
 
 router.route('/:id')
-  .get(admin, getUser)
-  .put(admin, updateUser)
-  .delete(admin, deleteUser);
+  .get(getUser)
+  .put(updateUser)
+  .delete(deleteUser);
 
 router.route('/:id/permissions')
-  .put(admin, updatePermissions);
+  .put(updatePermissions);
 
 export default router;

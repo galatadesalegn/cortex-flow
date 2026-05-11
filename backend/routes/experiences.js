@@ -6,15 +6,18 @@ import {
   updateExperience,
   deleteExperience,
 } from '../controllers/experienceController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, checkPermission } from '../middleware/auth.js';
 import { cacheMiddleware } from '../utils/cache.js';
 
 const router = express.Router();
 
 router.get('/', cacheMiddleware(600), getExperiences);
 router.get('/:id', getExperience);
-router.post('/', protect, createExperience);
-router.put('/:id', protect, updateExperience);
-router.delete('/:id', protect, deleteExperience);
+
+router.use(protect, checkPermission('experience'));
+
+router.post('/', createExperience);
+router.put('/:id', updateExperience);
+router.delete('/:id', deleteExperience);
 
 export default router;

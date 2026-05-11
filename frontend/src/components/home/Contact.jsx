@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import { useProfile, useTheme } from "../../hooks";
 import { publicService } from "../../services";
+import { toast } from "sonner";
 
 const use3DTilt = (maxRotate = 6, maxTranslate = 12) => {
 	const ref = useRef(null);
@@ -10,35 +11,35 @@ const use3DTilt = (maxRotate = 6, maxTranslate = 12) => {
 
 	const onMove = useCallback((e) => {
 		if (rafRef.current) return;
-		
+
 		rafRef.current = requestAnimationFrame(() => {
 			const el = ref.current;
 			if (!el) {
 				rafRef.current = null;
 				return;
 			}
-			
+
 			const rect = el.getBoundingClientRect();
 			const x = e.clientX - rect.left;
 			const y = e.clientY - rect.top;
-			
+
 			// Skip if position hasn't changed significantly
 			if (Math.abs(x - lastMoveRef.current.x) < 2 && Math.abs(y - lastMoveRef.current.y) < 2) {
 				rafRef.current = null;
 				return;
 			}
-			
+
 			lastMoveRef.current = { x, y };
 			const cx = rect.width / 2;
 			const cy = rect.height / 2;
 			const px = (x - cx) / cx;
 			const py = (y - cy) / cy;
-			
+
 			setStyle({
 				transform: `perspective(800px) rotateX(${-py * maxRotate}deg) rotateY(${px * maxRotate}deg) translateX(${px * maxTranslate}px) scale(1.02)`,
 				transition: "transform 0ms",
 			});
-			
+
 			rafRef.current = null;
 		});
 	}, [maxRotate, maxTranslate]);
@@ -48,45 +49,45 @@ const use3DTilt = (maxRotate = 6, maxTranslate = 12) => {
 			cancelAnimationFrame(rafRef.current);
 			rafRef.current = null;
 		}
-		setStyle({ 
-			transform: "none", 
-			transition: "transform 500ms cubic-bezier(.2,.8,.2,1)" 
+		setStyle({
+			transform: "none",
+			transition: "transform 500ms cubic-bezier(.2,.8,.2,1)"
 		});
 	}, []);
 
 	// Touch event support for mobile
 	const onTouchMove = useCallback((e) => {
 		if (rafRef.current) return;
-		
+
 		rafRef.current = requestAnimationFrame(() => {
 			const el = ref.current;
 			if (!el) {
 				rafRef.current = null;
 				return;
 			}
-			
+
 			const touch = e.touches[0];
 			const rect = el.getBoundingClientRect();
 			const x = touch.clientX - rect.left;
 			const y = touch.clientY - rect.top;
-			
+
 			// Skip if position hasn't changed significantly
 			if (Math.abs(x - lastMoveRef.current.x) < 2 && Math.abs(y - lastMoveRef.current.y) < 2) {
 				rafRef.current = null;
 				return;
 			}
-			
+
 			lastMoveRef.current = { x, y };
 			const cx = rect.width / 2;
 			const cy = rect.height / 2;
 			const px = (x - cx) / cx;
 			const py = (y - cy) / cy;
-			
+
 			setStyle({
 				transform: `perspective(800px) rotateX(${-py * maxRotate}deg) rotateY(${px * maxRotate}deg) translateX(${px * maxTranslate}px) scale(1.02)`,
 				transition: "transform 0ms",
 			});
-			
+
 			rafRef.current = null;
 		});
 	}, [maxRotate, maxTranslate]);
@@ -96,9 +97,9 @@ const use3DTilt = (maxRotate = 6, maxTranslate = 12) => {
 			cancelAnimationFrame(rafRef.current);
 			rafRef.current = null;
 		}
-		setStyle({ 
-			transform: "none", 
-			transition: "transform 500ms cubic-bezier(.2,.8,.2,1)" 
+		setStyle({
+			transform: "none",
+			transition: "transform 500ms cubic-bezier(.2,.8,.2,1)"
 		});
 	}, []);
 
@@ -184,9 +185,8 @@ const ContactInfoCard = memo(({ icon, label, value, tilt, className = "" }) => {
 			onMouseEnter={handleMouseEnter}
 			onTouchMove={handleTouchMove}
 			onTouchEnd={handleTouchEnd}
-			className={`group relative p-4 rounded-xl border transition-all duration-500 overflow-hidden border-emerald-500/10 hover:border-[#1de9b6]/30 ${
-				hovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)]' : ''
-			} ${className}`}
+			className={`group relative p-4 rounded-xl border transition-all duration-500 overflow-hidden border-emerald-500/10 hover:border-[#1de9b6]/30 ${hovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)]' : ''
+				} ${className}`}
 		>
 			<div className="relative z-10">
 				<div className="w-8 h-8 rounded-lg border flex items-center justify-center mb-3 transition-all bg-[#12221b] border-emerald-500/20 text-emerald-400 group-hover:border-emerald-500/50 group-hover:scale-110">
@@ -204,7 +204,7 @@ ContactInfoCard.displayName = 'ContactInfoCard';
 const Contact = () => {
 	const { profile } = useProfile();
 	const [sectionRef, isVisible] = useFadeIn();
-	
+
 	// 3D Tilt hooks for cards
 	const emailTilt = use3DTilt(10, 5);
 	const locationTilt = use3DTilt(10, 5);
@@ -272,10 +272,17 @@ const Contact = () => {
 				message: formData.message,
 			});
 			setStatus("success");
+			toast.success("Message delivered successfully!", {
+				description: "I'll get back to you as soon as possible.",
+			});
 			setFormData({ name: "", email: "", subject: "", message: "" });
 		} catch (err) {
 			console.error("Failed to send message:", err);
-			setError(err.response?.data?.message || "Failed to send message. Please try again.");
+			const errorMessage = err.response?.data?.message || "Failed to send message. Please try again.";
+			setError(errorMessage);
+			toast.error("Message delivery failed", {
+				description: errorMessage,
+			});
 			setStatus("error");
 		} finally {
 			setIsSubmitting(false);
@@ -329,7 +336,7 @@ const Contact = () => {
 								tilt={locationTilt}
 							/>
 							<ContactInfoCard
-								icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>}
+								icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>}
 								label="Direct Line"
 								value={profile?.phone || "+00 000 000 000"}
 								tilt={phoneTilt}
@@ -360,7 +367,7 @@ const Contact = () => {
 
 					{/* Right Side - Form */}
 					<div className="lg:col-span-7">
-						<div 
+						<div
 							ref={formTilt.ref}
 							style={{
 								...formTilt.style,
@@ -373,13 +380,12 @@ const Contact = () => {
 							onMouseEnter={handleFormMouseEnter}
 							onTouchMove={handleFormTouchMove}
 							onTouchEnd={handleFormTouchEnd}
-							className={`relative p-6 md:p-10 rounded-2xl border overflow-hidden border-emerald-500/10 transition-all duration-300 ${
-								formHovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)] hover:border-[#1de9b6]/30' : ''
-							}`}
+							className={`relative p-6 md:p-10 rounded-2xl border overflow-hidden border-emerald-500/10 transition-all duration-300 ${formHovered ? 'shadow-[0_0_30px_rgba(29,233,182,0.15)] hover:border-[#1de9b6]/30' : ''
+								}`}
 						>
 							{/* Form Decoration */}
 							<div className="absolute top-0 right-0 w-32 h-32 bg-[#1de9b6]/5 blur-3xl pointer-events-none"></div>
-							
+
 							<form onSubmit={handleSubmit} className="relative z-10 space-y-5">
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 									<div className="space-y-2">

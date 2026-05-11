@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from "sonner";
 import { fixImageUrl } from "../../utils/imageHelper.js";
 
 const CertificateModal = ({ isOpen, onClose, certificate }) => {
@@ -6,16 +7,18 @@ const CertificateModal = ({ isOpen, onClose, certificate }) => {
 
   const handleCopyLink = () => {
     if (!certificate.link) {
-      alert('No link to copy');
+      toast.error('No link available to copy');
       return;
     }
     navigator.clipboard.writeText(certificate.link);
-    alert('Link copied to clipboard!');
+    toast.success('Link copied to clipboard!', {
+      description: 'You can now share this certificate link.',
+    });
   };
 
   const handleDownloadImage = () => {
     if (!certificate.image) {
-      alert('No image to download');
+      toast.error('No image available to download');
       return;
     }
     const link = document.createElement('a');
@@ -25,6 +28,9 @@ const CertificateModal = ({ isOpen, onClose, certificate }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast.success('Downloading certificate...', {
+      description: 'The image download should start shortly.',
+    });
   };
 
   return (
