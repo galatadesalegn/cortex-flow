@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import './config/env.js';
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -7,11 +7,8 @@ import mongoSanitize from 'express-mongo-sanitize';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Load env FIRST
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-dotenv.config({ path: join(__dirname, '.env') });
 
 // Environment variable validation
 const requiredEnvVars = ['MONGO_URL', 'JWT_SECRET'];
@@ -200,7 +197,7 @@ app.use(errorHandler);
 const startServer = async () => {
   // Connect to MongoDB FIRST
   const dbConnected = await connectDB();
-  
+
   if (!dbConnected) {
     console.error('❌ MongoDB connection failed. Server not started.');
     process.exit(1);

@@ -84,11 +84,15 @@ export const createUser = asyncHandler(async (req, res) => {
 
   // Send invitation email (fire and forget - non-blocking)
   const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://galatadesalegn.onrender.com'}/login`;
-  
+
   // Check if email is configured
-  const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-  let emailSent = false;
-  
+  const emailConfigured = !!process.env.RESEND_API_KEY;
+
+  if (!emailConfigured) {
+    console.log('⚠️ Email not configured: RESEND_API_KEY is missing in environment variables.');
+    console.log('   Current keys in process.env:', Object.keys(process.env).filter(k => k.includes('RESEND') || k.includes('EMAIL')));
+  }
+
   if (emailConfigured) {
     // Send email asynchronously - don't wait for it
     sendInvitationEmail(email, name, userPassword, adminPanelUrl)
@@ -103,15 +107,14 @@ export const createUser = asyncHandler(async (req, res) => {
         }
       })
       .catch(err => console.error('Invitation email error:', err.message));
-    emailSent = true; // Optimistically assume it will send
   } else {
-    console.log('Email not configured. Skipping invitation email.');
+    console.log('Skipping invitation email sending.');
   }
 
   res.status(201).json({
     success: true,
-    message: emailConfigured 
-      ? 'Admin created successfully. Invitation email is being sent.' 
+    message: emailConfigured
+      ? 'Admin created successfully. Invitation email is being sent.'
       : 'Admin created successfully. Email not configured.',
     data: {
       _id: user._id,
@@ -123,7 +126,7 @@ export const createUser = asyncHandler(async (req, res) => {
       status: user.status,
       lastActive: user.lastActive,
       permissions: user.getPermissions(),
-      invitationSending: emailConfigured
+      invitationSending: !!emailConfigured
     }
   });
 });
