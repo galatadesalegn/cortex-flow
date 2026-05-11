@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-S-ySWqyJ.js";import{t}from"./api-0MCke6oZ.js";var n=e({uploadService:()=>r}),r={uploadImage:async e=>{let n=new FormData;return n.append(`image`,e),(await t.post(`/upload`,n,{headers:{"Content-Type":`multipart/form-data`}})).data}};export{n,r as t};
