@@ -31,6 +31,7 @@ const sendViaEmailJS = async (toEmail, subject, html, templateType = 'general') 
         privateKey,
       }
     );
+    console.log('✅ EmailJS API response:', result.status, result.text);
     return { success: true, data: result };
   } catch (error) {
     console.error('EmailJS SDK Error:', error);
