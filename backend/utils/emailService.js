@@ -24,7 +24,8 @@ const sendViaEmailJS = async (toEmail, subject, html, templateType = 'general') 
         to_email: toEmail,
         subject: subject,
         message_html: html, // The template in EmailJS must have {{message_html}} variable
-        template_type: templateType
+        template_type: templateType,
+        reply_to: process.env.EMAIL_FROM || ''
       },
       {
         publicKey,
