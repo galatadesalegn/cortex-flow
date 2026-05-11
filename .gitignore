@@ -6,4 +6,4 @@ dist
 build
 
 .vscode
-.DS_Store
+.DS_Storenode_modules/
