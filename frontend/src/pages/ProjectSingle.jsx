@@ -380,18 +380,25 @@ const ProjectSingle = () => {
           </div>
 
           {/* Gallery Section */}
-          {projectData.gallery && projectData.gallery.length > 0 && (
+          {(() => {
+            console.log('Gallery check - projectData.gallery:', projectData.gallery);
+            console.log('Gallery length:', projectData.gallery?.length);
+            return projectData.gallery && projectData.gallery.length > 0;
+          })() && (
             <div className="mt-12 space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
                 <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {projectData.gallery.map((img, index) => (
-                  <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
-                    <LazyImage src={img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                ))}
+                {projectData.gallery.map((img, index) => {
+                  console.log('Rendering gallery image:', index, img);
+                  return (
+                    <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
+                      <LazyImage src={img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
