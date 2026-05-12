@@ -132,21 +132,23 @@ const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
 
     try {
       setLoading(true);
-
+      
+      // Build submission data - preserve all existing data
       const dataToSubmit = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        image: formData.image || null,
+        image: formData.image || project?.image || null, // Preserve original if no new image
         githubLink: formData.githubLink?.trim() || null,
         liveDemo: formData.liveDemo?.trim() || null,
         techStack: formData.techStack,
         challenge: formData.challenge?.trim() || null,
         pillars: formData.pillars.filter(p => p.title && p.description),
-        galleryImages: formData.galleryImages.filter(img => img && typeof img === 'string'),
-        category: formData.category?.trim() || 'Other',
-        duration: formData.duration?.trim() || null,
-        collaborationType: formData.collaborationType || 'Solo',
-        videoUrl: formData.videoUrl?.trim() || null
+        galleryImages: formData.galleryImages.filter(img => img && typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http'))),
+        category: formData.category?.trim() || project?.category || 'Other', // Preserve original category
+        duration: formData.duration?.trim() || project?.duration || null,
+        collaborationType: formData.collaborationType || project?.collaborationType || 'Solo', // Preserve original collaboration type
+        videoUrl: formData.videoUrl?.trim() || project?.videoUrl || null, // Preserve original video if no new video
+        featured: formData.featured !== undefined ? formData.featured : project?.featured || false // Preserve original featured status
       };
 
       const result = await projectService.update(project._id, dataToSubmit);
