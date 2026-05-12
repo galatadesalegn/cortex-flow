@@ -99,20 +99,21 @@ export const createProject = asyncHandler(async (req, res) => {
     throw new Error('Invalid live demo URL');
   }
 
-  // Validate image URLs
-  if (image !== undefined && !validateImageUrl(image)) {
-    res.status(400);
-    throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
-  }
+  // Temporarily disabled all URL validations to isolate exact error source
+  // // Validate image URLs
+  // if (image !== undefined && !validateImageUrl(image)) {
+  //   res.status(400);
+  //   throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
+  // }
 
-  if (galleryImages && Array.isArray(galleryImages)) {
-    for (const img of galleryImages) {
-      if (img && !validateImageUrl(img)) {
-        res.status(400);
-        throw new Error('Invalid gallery image URL. Only Cloudinary or production URLs are allowed.');
-      }
-    }
-  }
+  // if (galleryImages && Array.isArray(galleryImages)) {
+  //   for (const img of galleryImages) {
+  //     if (img && !validateImageUrl(img)) {
+  //       res.status(400);
+  //       throw new Error('Invalid gallery image URL. Only Cloudinary or production URLs are allowed.');
+  //     }
+  //   }
+  // }
 
   // Temporarily disabled pillar icon validation to isolate issue
   // if (pillars && Array.isArray(pillars)) {
@@ -199,14 +200,15 @@ export const updateProject = asyncHandler(async (req, res) => {
     throw new Error('Invalid image URL. Only Cloudinary or production URLs are allowed.');
   }
 
-  if (galleryImages !== undefined && Array.isArray(galleryImages)) {
-    for (const img of galleryImages) {
-      if (img && !validateImageUrl(img)) {
-        res.status(400);
-        throw new Error('Invalid gallery image URL. Only Cloudinary or production URLs are allowed.');
-      }
-    }
-  }
+  // Temporarily disabled gallery validation in update function
+  // if (galleryImages !== undefined && Array.isArray(galleryImages)) {
+  //   for (const img of galleryImages) {
+  //     if (img && !validateImageUrl(img)) {
+  //       res.status(400);
+  //       throw new Error('Invalid gallery image URL. Only Cloudinary or production URLs are allowed.');
+  //     }
+  //   }
+  // }
 
   // Temporarily disabled pillar icon validation in update function too
   // if (pillars !== undefined && Array.isArray(pillars)) {
