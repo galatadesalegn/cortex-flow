@@ -166,6 +166,17 @@ const ProjectSingle = () => {
     );
   }
 
+  if (!projectData) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-[#1de9b6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/80">Loading project data...</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <>
     <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white">
@@ -176,7 +187,7 @@ const ProjectSingle = () => {
             <div className="space-y-8">
               <div className="relative overflow-hidden rounded-xl border border-white/10">
                 <div className="aspect-video relative overflow-hidden">
-                  {projectData.videoUrl ? (
+                  {projectData?.videoUrl ? (
                     <>
                       {projectData.videoUrl.includes('youtube.com') || projectData.videoUrl.includes('youtu.be') ? (
                         <iframe
@@ -215,7 +226,7 @@ const ProjectSingle = () => {
               </div>
             </div>
             
-            {projectData.videoUrl && (
+            {projectData?.videoUrl && (
               <div className="absolute top-4 right-4 px-3 py-1 bg-[#1de9b6]/90 backdrop-blur-sm text-black text-[8px] font-black uppercase tracking-widest rounded z-20 shadow-xl pointer-events-none">
                 Live Stream
               </div>
