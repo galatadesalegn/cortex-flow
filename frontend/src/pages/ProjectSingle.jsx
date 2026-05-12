@@ -379,22 +379,35 @@ const ProjectSingle = () => {
             )}
           </div>
 
-          {/* Gallery Section */}
+          {/* Gallery Thumbnails - Thumbnail Style */}
           {projectData.gallery && projectData.gallery.length > 0 && (
-            <div className="mt-12 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
+            <div className="mt-12 space-y-8">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-8 h-0.5 bg-[#1de9b6]" />
+                <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {projectData.gallery.map((img, index) => (
-                  <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
-                    <img 
-                      src={img} 
-                      alt={`Gallery ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      crossOrigin="anonymous"
-                    />
+                  <div key={index} className="group relative overflow-hidden rounded-xl border border-white/10 hover:border-[#1de9b6]/30 transition-all duration-500">
+                    <div className="aspect-video relative overflow-hidden">
+                      <img 
+                        src={img} 
+                        alt={`Gallery ${index + 1}`}
+                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
+                        crossOrigin="anonymous"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </div>
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="w-8 h-8 bg-[#1de9b6]/90 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <span className="text-black text-xs font-bold">+</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-white/80 rounded-full" />
+                        <div className="w-2 h-2 bg-white/60 rounded-full" />
+                        <div className="w-2 h-2 bg-white/40 rounded-full" />
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
