@@ -101,12 +101,24 @@ const LazyImage = memo(({ src, alt, className }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
 
+  // Debug logging for image loading
+  useEffect(() => {
+    if (src) {
+      console.log('Loading image:', src);
+    }
+  }, [src]);
+
   if (!src || error) {
     return (
       <div className={`flex items-center justify-center bg-bg-secondary ${className}`}>
         <div className="w-12 h-12 rounded-full border border-border-theme flex items-center justify-center">
           <Info size={24} className="text-theme-muted" />
         </div>
+        {error && src && (
+          <div className="absolute bottom-0 right-0 bg-red-500 text-white text-xs p-1 rounded">
+            Failed: {src.substring(0, 20)}...
+          </div>
+        )}
       </div>
     );
   }

@@ -8,6 +8,15 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender
 export const fixImageUrl = (url) => {
   if (!url || typeof url !== 'string') return url;
   
+  // Handle Cloudinary URLs - they should work as-is
+  if (url.includes('cloudinary.com')) {
+    // Ensure Cloudinary URLs use HTTPS
+    if (url.startsWith('http://')) {
+      return url.replace('http://', 'https://');
+    }
+    return url;
+  }
+  
   // Replace localhost:5000 with production URL
   if (url.includes('http://localhost:5000')) {
     return url.replace(/http:\/\/localhost:5000/g, API_URL);
@@ -21,6 +30,11 @@ export const fixImageUrl = (url) => {
   // Replace 127.0.0.1:5000 with production URL
   if (url.includes('http://127.0.0.1:5000')) {
     return url.replace(/http:\/\/127\.0\.0\.1:5000/g, API_URL);
+  }
+  
+  // Handle relative URLs that start with /uploads/
+  if (url.startsWith('/uploads/')) {
+    return `${API_URL}${url}`;
   }
   
   return url;
