@@ -438,10 +438,10 @@ const ProjectCreate = ({ onBack, onSave }) => {
                     className={`block border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
                       isDark ? 'border-gray-700 hover:border-blue-500/50' : 'border-border-theme hover:border-accent/50'
                     } ${
-                      typeof img === 'string' && img.startsWith('data:') ? 'border-solid border-blue-500/50' : ''
+                      typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http')) ? 'border-solid border-blue-500/50' : ''
                     }`}
                   >
-                    {typeof img === 'string' && img.startsWith('data:') ? (
+                    {typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http')) ? (
                       <img src={img} alt={`Gallery ${index + 1}`} className="w-full h-24 object-cover rounded" />
                     ) : (
                       <>

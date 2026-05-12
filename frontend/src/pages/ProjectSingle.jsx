@@ -290,20 +290,16 @@ const ProjectSingle = () => {
           </div>
         </section>
 
-        {/* 03. Technical Grid */}
+        {/* 03. Technical Grid - Dynamic Pillars from Admin Panel */}
         <section className="grid md:grid-cols-3 gap-6 mb-32">
-          {[
-            { title: 'Mission', subtitle: 'Project Objectives', items: ['Next-generation e-commerce experience', 'AI-powered intelligent systems', 'Clean and minimalist design', 'Seamless and high-speed performance'] },
-            { title: 'Architecture', subtitle: 'Modular Full-Stack System', items: ['Frontend: Component-based UI (React/Next.js)', 'Backend: REST API with Auth', 'Database: MongoDB Scalable Storage', 'AI Layer: Recommendation Logic'] },
-            { title: 'Performance', subtitle: 'Optimized Engineering', items: ['Optimized API requests', 'Lazy loading for assets', 'Minimal UI re-renders', 'Fast response backend'] }
-          ].map((section, idx) => (
+          {projectData.pillars.map((pillar, idx) => (
             <div key={idx} className="bg-[#1a1a1a] p-10 space-y-8 rounded-xl border border-white/5">
               <div className="space-y-1">
-                <h3 className="text-[#1de9b6] text-[11px] font-black uppercase tracking-[0.4em]">{section.title}</h3>
-                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">{section.subtitle}</p>
+                <h3 className="text-[#1de9b6] text-[11px] font-black uppercase tracking-[0.4em]">{pillar.title}</h3>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">{pillar.subtitle || 'Project Details'}</p>
               </div>
               <ul className="space-y-4">
-                {section.items.map((item, i) => (
+                {(pillar.items || pillar.description?.split('\n') || [pillar.description]).map((item, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-slate-400 text-[13px] font-medium leading-relaxed">
                     <span className="text-[#1de9b6] mt-0.5 text-xs">→</span>
                     <span>{item}</span>

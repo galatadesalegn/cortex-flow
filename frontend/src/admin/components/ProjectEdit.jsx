@@ -403,6 +403,58 @@ const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
                 </div>
               </div>
 
+              {/* Pillars */}
+              <div>
+                <label className={`block text-xs font-bold uppercase tracking-[0.15em] mb-3 ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>
+                  Project Pillars
+                </label>
+                <div className="space-y-4">
+                  {formData.pillars.map((pillar, index) => (
+                    <div key={index} className={`rounded-lg p-4 border transition-colors duration-300 ${
+                      isDark ? 'bg-gray-800/30 border-gray-700/50' : 'bg-bg-secondary border-border-theme'
+                    }`}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-2xl">{pillar.icon}</span>
+                        <input
+                          type="text"
+                          value={pillar.title}
+                          onChange={(e) => {
+                            const newPillars = [...formData.pillars];
+                            newPillars[index].title = e.target.value;
+                            setFormData(prev => ({ ...prev, pillars: newPillars }));
+                          }}
+                          className={`flex-1 bg-transparent font-medium focus:outline-none ${isDark ? 'text-white' : 'text-text-primary'}`}
+                        />
+                      </div>
+                      <textarea
+                        value={pillar.description}
+                        onChange={(e) => {
+                          const newPillars = [...formData.pillars];
+                          newPillars[index].description = e.target.value;
+                          setFormData(prev => ({ ...prev, pillars: newPillars }));
+                        }}
+                        rows={2}
+                        className={`w-full border rounded-lg px-3 py-2 text-sm transition-colors focus:outline-none focus:border-blue-500 resize-none ${
+                          isDark ? 'bg-gray-800/50 border-gray-700 text-gray-300' : 'bg-bg-primary border-border-theme text-text-secondary'
+                        }`}
+                      />
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => setFormData(prev => ({ 
+                      ...prev, 
+                      pillars: [...prev.pillars, { icon: '✨', title: 'New Pillar', description: '' }] 
+                    }))}
+                    className={`w-full py-3 border-2 border-dashed rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                      isDark ? 'border-gray-700 text-gray-500 hover:border-blue-500/50 hover:text-blue-400' : 'border-border-theme text-text-muted hover:border-accent/50 hover:text-accent'
+                    }`}
+                  >
+                    <Plus size={16} />
+                    <span>Add Pillar</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className={`block text-xs font-bold uppercase tracking-[0.15em] mb-3 ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>
                   Video Upload
@@ -417,8 +469,11 @@ const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
                   />
                   <label
                     htmlFor="video-upload"
-                    className={`block border-2 border-dashed rounded-xl p-6 text-center transition-all duration-500 cursor-pointer relative overflow-hidden group ${isDark ? 'border-gray-700/50 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
-                      }`}
+                    className={`block border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+                      isDark ? 'border-gray-700 hover:border-blue-500/50' : 'border-border-theme hover:border-accent/50'
+                    } ${
+                      typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http')) ? 'border-solid border-blue-500/50' : ''
+                    }`}
                   >
                     {loading ? (
                       <div className="flex flex-col items-center py-4">
