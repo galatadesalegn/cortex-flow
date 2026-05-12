@@ -379,43 +379,31 @@ const ProjectSingle = () => {
             )}
           </div>
 
-          {/* Gallery Section */}
-          {(() => {
-            console.log('Gallery check - projectData.gallery:', projectData.gallery);
-            console.log('Gallery length:', projectData.gallery?.length);
-            return projectData.gallery && projectData.gallery.length > 0;
-          })() && (
-            <div className="mt-12 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {projectData.gallery.map((img, index) => {
-                  console.log('Rendering gallery image:', index, img);
-                  return (
-                    <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
-                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                        <img 
-                          src={img} 
-                          alt={`Gallery ${index + 1}`}
-                          className="max-w-full max-h-full object-cover"
-                          onError={(e) => {
-                            console.log('=== IMAGE LOAD ERROR ===');
-                            console.log('Error details:', e);
-                            console.log('Failed URL:', img);
-                          }}
-                          onLoad={() => console.log('=== IMAGE LOADED SUCCESSFULLY ===', img)}
-                          crossOrigin="anonymous"
-                          style={{ display: 'block' }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+          {/* Gallery Section - Simple Test */}
+          <div className="mt-12 space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
             </div>
-          )}
+            {projectData.gallery && projectData.gallery.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {projectData.gallery.map((img, index) => (
+                  <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
+                    <img 
+                      src={img} 
+                      alt={`Gallery ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No gallery images available</p>
+              </div>
+            )}
+          </div>
 
           <div className="space-y-10">
             <div className="space-y-4">
