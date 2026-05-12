@@ -373,16 +373,21 @@ const ProjectSingle = () => {
 
             {/* Architecture Gallery Thumbnails */}
             <div className="grid grid-cols-3 gap-3 relative z-10">
-              {projectData.gallery.slice(0, 3).map((img, i) => (
-                <div key={i} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group/thumb shadow-lg">
-                  <LazyImage src={img} className="w-full h-full object-cover opacity-60 group-hover/thumb:opacity-100 transition-opacity" />
-                </div>
-              ))}
-              {projectData.gallery.length === 0 && [1, 2, 3].map(i => (
-                <div key={i} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden opacity-20">
-                  <LazyImage src={projectData.image} className="w-full h-full object-cover grayscale" />
-                </div>
-              ))}
+              {console.log('Gallery data:', projectData.gallery)}
+              {projectData.gallery && projectData.gallery.length > 0 ? (
+                projectData.gallery.slice(0, 3).map((img, i) => (
+                  <div key={i} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group/thumb shadow-lg">
+                    {console.log('Gallery image:', img)}
+                    <LazyImage src={img} className="w-full h-full object-cover opacity-60 group-hover/thumb:opacity-100 transition-opacity" />
+                  </div>
+                ))
+              ) : (
+                [1, 2, 3].map(i => (
+                  <div key={i} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden opacity-20">
+                    <LazyImage src={projectData.image} className="w-full h-full object-cover grayscale" />
+                  </div>
+                ))
+              )}
             </div>
 
             {projectData.videoUrl && (
