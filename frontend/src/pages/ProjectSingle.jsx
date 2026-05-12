@@ -385,6 +385,11 @@ const ProjectSingle = () => {
               <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
               <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
             </div>
+            <div className="text-xs text-gray-400 mb-4">
+              DEBUG: Gallery length: {projectData.gallery?.length || 0}
+              DEBUG: First gallery item: {projectData.gallery?.[0] || 'NONE'}
+              DEBUG: Gallery array: {JSON.stringify(projectData.gallery)}
+            </div>
             {projectData.gallery && projectData.gallery.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {projectData.gallery.map((img, index) => (
