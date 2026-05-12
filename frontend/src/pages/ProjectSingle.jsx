@@ -413,8 +413,8 @@ const ProjectSingle = () => {
               </div>
             </div>
 
-          {/* Gallery Section - One Line Wide */}
-          {projectData.gallery && projectData.gallery.length > 0 && (
+/416
+417/
             <div className="lg:col-span-2 mt-16 space-y-8">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-8 h-0.5 bg-[#1de9b6]" />
