@@ -116,9 +116,13 @@ export const createProject = asyncHandler(async (req, res) => {
 
   if (pillars && Array.isArray(pillars)) {
     for (const pillar of pillars) {
-      if (pillar.icon && !validateImageUrl(pillar.icon)) {
-        res.status(400);
-        throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+      // Skip validation for emoji or non-URL icons
+      if (pillar.icon && typeof pillar.icon === 'string' && 
+          (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
+        if (!validateImageUrl(pillar.icon)) {
+          res.status(400);
+          throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+        }
       }
     }
   }
@@ -200,9 +204,13 @@ export const updateProject = asyncHandler(async (req, res) => {
 
   if (pillars !== undefined && Array.isArray(pillars)) {
     for (const pillar of pillars) {
-      if (pillar.icon && !validateImageUrl(pillar.icon)) {
-        res.status(400);
-        throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+      // Skip validation for emoji or non-URL icons
+      if (pillar.icon && typeof pillar.icon === 'string' && 
+          (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
+        if (!validateImageUrl(pillar.icon)) {
+          res.status(400);
+          throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+        }
       }
     }
   }
