@@ -155,7 +155,10 @@ const ProjectSingle = () => {
 
   const projectData = useMemo(() => {
     if (!project) return null;
-    return {
+    console.log('Raw project data:', project);
+    console.log('Raw galleryImages:', project.galleryImages);
+    
+    const data = {
       title: project.title || 'Untitled Project',
       category: project.category || 'AI DEPLOYMENT ARCHITECTURE',
       description: project.description || 'A modern full-stack web application system combining e-commerce functionality, AI-powered features, and advanced UI/UX design. The project focuses on building scalable, responsive, and intelligent digital platforms where users can browse products, interact with smart recommendations, and experience smooth, modern interfaces. It integrates frontend design, backend APIs, database systems, and AI-based enhancements to create a complete production-ready application.',
@@ -171,6 +174,11 @@ const ProjectSingle = () => {
       liveUrl: project.liveDemo || null,
       githubUrl: project.githubLink || null,
     };
+    
+    console.log('Processed projectData:', data);
+    console.log('Processed gallery:', data.gallery);
+    
+    return data;
   }, [project]);
 
   useEffect(() => {
