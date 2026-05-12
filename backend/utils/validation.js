@@ -65,6 +65,11 @@ export const validateImageUrl = (url) => {
     return true;
   }
   
+  // Also allow the domain without protocol for flexibility
+  if (url.includes('galatadesalegn.onrender.com')) {
+    return true;
+  }
+  
   // Allow other HTTPS URLs (for flexibility)
   if (url.startsWith('https://')) {
     return true;
