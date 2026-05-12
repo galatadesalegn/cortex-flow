@@ -395,7 +395,13 @@ const ProjectSingle = () => {
                   console.log('Rendering gallery image:', index, img);
                   return (
                     <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
-                      <LazyImage src={img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                      <img 
+                        src={img} 
+                        alt={`Gallery ${index + 1}`}
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        onError={(e) => console.log('Image load error:', e, img)}
+                        onLoad={() => console.log('Image loaded successfully:', img)}
+                      />
                     </div>
                   );
                 })}
