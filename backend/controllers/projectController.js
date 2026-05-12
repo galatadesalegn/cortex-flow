@@ -81,10 +81,28 @@ export const getProject = asyncHandler(async (req, res) => {
 // @route   POST /api/projects
 // @access  Private
 export const createProject = asyncHandler(async (req, res) => {
+  console.log('=== CREATE PROJECT START ===');
+  console.log('Request body:', JSON.stringify(req.body, null, 2));
+  
   const { title, description, image, githubLink, liveDemo, techStack, mission, challenge, pillars, galleryImages, duration, collaborationType, videoUrl, category, featured } = req.body;
+
+  console.log('Extracted fields:', {
+    title: !!title,
+    description: !!description,
+    image: !!image,
+    githubLink: !!githubLink,
+    liveDemo: !!liveDemo,
+    techStack: techStack?.length || 0,
+    pillars: pillars?.length || 0,
+    galleryImages: galleryImages?.length || 0,
+    videoUrl: !!videoUrl,
+    category: !!category,
+    featured: !!featured
+  });
 
   const missing = validateRequired(['title', 'description'], req.body);
   if (missing.length > 0) {
+    console.log('Missing required fields:', missing);
     res.status(400);
     throw new Error(`Missing required fields: ${missing.join(', ')}`);
   }
@@ -134,6 +152,24 @@ export const createProject = asyncHandler(async (req, res) => {
   //   }
   // }
 
+  console.log('Attempting to create project with data:', {
+    title,
+    description,
+    image,
+    githubLink,
+    liveDemo,
+    techStack: techStack || [],
+    mission,
+    challenge,
+    pillars: pillars || [],
+    galleryImages: galleryImages || [],
+    duration,
+    collaborationType,
+    videoUrl,
+    category,
+    featured
+  });
+
   let project = await Project.create({
     title,
     description,
@@ -151,6 +187,8 @@ export const createProject = asyncHandler(async (req, res) => {
     category,
     featured
   });
+
+  console.log('Project created successfully:', project._id);
 
   clearCache('projects');
 
