@@ -167,6 +167,7 @@ const ProjectSingle = () => {
   }
 
   return (
+    <>
     <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
@@ -184,7 +185,6 @@ const ProjectSingle = () => {
                           className="w-full h-full rounded-xl"
                           allowFullScreen
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
                         />
                       ) : (
                         <video
@@ -306,7 +306,8 @@ const ProjectSingle = () => {
             </div>
           </div>
         </div>
-      </main>
+      </div>
+    </main>
     </>
   );
 };
