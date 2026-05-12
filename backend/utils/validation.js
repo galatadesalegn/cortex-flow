@@ -75,8 +75,12 @@ export const validateImageUrl = (url) => {
     return true;
   }
   
-  // Reject HTTP URLs (non-HTTPS) in production
+  // Allow HTTP URLs for Cloudinary in production
   if (url.startsWith('http://') && process.env.NODE_ENV === 'production') {
+    // Allow HTTP URLs from Cloudinary
+    if (url.includes('cloudinary.com') || url.includes('res.cloudinary.com')) {
+      return true;
+    }
     return false;
   }
   
