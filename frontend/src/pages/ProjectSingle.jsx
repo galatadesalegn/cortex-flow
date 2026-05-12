@@ -379,18 +379,12 @@ const ProjectSingle = () => {
             )}
           </div>
 
-          {/* Gallery Section - Original Logic with Debug */}
+          {/* Gallery Section - Clean Implementation */}
           {projectData.gallery && projectData.gallery.length > 0 && (
-            <div className="mt-12 space-y-8">
-              <div className="flex items-center gap-4 mb-6">
+            <div className="mt-16 space-y-8">
+              <div className="flex items-center gap-4 mb-8">
                 <div className="w-8 h-0.5 bg-[#1de9b6]" />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
-              </div>
-              <div className="text-xs text-gray-400 mb-4 p-4 bg-red-900/50 border border-red-500 rounded-lg">
-                <div className="font-bold text-yellow-400">GALLERY STATUS CHECK:</div>
-                <div>Gallery Images: {projectData.gallery?.length || 0} found</div>
-                <div>First Image: {projectData.gallery?.[0] ? '✅ HAS IMAGE' : '❌ NO IMAGE'}</div>
-                <div className="text-xs mt-2">Status: {projectData.gallery?.length > 0 ? '✅ Gallery should display' : '❌ Gallery empty'}</div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {projectData.gallery.map((img, index) => (
@@ -417,14 +411,8 @@ const ProjectSingle = () => {
                   </div>
                 ))}
               </div>
-                    <div className="w-2 h-2 bg-white/80 rounded-full" />
-                    <div className="w-2 h-2 bg-white/60 rounded-full" />
-                    <div className="w-2 h-2 bg-white/40 rounded-full" />
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
           <div className="space-y-10">
             <div className="space-y-4">
