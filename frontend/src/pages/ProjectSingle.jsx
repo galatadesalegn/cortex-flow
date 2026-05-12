@@ -395,22 +395,21 @@ const ProjectSingle = () => {
                   console.log('Rendering gallery image:', index, img);
                   return (
                     <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
-                      <img 
-                        src={img} 
-                        alt={`Gallery ${index + 1}`}
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        onError={(e) => {
-                          console.log('=== IMAGE LOAD ERROR ===');
-                          console.log('Error details:', e);
-                          console.log('Failed URL:', img);
-                          console.log('Error type:', e.type);
-                          console.log('Error message:', e.message);
-                        }}
-                        onLoad={() => console.log('=== IMAGE LOADED SUCCESSFULLY ===', img)}
-                        onLoadStart={() => console.log('=== START LOADING IMAGE ===', img)}
-                        onLoadEnd={() => console.log('=== FINISHED LOADING IMAGE ===', img)}
-                        crossOrigin="anonymous"
-                      />
+                      <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                        <img 
+                          src={img} 
+                          alt={`Gallery ${index + 1}`}
+                          className="max-w-full max-h-full object-cover"
+                          onError={(e) => {
+                            console.log('=== IMAGE LOAD ERROR ===');
+                            console.log('Error details:', e);
+                            console.log('Failed URL:', img);
+                          }}
+                          onLoad={() => console.log('=== IMAGE LOADED SUCCESSFULLY ===', img)}
+                          crossOrigin="anonymous"
+                          style={{ display: 'block' }}
+                        />
+                      </div>
                     </div>
                   );
                 })}
