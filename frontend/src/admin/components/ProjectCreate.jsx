@@ -110,7 +110,7 @@ const ProjectCreate = ({ onBack, onSave }) => {
         techStack,
         challenge: challenge?.trim() || null,
         pillars: pillars.filter(p => p.title && p.description),
-        galleryImages: galleryImages.filter(img => img && typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http'))),
+        galleryImages: galleryImages.filter(img => img && typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http') || img.startsWith('https'))),
         category: formData.category?.trim() || 'Other',
         duration: formData.duration?.trim() || null,
         collaborationType: formData.collaborationType || 'Solo',

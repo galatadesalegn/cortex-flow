@@ -143,7 +143,7 @@ const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
         techStack: formData.techStack,
         challenge: formData.challenge?.trim() || null,
         pillars: formData.pillars.filter(p => p.title && p.description),
-        galleryImages: formData.galleryImages.filter(img => img && typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http'))),
+        galleryImages: formData.galleryImages.filter(img => img && typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http') || img.startsWith('https'))),
         category: formData.category?.trim() || project?.category || 'Other', // Preserve original category
         duration: formData.duration?.trim() || project?.duration || null,
         collaborationType: formData.collaborationType || project?.collaborationType || 'Solo', // Preserve original collaboration type
