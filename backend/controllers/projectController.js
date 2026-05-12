@@ -116,17 +116,14 @@ export const createProject = asyncHandler(async (req, res) => {
 
   if (pillars && Array.isArray(pillars)) {
     for (const pillar of pillars) {
-      console.log('Validating pillar:', pillar);
-      // Skip validation for emoji or non-URL icons
+      // Skip validation entirely for emoji or non-URL icons
       if (pillar.icon && typeof pillar.icon === 'string') {
-        console.log('Pillar icon type:', typeof pillar.icon);
-        console.log('Pillar icon value:', pillar.icon);
-        console.log('Is URL-like?', pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'));
+        // Check if it's an emoji or single character (skip validation)
+        const isEmoji = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(pillar.icon) || 
+                       pillar.icon.length <= 3; // Most emojis are 1-3 characters
         
-        if (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com')) {
-          console.log('Running URL validation on:', pillar.icon);
+        if (!isEmoji && (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
           if (!validateImageUrl(pillar.icon)) {
-            console.log('URL validation failed for:', pillar.icon);
             res.status(400);
             throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
           }
@@ -212,12 +209,17 @@ export const updateProject = asyncHandler(async (req, res) => {
 
   if (pillars !== undefined && Array.isArray(pillars)) {
     for (const pillar of pillars) {
-      // Skip validation for emoji or non-URL icons
-      if (pillar.icon && typeof pillar.icon === 'string' && 
-          (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
-        if (!validateImageUrl(pillar.icon)) {
-          res.status(400);
-          throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+      // Skip validation entirely for emoji or non-URL icons
+      if (pillar.icon && typeof pillar.icon === 'string') {
+        // Check if it's an emoji or single character (skip validation)
+        const isEmoji = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(pillar.icon) || 
+                       pillar.icon.length <= 3; // Most emojis are 1-3 characters
+        
+        if (!isEmoji && (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
+          if (!validateImageUrl(pillar.icon)) {
+            res.status(400);
+            throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+          }
         }
       }
     }
