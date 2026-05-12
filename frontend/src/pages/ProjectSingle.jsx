@@ -319,13 +319,49 @@ const ProjectSingle = () => {
           <div className="relative group space-y-4">
             <div className="aspect-video rounded-xl overflow-hidden relative z-10 bg-black shadow-2xl border border-white/5">
               {projectData.videoUrl ? (
-                <iframe
-                  src={getEmbedUrl(projectData.videoUrl)}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title="Project Video"
-                ></iframe>
+                (() => {
+                  const isVideoFile = projectData.videoUrl.includes('/uploads/') || 
+                                    projectData.videoUrl.match(/\.(mp4|webm|ogg)$/i);
+                  const embedUrl = getEmbedUrl(projectData.videoUrl);
+                  
+                  if (isVideoFile) {
+                    // Direct video file upload
+                    return (
+                      <video
+                        src={projectData.videoUrl}
+                        className="w-full h-full object-cover"
+                        controls
+                        preload="metadata"
+                        title="Project Video"
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    );
+                  } else if (embedUrl && embedUrl !== projectData.videoUrl) {
+                    // YouTube/Vimeo embed
+                    return (
+                      <iframe
+                        src={embedUrl}
+                        className="w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title="Project Video"
+                      ></iframe>
+                    );
+                  } else {
+                    // Fallback to image if video URL is invalid
+                    return (
+                      <>
+                        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                          <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                            <div className="w-8 h-8 rounded-full bg-white/30" />
+                          </div>
+                        </div>
+                        <LazyImage src={projectData.image} alt="" className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-1000" />
+                      </>
+                    );
+                  }
+                })()
               ) : (
                 <>
                   <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
