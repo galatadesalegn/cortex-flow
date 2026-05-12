@@ -32,6 +32,8 @@ jobs:
 
       - name: Build project
         working-directory: ./frontend
+        env:
+          VITE_API_URL: https://galatadesalegn.onrender.com
         run: npm run build
 
       - name: Setup Pages
