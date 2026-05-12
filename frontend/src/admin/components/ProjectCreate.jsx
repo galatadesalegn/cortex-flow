@@ -57,6 +57,14 @@ const ProjectCreate = ({ onBack, onSave }) => {
   const handleVideoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+      if (!validVideoTypes.includes(file.type)) {
+        toast.error('Only MP4, WebM, and OGG video formats are supported');
+        return;
+      }
+      
+      // Validate file size (50MB limit)
       if (file.size > 50 * 1024 * 1024) {
         toast.error('Video size should be less than 50MB');
         return;
@@ -64,16 +72,19 @@ const ProjectCreate = ({ onBack, onSave }) => {
       
       try {
         setLoading(true);
+        toast('Uploading video...', { icon: '⏳' });
+        
         const result = await uploadService.uploadImage(file);
         if (result.success) {
           setFormData(prev => ({ ...prev, videoUrl: result.data.url }));
-          toast.success('Video uploaded successfully');
+          toast.success('Video uploaded successfully!');
+          console.log('Video uploaded:', result.data);
         } else {
           toast.error(result.error || 'Failed to upload video');
         }
       } catch (error) {
         console.error('Video upload error:', error);
-        toast.error('Error uploading video');
+        toast.error('Error uploading video. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -99,7 +110,7 @@ const ProjectCreate = ({ onBack, onSave }) => {
         techStack,
         challenge: challenge?.trim() || null,
         pillars: pillars.filter(p => p.title && p.description),
-        galleryImages: galleryImages.filter(img => img && typeof img === 'string' && img.startsWith('data:')),
+        galleryImages: galleryImages.filter(img => img && typeof img === 'string' && (img.startsWith('data:') || img.startsWith('http'))),
         category: formData.category?.trim() || 'Other',
         duration: formData.duration?.trim() || null,
         collaborationType: formData.collaborationType || 'Solo',
