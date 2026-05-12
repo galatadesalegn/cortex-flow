@@ -39,14 +39,19 @@ export const validateSkillLevel = (level) => {
   return !isNaN(num) && num >= 1 && num <= 100;
 };
 
-// Validate image URL - reject localhost, allow Cloudinary or production URLs
+// Validate image URL - allow localhost in development, Cloudinary or production URLs
 export const validateImageUrl = (url) => {
   if (!url) return true; // optional field
   if (typeof url !== 'string') return false;
   
-  // Reject localhost URLs
-  if (url.includes('localhost') || url.includes('127.0.0.1')) {
-    return false;
+  // Allow localhost URLs during development
+  if (process.env.NODE_ENV !== 'production' && (url.includes('localhost') || url.includes('127.0.0.1'))) {
+    return true;
+  }
+  
+  // Allow relative paths for local uploads (/uploads/filename)
+  if (url.startsWith('/uploads/')) {
+    return true;
   }
   
   // Allow Cloudinary URLs
@@ -60,16 +65,26 @@ export const validateImageUrl = (url) => {
     return true;
   }
   
+  // Also allow the domain without protocol for flexibility
+  if (url.includes('galatadesalegn.onrender.com')) {
+    return true;
+  }
+  
   // Allow other HTTPS URLs (for flexibility)
   if (url.startsWith('https://')) {
     return true;
   }
   
-  // Reject HTTP URLs (non-HTTPS)
-  if (url.startsWith('http://')) {
+  // Reject HTTP URLs (non-HTTPS) in production
+  if (url.startsWith('http://') && process.env.NODE_ENV === 'production') {
     return false;
   }
   
-  // Reject relative paths (should be full URLs)
+  // Allow HTTP URLs in development
+  if (url.startsWith('http://') && process.env.NODE_ENV !== 'production') {
+    return true;
+  }
+  
+  // Reject other relative paths
   return false;
 };

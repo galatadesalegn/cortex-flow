@@ -124,10 +124,37 @@ app.use('/api/auth/login', authLimiter);
 // Static uploads
 app.use('/uploads', express.static(join(__dirname, 'uploads'), {
   setHeaders: (res, path) => {
-    // If file has no extension, default to image/jpeg for existing uploads
-    if (!path.split('/').pop().includes('.')) {
+    const filename = path.split('/').pop();
+    
+    // Set proper content types based on file extension
+    if (filename.includes('.mp4')) {
+      res.setHeader('Content-Type', 'video/mp4');
+    } else if (filename.includes('.webm')) {
+      res.setHeader('Content-Type', 'video/webm');
+    } else if (filename.includes('.ogg')) {
+      res.setHeader('Content-Type', 'video/ogg');
+    } else if (filename.includes('.jpg') || filename.includes('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (filename.includes('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (filename.includes('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    } else if (filename.includes('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (filename.includes('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+    } else if (!filename.includes('.')) {
+      // If file has no extension, default to image/jpeg for existing uploads
       res.setHeader('Content-Type', 'image/jpeg');
     }
+    
+    // Set CORS headers for frontend access
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Enable caching for static assets
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
   }
 }));
 
