@@ -116,12 +116,20 @@ export const createProject = asyncHandler(async (req, res) => {
 
   if (pillars && Array.isArray(pillars)) {
     for (const pillar of pillars) {
+      console.log('Validating pillar:', pillar);
       // Skip validation for emoji or non-URL icons
-      if (pillar.icon && typeof pillar.icon === 'string' && 
-          (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
-        if (!validateImageUrl(pillar.icon)) {
-          res.status(400);
-          throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+      if (pillar.icon && typeof pillar.icon === 'string') {
+        console.log('Pillar icon type:', typeof pillar.icon);
+        console.log('Pillar icon value:', pillar.icon);
+        console.log('Is URL-like?', pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'));
+        
+        if (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com')) {
+          console.log('Running URL validation on:', pillar.icon);
+          if (!validateImageUrl(pillar.icon)) {
+            console.log('URL validation failed for:', pillar.icon);
+            res.status(400);
+            throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+          }
         }
       }
     }
