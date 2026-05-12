@@ -155,10 +155,7 @@ const ProjectSingle = () => {
 
   const projectData = useMemo(() => {
     if (!project) return null;
-    console.log('Raw project data:', project);
-    console.log('Raw galleryImages:', project.galleryImages);
-    
-    const data = {
+    return {
       title: project.title || 'Untitled Project',
       category: project.category || 'AI DEPLOYMENT ARCHITECTURE',
       description: project.description || 'A modern full-stack web application system combining e-commerce functionality, AI-powered features, and advanced UI/UX design. The project focuses on building scalable, responsive, and intelligent digital platforms where users can browse products, interact with smart recommendations, and experience smooth, modern interfaces. It integrates frontend design, backend APIs, database systems, and AI-based enhancements to create a complete production-ready application.',
@@ -174,11 +171,6 @@ const ProjectSingle = () => {
       liveUrl: project.liveDemo || null,
       githubUrl: project.githubLink || null,
     };
-    
-    console.log('Processed projectData:', data);
-    console.log('Processed gallery:', data.gallery);
-    
-    return data;
   }, [project]);
 
   useEffect(() => {
@@ -379,31 +371,30 @@ const ProjectSingle = () => {
               )}
             </div>
 
-            {/* Architecture Gallery Thumbnails */}
-            <div className="grid grid-cols-3 gap-3 relative z-10">
-              {console.log('Gallery data:', projectData.gallery)}
-              {projectData.gallery && projectData.gallery.length > 0 ? (
-                projectData.gallery.slice(0, 3).map((img, i) => (
-                  <div key={i} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group/thumb shadow-lg">
-                    {console.log('Gallery image:', img)}
-                    <LazyImage src={img} className="w-full h-full object-cover opacity-60 group-hover/thumb:opacity-100 transition-opacity" />
-                  </div>
-                ))
-              ) : (
-                [1, 2, 3].map(i => (
-                  <div key={i} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden opacity-20">
-                    <LazyImage src={projectData.image} className="w-full h-full object-cover grayscale" />
-                  </div>
-                ))
-              )}
-            </div>
-
+            
             {projectData.videoUrl && (
               <div className="absolute top-4 right-4 px-3 py-1 bg-[#1de9b6]/90 backdrop-blur-sm text-black text-[8px] font-black uppercase tracking-widest rounded z-20 shadow-xl pointer-events-none">
                 Live Stream
               </div>
             )}
           </div>
+
+          {/* Gallery Section */}
+          {projectData.gallery && projectData.gallery.length > 0 && (
+            <div className="mt-12 space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {projectData.gallery.map((img, index) => (
+                  <div key={index} className="aspect-video rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden hover:border-[#1de9b6]/50 transition-all cursor-pointer group shadow-lg">
+                    <LazyImage src={img} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-10">
             <div className="space-y-4">
