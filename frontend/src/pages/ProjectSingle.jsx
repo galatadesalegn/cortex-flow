@@ -399,8 +399,17 @@ const ProjectSingle = () => {
                         src={img} 
                         alt={`Gallery ${index + 1}`}
                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        onError={(e) => console.log('Image load error:', e, img)}
-                        onLoad={() => console.log('Image loaded successfully:', img)}
+                        onError={(e) => {
+                          console.log('=== IMAGE LOAD ERROR ===');
+                          console.log('Error details:', e);
+                          console.log('Failed URL:', img);
+                          console.log('Error type:', e.type);
+                          console.log('Error message:', e.message);
+                        }}
+                        onLoad={() => console.log('=== IMAGE LOADED SUCCESSFULLY ===', img)}
+                        onLoadStart={() => console.log('=== START LOADING IMAGE ===', img)}
+                        onLoadEnd={() => console.log('=== FINISHED LOADING IMAGE ===', img)}
+                        crossOrigin="anonymous"
                       />
                     </div>
                   );
