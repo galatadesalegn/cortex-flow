@@ -379,14 +379,30 @@ const ProjectSingle = () => {
             )}
           </div>
 
-          {/* Gallery Section - Normal Size Images */}
+          {/* Project Info Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Project Type</p>
+              <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
+            </div>
+            <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Role</p>
+              <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
+            </div>
+            <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Duration</p>
+              <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.duration || 'N/A'}</p>
+            </div>
+          </div>
+
+          {/* Gallery Section - Large Images */}
           {projectData.gallery && projectData.gallery.length > 0 && (
-            <div className="mt-16 space-y-8">
+            <div className="lg:col-span-2 mt-16 space-y-8">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-8 h-0.5 bg-[#1de9b6]" />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {projectData.gallery.map((img, index) => (
                   <div key={index} className="group relative overflow-hidden rounded-xl border border-white/10 hover:border-[#1de9b6]/30 transition-all duration-500">
                     <div className="aspect-video relative overflow-hidden">
