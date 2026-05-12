@@ -413,14 +413,14 @@ const ProjectSingle = () => {
               </div>
             </div>
 
-          {/* Gallery Section - Full Width */}
+          {/* Gallery Section - One Line Wide */}
           {projectData.gallery && projectData.gallery.length > 0 && (
             <div className="lg:col-span-2 mt-16 space-y-8">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-8 h-0.5 bg-[#1de9b6]" />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
               </div>
-              <div className="flex gap-8">
+              <div className="flex gap-6 overflow-hidden">
                 {projectData.gallery.map((img, index) => (
                   <div key={index} className="group relative overflow-hidden rounded-xl border border-white/10 hover:border-[#1de9b6]/30 transition-all duration-500">
                     <div className="aspect-video relative overflow-hidden">
