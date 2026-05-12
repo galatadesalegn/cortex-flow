@@ -379,22 +379,7 @@ const ProjectSingle = () => {
             )}
           </div>
 
-          {/* Project Info Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all">
-              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Project Type</p>
-              <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
-            </div>
-            <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all">
-              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Role</p>
-              <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
-            </div>
-            <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all">
-              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Duration</p>
-              <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.duration || 'N/A'}</p>
-            </div>
-          </div>
-
+          
           {/* Gallery Section - Large Images */}
           {projectData.gallery && projectData.gallery.length > 0 && (
             <div className="lg:col-span-2 mt-16 space-y-8">
