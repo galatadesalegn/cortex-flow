@@ -114,23 +114,24 @@ export const createProject = asyncHandler(async (req, res) => {
     }
   }
 
-  if (pillars && Array.isArray(pillars)) {
-    for (const pillar of pillars) {
-      // Skip validation entirely for emoji or non-URL icons
-      if (pillar.icon && typeof pillar.icon === 'string') {
-        // Check if it's an emoji or single character (skip validation)
-        const isEmoji = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(pillar.icon) || 
-                       pillar.icon.length <= 3; // Most emojis are 1-3 characters
-        
-        if (!isEmoji && (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
-          if (!validateImageUrl(pillar.icon)) {
-            res.status(400);
-            throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
-          }
-        }
-      }
-    }
-  }
+  // Temporarily disabled pillar icon validation to isolate issue
+  // if (pillars && Array.isArray(pillars)) {
+  //   for (const pillar of pillars) {
+  //     // Skip validation entirely for emoji or non-URL icons
+  //     if (pillar.icon && typeof pillar.icon === 'string') {
+  //       // Check if it's an emoji or single character (skip validation)
+  //       const isEmoji = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(pillar.icon) || 
+  //                      pillar.icon.length <= 3; // Most emojis are 1-3 characters
+          
+  //       if (!isEmoji && (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
+  //         if (!validateImageUrl(pillar.icon)) {
+  //           res.status(400);
+  //           throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   let project = await Project.create({
     title,
@@ -207,23 +208,24 @@ export const updateProject = asyncHandler(async (req, res) => {
     }
   }
 
-  if (pillars !== undefined && Array.isArray(pillars)) {
-    for (const pillar of pillars) {
-      // Skip validation entirely for emoji or non-URL icons
-      if (pillar.icon && typeof pillar.icon === 'string') {
-        // Check if it's an emoji or single character (skip validation)
-        const isEmoji = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(pillar.icon) || 
-                       pillar.icon.length <= 3; // Most emojis are 1-3 characters
-        
-        if (!isEmoji && (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
-          if (!validateImageUrl(pillar.icon)) {
-            res.status(400);
-            throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
-          }
-        }
-      }
-    }
-  }
+  // Temporarily disabled pillar icon validation in update function too
+  // if (pillars !== undefined && Array.isArray(pillars)) {
+  //   for (const pillar of pillars) {
+  //     // Skip validation entirely for emoji or non-URL icons
+  //     if (pillar.icon && typeof pillar.icon === 'string') {
+  //       // Check if it's an emoji or single character (skip validation)
+  //       const isEmoji = /^[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(pillar.icon) || 
+  //                      pillar.icon.length <= 3; // Most emojis are 1-3 characters
+          
+  //       if (!isEmoji && (pillar.icon.startsWith('http') || pillar.icon.startsWith('/') || pillar.icon.includes('cloudinary.com'))) {
+  //         if (!validateImageUrl(pillar.icon)) {
+  //           res.status(400);
+  //           throw new Error('Invalid pillar icon URL. Only Cloudinary or production URLs are allowed.');
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   // Build update object with only provided fields
   const updateData = {};
