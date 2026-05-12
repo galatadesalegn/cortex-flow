@@ -64,11 +64,17 @@ export const getProject = asyncHandler(async (req, res) => {
 
   // Fix localhost URLs in image paths
   project.image = fixImageUrl(project.image);
-  if (project.galleryImages) {
-    project.galleryImages = project.galleryImages.map(img => ({
-      ...img,
-      url: fixImageUrl(img.url)
-    }));
+  if (project.galleryImages && Array.isArray(project.galleryImages)) {
+    project.galleryImages = project.galleryImages.map(img => {
+      // Handle both string URLs and object URLs
+      if (typeof img === 'string') {
+        return fixImageUrl(img);
+      } else if (img && img.url) {
+        return fixImageUrl(img.url);
+      } else {
+        return img;
+      }
+    });
   }
 
   res.json({
