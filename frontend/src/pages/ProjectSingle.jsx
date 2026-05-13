@@ -5,6 +5,98 @@ import { useTheme } from "../contexts/ThemeContext";
 import { ArrowLeft, Play, LayoutGrid, Cpu, Zap, Info, Target, Layers, Calendar, Code, ExternalLink } from "lucide-react";
 import { fixImageUrl } from "../utils/imageHelper.js";
 
+// SVG Icons
+const GithubIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" /></svg>
+);
+
+const TECH_LOGOS = {
+  'react': 'https://cdn.simpleicons.org/react/61DAFB',
+  'next.js': 'https://cdn.simpleicons.org/nextdotjs/white',
+  'node.js': 'https://cdn.simpleicons.org/nodedotjs/339933',
+  'express': 'https://cdn.simpleicons.org/express/white',
+  'mongodb': 'https://cdn.simpleicons.org/mongodb/47A248',
+  'tailwind css': 'https://cdn.simpleicons.org/tailwindcss/06B6D4',
+  'rest api': 'https://cdn.simpleicons.org/json/white',
+  'javascript': 'https://cdn.simpleicons.org/javascript/F7DF1E',
+  'typescript': 'https://cdn.simpleicons.org/typescript/3178C6',
+  'python': 'https://cdn.simpleicons.org/python/3776AB',
+  'django': 'https://cdn.simpleicons.org/django/092E20',
+  'firebase': 'https://cdn.simpleicons.org/firebase/FFCA28',
+  'docker': 'https://cdn.simpleicons.org/docker/2496ED',
+  'aws': 'https://cdn.simpleicons.org/amazonaws/232F3E',
+  'github': 'https://cdn.simpleicons.org/github/white',
+  'ai': 'https://cdn.simpleicons.org/openai/412991',
+};
+
+const use3DTilt = (maxRotate = 10, maxTranslate = 5) => {
+  const ref = useRef(null);
+  const [style, setStyle] = useState({});
+  const rafRef = useRef(null);
+
+  const onMove = useCallback((e) => {
+    if (rafRef.current) return;
+    
+    rafRef.current = requestAnimationFrame(() => {
+      const el = ref.current;
+      if (!el) {
+        rafRef.current = null;
+        return;
+      }
+      
+      const rect = el.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
+      const px = (x - cx) / cx;
+      const py = (y - cy) / cy;
+      
+      setStyle({
+        transform: `perspective(1000px) rotateX(${-py * maxRotate}deg) rotateY(${px * maxRotate}deg) translateZ(10px)`,
+        transition: "transform 0.1s ease-out",
+      });
+      
+      rafRef.current = null;
+    });
+  }, [maxRotate, maxTranslate]);
+
+  const onLeave = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    setStyle({ 
+      transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)", 
+      transition: "transform 0.5s ease-out" 
+    });
+  }, []);
+
+  return { ref, style, onMove, onLeave };
+};
+
+const TechCard = memo(({ name }) => {
+  const { ref, style, onMove, onLeave } = use3DTilt(15, 5);
+  const logo = TECH_LOGOS[name.toLowerCase()] || `https://cdn.simpleicons.org/${name.toLowerCase().replace('.', '').replace(' ', '')}/white`;
+
+  return (
+    <div
+      ref={ref}
+      style={style}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className="group relative px-4 py-2.5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-lg border border-emerald-500/20 hover:border-[#1de9b6]/50 transition-all duration-300 cursor-default shadow-md overflow-hidden flex items-center gap-3 min-w-[120px]"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1de9b6]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="w-7 h-7 rounded bg-[#12221b] border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
+        <img src={logo} alt={name} className="w-4 h-4 object-contain" onError={(e) => e.target.style.display = 'none'} />
+      </div>
+      <span className="text-[9px] font-black text-slate-400 group-hover:text-[#1de9b6] uppercase tracking-widest relative z-10 transition-colors">{name}</span>
+    </div>
+  );
+});
+
 const LazyImage = memo(({ src, alt, className }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
@@ -34,15 +126,30 @@ const LazyImage = memo(({ src, alt, className }) => {
 
 const ProjectSingle = () => {
   const location = useLocation();
+  const hash = location.hash || window.location.hash;
   const { isDark } = useTheme();
-  
-  const getProjectId = useCallback(() => {
-    const hash = location.hash;
-    const params = new URLSearchParams(hash.slice(1));
-    return params.get("id");
-  }, [location]);
 
-  const projectId = getProjectId();
+  // Helper to get embed URL for YouTube/Vimeo
+  const getEmbedUrl = (url) => {
+    if (!url) return null;
+    if (url.includes('youtube.com/watch?v=')) {
+      return url.replace('watch?v=', 'embed/');
+    }
+    if (url.includes('youtu.be/')) {
+      return url.replace('youtu.be/', 'youtube.com/embed/');
+    }
+    if (url.includes('vimeo.com/')) {
+      return url.replace('vimeo.com/', 'player.vimeo.com/video/');
+    }
+    return url;
+  };
+
+  const projectId = useMemo(() => {
+    const searchPart = hash.includes('?') ? hash.split('?')[1] : '';
+    const params = new URLSearchParams(searchPart);
+    return params.get("id");
+  }, [hash]);
+
   const { project, loading, error } = useProject(projectId);
 
   const projectData = useMemo(() => {
@@ -50,10 +157,10 @@ const ProjectSingle = () => {
     return {
       title: project.title || 'Untitled Project',
       category: project.category || 'AI DEPLOYMENT ARCHITECTURE',
-      description: project.description || '...',
+      description: project.description || 'A modern full-stack web application system combining e-commerce functionality, AI-powered features, and advanced UI/UX design. The project focuses on building scalable, responsive, and intelligent digital platforms where users can browse products, interact with smart recommendations, and experience smooth, modern interfaces. It integrates frontend design, backend APIs, database systems, and AI-based enhancements to create a complete production-ready application.',
       image: fixImageUrl(project.image),
       mission: project.mission || '',
-      challenge: project.challenge || '',
+      challenge: project.challenge || 'Complex System Integration Combining frontend, backend, database, and AI logic into one smooth system was difficult. Used modular architecture with separated API layers and reusable frontend components to maintain clean structure and scalability.',
       tech: project.techStack || [],
       pillars: project.pillars || [],
       gallery: (project.galleryImages || []).map(img => fixImageUrl(img)),
@@ -65,182 +172,220 @@ const ProjectSingle = () => {
     };
   }, [project]);
 
-  const handleBack = useCallback(() => {
-    window.history.back();
-  }, []);
-
-  const handleScroll = useCallback((e) => {
-    e.preventDefault();
-    const targetId = e.target.getAttribute('href');
-    if (targetId) {
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, []);
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('overview');
-
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutGrid },
-    { id: 'mission', label: 'Mission', icon: Target },
-    { id: 'challenge', label: 'Challenge', icon: Zap },
-    { id: 'tech', label: 'Tech Stack', icon: Cpu },
-    { id: 'pillars', label: 'Pillars', icon: Layers },
-    { id: 'gallery', label: 'Gallery', icon: Code },
-  ];
-
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const sections = ['overview', 'mission', 'challenge', 'tech', 'pillars', 'gallery'];
-      
-      sections.forEach((sectionId) => {
-        const element = document.getElementById(sectionId);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const isInView = rect.top <= scrollY + 100 && rect.bottom >= scrollY - 100;
-          
-          if (isInView && activeSection === sectionId) {
-            setActiveSection(sectionId);
-          }
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeSection]);
+    // Add Google Font import dynamically
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [projectId]);
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-4">
-              <button
-                onClick={handleBack}
-                className="p-3 rounded-lg bg-white/10 hover:bg-white/20 transition-all text-white"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div className="flex items-center gap-2">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveSection(item.id)}
-                    className={`p-2 rounded-lg transition-all ${
-                      activeSection === item.id
-                        ? 'bg-[#1de9b6] text-black'
-                        : 'bg-white/10 text-white/60 hover:bg-white/20'
-                    }`}
-                  >
-                    <item.icon size={16} />
-                    <span className="text-xs font-medium">{item.label}</span>
-                  </button>
-                ))}
-              </div>
+      <div className="min-h-screen bg-[#0a0a0a] font-outfit">
+        {/* Skeleton Header */}
+        <div className="w-full aspect-[21/4] md:aspect-[32/5] bg-[#1a1a1a] animate-pulse" />
+        <main className="w-full max-w-[1200px] mx-auto px-6 pt-10 pb-20">
+          <div className="h-8 w-48 bg-[#1a1a1a] rounded animate-pulse mb-12" />
+          <div className="h-16 w-3/4 bg-[#1a1a1a] rounded animate-pulse mb-24" />
+          <div className="grid lg:grid-cols-2 gap-20 mb-32">
+            <div className="space-y-6">
+              <div className="h-4 w-full bg-[#1a1a1a] rounded animate-pulse" />
+              <div className="h-4 w-5/6 bg-[#1a1a1a] rounded animate-pulse" />
+              <div className="h-4 w-4/6 bg-[#1a1a1a] rounded animate-pulse" />
             </div>
+            <div className="h-64 bg-[#1a1a1a] rounded-xl animate-pulse" />
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
-  if (error) {
+  if (error || !projectData) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Project Not Found</h1>
-          <p className="text-white/80 mb-8">The requested project could not be found.</p>
-          <button
-            onClick={handleBack}
-            className="px-6 py-3 bg-[#1de9b6] text-black rounded-lg hover:bg-[#1de9b6]/90 transition-all"
-          >
-            Go Back
-          </button>
-        </div>
-      </main>
-    );
-  }
-
-  if (!projectData) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-[#1de9b6] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/80">Loading project data...</p>
-        </div>
-      </main>
+      <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center p-6">
+        <h2 className="text-xl font-bold text-theme-secondary mb-4 tracking-tighter uppercase">Data Stream Interrupted</h2>
+        <button onClick={() => window.location.hash = "home"} className="text-accent text-xs font-black uppercase tracking-[0.3em] hover:opacity-70 transition-opacity">Reconnect</button>
+      </div>
     );
   }
 
   return (
-    <>
-    <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0d1411] to-[#0a1a14] text-white">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column - Video */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="space-y-8">
-              <div className="relative overflow-hidden rounded-xl border border-white/10">
-                <div className="aspect-video relative overflow-hidden">
-                  {projectData?.videoUrl ? (
-                    <>
-                      {projectData.videoUrl.includes('youtube.com') || projectData.videoUrl.includes('youtu.be') ? (
-                        <iframe
-                          src={projectData.videoUrl}
-                          title="Project Video"
-                          className="w-full h-full rounded-xl"
-                          allowFullScreen
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        />
-                      ) : (
-                        <video
-                          src={projectData.videoUrl}
-                          controls
-                          className="w-full h-full rounded-xl"
-                          poster={projectData.image}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <LazyImage src={projectData.image} alt={projectData.title} className="w-full h-full" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 pointer-events-none" />
-                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-white/80 rounded-full" />
-                      <div className="w-2 h-2 bg-white/60 rounded-full" />
-                      <div className="w-2 h-2 bg-white/40 rounded-full" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-white/80 rounded-full" />
-                      <div className="w-2 h-2 bg-white/60 rounded-full" />
-                      <div className="w-2 h-2 bg-white/40 rounded-full" />
-                    </div>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-[#0a0a0a] font-outfit selection:bg-accent selection:text-white overflow-x-hidden text-slate-100">
+      {/* 00. Top Thumbnail (End-to-End) */}
+      <div className="w-full aspect-[21/4] md:aspect-[32/5] relative overflow-hidden bg-black shadow-[0_0_50px_rgba(29,233,182,0.15)]">
+        <button
+          onClick={() => window.location.hash = "home#projects"}
+          className="absolute top-6 left-6 z-50 group flex items-center gap-3 px-4 py-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 hover:text-[#1de9b6] hover:border-[#1de9b6]/30 transition-all duration-300"
+        >
+          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+          <span>Back to Projects</span>
+        </button>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1de9b6]/10 via-transparent to-transparent z-10 pointer-events-none" />
+        <div className="absolute -top-[20%] -left-[10%] w-[40%] h-[140%] bg-[#1de9b6]/10 blur-[120px] rounded-full z-10 pointer-events-none animate-pulse" />
+        <div className="absolute -top-[20%] -right-[10%] w-[40%] h-[140%] bg-[#1de9b6]/5 blur-[120px] rounded-full z-10 pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
+        <LazyImage src={projectData.image} alt={projectData.title} className="w-full h-full object-cover opacity-90 transition-opacity duration-700 hover:opacity-100" />
+        <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10 pointer-events-none" />
+      </div>
+
+      <main className="w-full max-w-[1200px] mx-auto px-6 pt-10 pb-20">
+        {/* 01. Hero Section */}
+        <section className="mb-24">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="w-8 h-px bg-slate-800" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-slate-500">Case Study</span>
+            <div className="w-8 h-px bg-slate-800" />
+          </div>
+          
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-black leading-tight tracking-tight mb-12 text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            {projectData.title.split(' ').map((word, i) => (
+              <span key={i} className={word.toLowerCase().includes('ai') || word.toLowerCase().includes('powered') ? 'text-[#1de9b6]' : 'text-white'}>
+                {word}{' '}
+              </span>
+            ))}
+          </h1>
+        </section>
+
+        {/* 02. Description & Challenges Grid */}
+        <section className="grid lg:grid-cols-2 gap-20 mb-32">
+          <div className="space-y-10">
+            <div className="flex items-center gap-4">
+              <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Description</h3>
+            </div>
+            <p className="text-base leading-relaxed text-slate-400 font-medium max-w-xl">
+              {projectData.description}
+            </p>
+            
+            <div className="pt-10">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-6">Proprietary Tech Stack</h4>
+              <div className="flex flex-wrap gap-3">
+                {Array.from(new Set(projectData.tech)).map((item, idx) => (
+                  <TechCard key={idx} name={item} />
+                ))}
               </div>
             </div>
+          </div>
+
+          <div className="space-y-10">
+            <div className="flex items-center gap-4">
+              <div className="w-6 h-6 bg-[#1de9b6] rounded-sm" />
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500">Challenges</h3>
+            </div>
+            <div className="p-10 bg-[#1a1a1a] rounded-xl border border-white/5">
+              <p className="text-slate-300 text-base leading-relaxed font-medium mb-10 italic">
+                {projectData.challenge.split('\n')[0]}
+              </p>
+              <ul className="space-y-5">
+                {(projectData.challenge.includes('\n') ? projectData.challenge.split('\n').slice(1) : ['System scalability and load balancing', 'Real-time data synchronization', 'Advanced AI model integration']).map((point, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <div className="w-1 h-1 rounded-full bg-[#1de9b6]" />
+                    <span className="text-slate-400 text-sm font-medium tracking-tight">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* 03. Technical Grid - Dynamic Pillars from Admin Panel */}
+        <section className="grid md:grid-cols-3 gap-6 mb-32">
+          {projectData.pillars.map((pillar, idx) => (
+            <div key={idx} className="bg-[#1a1a1a] p-10 space-y-8 rounded-xl border border-white/5">
+              <div className="space-y-1">
+                <h3 className="text-[#1de9b6] text-[11px] font-black uppercase tracking-[0.4em]">{pillar.title}</h3>
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">{pillar.subtitle || 'Project Details'}</p>
+              </div>
+              <ul className="space-y-4">
+                {(pillar.items || pillar.description?.split('\n') || [pillar.description]).map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-slate-400 text-[13px] font-medium leading-relaxed">
+                    <span className="text-[#1de9b6] mt-0.5 text-xs">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+
+        {/* 04. Bottom Showcase */}
+        <section className="grid lg:grid-cols-[1.2fr_1fr] gap-16 items-start">
+          <div className="relative group space-y-4">
+            <div className="aspect-video rounded-xl overflow-hidden relative z-10 bg-black shadow-2xl border border-white/5">
+              {projectData.videoUrl ? (
+                (() => {
+                  const isVideoFile = projectData.videoUrl.includes('/uploads/') || 
+                                    projectData.videoUrl.match(/\.(mp4|webm|ogg)$/i);
+                  const embedUrl = getEmbedUrl(projectData.videoUrl);
+                  
+                  if (isVideoFile) {
+                    // Direct video file upload
+                    return (
+                      <video
+                        src={projectData.videoUrl}
+                        className="w-full h-full object-cover"
+                        controls
+                        preload="metadata"
+                        title="Project Video"
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    );
+                  } else if (embedUrl && embedUrl !== projectData.videoUrl) {
+                    // YouTube/Vimeo embed
+                    return (
+                      <iframe
+                        src={embedUrl}
+                        className="w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title="Project Video"
+                      ></iframe>
+                    );
+                  } else {
+                    // Fallback to image if video URL is invalid
+                    return (
+                      <>
+                        <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                          <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                            <div className="w-8 h-8 rounded-full bg-white/30" />
+                          </div>
+                        </div>
+                        <LazyImage src={projectData.image} alt="" className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-1000" />
+                      </>
+                    );
+                  }
+                })()
+              ) : (
+                <>
+                  <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                    <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                      <div className="w-8 h-8 rounded-full bg-white/30" />
+                    </div>
+                  </div>
+                  <LazyImage src={projectData.image} alt="" className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-1000" />
+                </>
+              )}
+            </div>
+
             
-            {projectData?.videoUrl && (
+            {projectData.videoUrl && (
               <div className="absolute top-4 right-4 px-3 py-1 bg-[#1de9b6]/90 backdrop-blur-sm text-black text-[8px] font-black uppercase tracking-widest rounded z-20 shadow-xl pointer-events-none">
                 Live Stream
               </div>
             )}
           </div>
 
-          {/* Gallery Section - One Line Wide */}
+          {/* Gallery Section - Full Width */}
           {projectData.gallery && projectData.gallery.length > 0 && (
-            <div className="lg:col-span-3 mt-16 space-y-8">
+            <div className="lg:col-span-2 mt-16 space-y-8">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-8 h-0.5 bg-[#1de9b6]" />
                 <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
               </div>
-              <div className="flex gap-6 overflow-hidden">
+              <div className="flex gap-8">
                 {projectData.gallery.map((img, index) => (
                   <div key={index} className="group relative overflow-hidden rounded-xl border border-white/10 hover:border-[#1de9b6]/30 transition-all duration-500">
                     <div className="aspect-video relative overflow-hidden">
@@ -268,8 +413,7 @@ const ProjectSingle = () => {
             </div>
           )}
 
-          {/* Project Details */}
-          <div className="lg:col-span-3 space-y-10">
+          <div className="space-y-10">
             <div className="space-y-4">
               <h4 className="text-[#1de9b6] text-[10px] font-bold uppercase tracking-[0.4em]">Featured Project</h4>
               <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -316,10 +460,9 @@ const ProjectSingle = () => {
               </a>
             </div>
           </div>
-        </div>
-      </div>
-    </main>
-    </>
+        </section>
+      </main>
+    </div>
   );
 };
 
