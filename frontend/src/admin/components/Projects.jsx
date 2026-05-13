@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Plus, FolderKanban, CheckCircle, Clock, AlertCircle, Loader2, Trash2, Save, Send } from 'lucide-react';
+import { Plus, FolderKanban, CheckCircle, Clock, AlertCircle, Loader2, Trash2, Save, Send, Pencil } from 'lucide-react';
 import ProjectEdit from './ProjectEdit';
 import ProjectCreate from './ProjectCreate';
 import { useProjects, useDeleteProject, useTheme, useAuth } from '../hooks';
@@ -208,17 +208,29 @@ const Projects = () => {
                         </div>
 
                         {!isViewer && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(project.id);
-                            }}
-                            disabled={deleting}
-                            className="absolute top-4 right-4 md:static text-gray-500 hover:text-red-400 transition-colors md:opacity-0 md:group-hover:opacity-100"
-                            title="Delete project"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex items-center gap-2 absolute top-4 right-4 md:static md:opacity-0 md:group-hover:opacity-100">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedProject(project);
+                              }}
+                              className="text-gray-500 hover:text-blue-400 transition-colors"
+                              title="Edit project"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(project.id);
+                              }}
+                              disabled={deleting}
+                              className="text-gray-500 hover:text-red-400 transition-colors"
+                              title="Delete project"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
