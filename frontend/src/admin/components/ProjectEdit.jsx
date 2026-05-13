@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Send, Image as ImageIcon, Link2, Tag, Globe, Code, ExternalLink, Upload, X, Eye, AlertCircle, Loader2, Layers, Plus, Bold, Italic, List, Link } from 'lucide-react';
 import { projectService, uploadService } from '../services';
 import { toast } from 'sonner';
@@ -8,26 +8,65 @@ const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
   const { isDark } = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: project?.title || '',
-    description: project?.description || '',
-    image: project?.image || '',
-    githubLink: project?.githubLink || '',
-    liveDemo: project?.liveDemo || '',
-    category: project?.category || '',
-    duration: project?.duration || '',
-    collaborationType: project?.collaborationType || 'Solo',
-    videoUrl: project?.videoUrl || '',
+    title: '',
+    description: '',
+    image: '',
+    githubLink: '',
+    liveDemo: '',
+    category: '',
+    duration: '',
+    collaborationType: 'Solo',
+    videoUrl: '',
     videoFile: null
   });
-  const [techStack, setTechStack] = useState(project?.techStack || []);
+  const [techStack, setTechStack] = useState([]);
   const [newTech, setNewTech] = useState('');
-  const [galleryImages, setGalleryImages] = useState(project?.galleryImages?.length > 0 ? project.galleryImages : [1, 2]);
-  const [challenge, setChallenge] = useState(project?.challenge || '');
-  const [pillars, setPillars] = useState(project?.pillars?.length > 0 ? project.pillars : [
+  const [galleryImages, setGalleryImages] = useState([1, 2]);
+  const [challenge, setChallenge] = useState('');
+  const [pillars, setPillars] = useState([
     { icon: '🎯', title: 'Mission', description: 'The core purpose and goal of this project.' },
     { icon: '🛠️', title: 'Architecture', description: 'Well-structured codebase with modern patterns.' },
     { icon: '⚡', title: 'Performance', description: 'Optimized for speed and efficiency.' }
   ]);
+
+  // Initialize form with project data when project prop changes
+  useEffect(() => {
+    if (project) {
+      console.log('Loading project data for edit:', project);
+      setFormData({
+        title: project.title || '',
+        description: project.description || '',
+        image: project.image || '',
+        githubLink: project.githubLink || '',
+        liveDemo: project.liveDemo || '',
+        category: project.category || '',
+        duration: project.duration || '',
+        collaborationType: project.collaborationType || 'Solo',
+        videoUrl: project.videoUrl || '',
+        videoFile: null
+      });
+      setTechStack(project.techStack || []);
+      setChallenge(project.challenge || '');
+      
+      // Handle gallery images
+      if (project.galleryImages && project.galleryImages.length > 0) {
+        setGalleryImages(project.galleryImages);
+      } else {
+        setGalleryImages([1, 2]);
+      }
+      
+      // Handle pillars
+      if (project.pillars && project.pillars.length > 0) {
+        setPillars(project.pillars);
+      } else {
+        setPillars([
+          { icon: '🎯', title: 'Mission', description: 'The core purpose and goal of this project.' },
+          { icon: '🛠️', title: 'Architecture', description: 'Well-structured codebase with modern patterns.' },
+          { icon: '⚡', title: 'Performance', description: 'Optimized for speed and efficiency.' }
+        ]);
+      }
+    }
+  }, [project]);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
