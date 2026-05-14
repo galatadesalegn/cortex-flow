@@ -383,7 +383,7 @@ const ProjectSingle = () => {
                   <div className="w-8 h-0.5 bg-[#1de9b6]" />
                   <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Gallery</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {projectData.gallery.map((img, index) => (
                     <div key={index} className="group relative overflow-hidden rounded-xl border border-white/10 hover:border-[#1de9b6]/30 transition-all duration-500">
                       <div className="aspect-video relative overflow-hidden">
