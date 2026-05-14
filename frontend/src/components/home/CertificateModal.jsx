@@ -88,7 +88,7 @@ const CertificateModal = ({ isOpen, onClose, certificate }) => {
             {certificate.image && (
               <button
                 onClick={handleDownloadImage}
-                className="bg-accent text-dark-primary px-4 py-2 rounded-lg font-semibold hover:bg-accent-hover transition shadow-soft"
+                className="bg-accent text-dark-primary px-4 py-2 rounded-full font-semibold hover:bg-accent-hover transition shadow-soft"
               >
                 Download Image
               </button>
@@ -96,7 +96,7 @@ const CertificateModal = ({ isOpen, onClose, certificate }) => {
             {certificate.link && (
               <button
                 onClick={handleCopyLink}
-                className="bg-bg-secondary text-accent px-4 py-2 rounded-lg font-semibold hover:bg-bg-accent transition border border-border-theme"
+                className="bg-bg-secondary text-accent px-4 py-2 rounded-full font-semibold hover:bg-bg-accent transition border border-border-theme"
               >
                 Copy Link
               </button>
