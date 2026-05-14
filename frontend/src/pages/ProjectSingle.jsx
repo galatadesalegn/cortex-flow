@@ -223,14 +223,24 @@ const ProjectSingle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] font-outfit selection:bg-accent selection:text-white overflow-x-hidden text-slate-100 relative">
+    <div className="min-h-screen font-outfit selection:bg-accent selection:text-white overflow-x-hidden text-slate-100 relative">
+      {/* Random External Background Image */}
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <img 
+          src={`https://picsum.photos/1920/1080?random=${Date.now()}`}
+          alt="Background"
+          className="w-full h-full object-cover"
+        />
+        {/* Dark overlay to keep text readable */}
+        <div className="absolute inset-0 bg-black/80" />
+      </div>
       {/* Background Glows - Like in the image */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-[40rem] h-[40rem] bg-[#1de9b6]/10 rounded-full blur-3xl opacity-50" style={{ transform: 'translate(-30%, -30%)' }} />
         <div className="absolute bottom-0 right-0 w-[40rem] h-[40rem] bg-[#8b5cf6]/10 rounded-full blur-3xl opacity-50" style={{ transform: 'translate(30%, 30%)' }} />
       </div>
       {/* 00. Top Thumbnail (End-to-End) */}
-      <div className="w-full aspect-[21/4] md:aspect-[32/5] relative overflow-hidden bg-black shadow-[0_0_50px_rgba(29,233,182,0.15)]">
+      <div className="w-full aspect-[21/4] md:aspect-[32/5] relative overflow-hidden bg-black shadow-[0_0_50px_rgba(29,233,182,0.15)] z-10">
         <button
           onClick={() => window.location.hash = "home#projects"}
           className="absolute top-6 left-6 z-50 group flex items-center gap-3 px-4 py-2 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 hover:text-[#1de9b6] hover:border-[#1de9b6]/30 transition-all duration-300"
@@ -245,7 +255,7 @@ const ProjectSingle = () => {
         <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] z-10 pointer-events-none" />
       </div>
 
-      <main className="w-full max-w-[1200px] mx-auto px-6 pt-10 pb-20">
+      <main className="w-full max-w-[1200px] mx-auto px-6 pt-10 pb-20 relative z-10">
         {/* 01. Hero Section */}
         <section className="mb-24">
           <div className="flex items-center gap-3 mb-10">
