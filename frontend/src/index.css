@@ -64,6 +64,15 @@ body {
     font-family: 'Playfair Display', serif;
   }
 
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .glass-card {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
