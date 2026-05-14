@@ -213,7 +213,12 @@ const ProjectSingle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] font-outfit selection:bg-accent selection:text-white overflow-x-hidden text-slate-100">
+    <div className="min-h-screen bg-[#0a0a0a] font-outfit selection:bg-accent selection:text-white overflow-x-hidden text-slate-100 relative">
+      {/* Background Glows - Like in the image */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-[40rem] h-[40rem] bg-[#1de9b6]/10 rounded-full blur-3xl opacity-50" style={{ transform: 'translate(-30%, -30%)' }} />
+        <div className="absolute bottom-0 right-0 w-[40rem] h-[40rem] bg-[#8b5cf6]/10 rounded-full blur-3xl opacity-50" style={{ transform: 'translate(30%, 30%)' }} />
+      </div>
       {/* 00. Top Thumbnail (End-to-End) */}
       <div className="w-full aspect-[21/4] md:aspect-[32/5] relative overflow-hidden bg-black shadow-[0_0_50px_rgba(29,233,182,0.15)]">
         <button
