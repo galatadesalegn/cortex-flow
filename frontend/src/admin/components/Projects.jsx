@@ -43,7 +43,7 @@ const SortableProjectItem = ({ project, onSelect, onDelete, deleting, isDark, is
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex flex-col md:grid md:grid-cols-6 gap-4 px-4 py-4 md:py-3 rounded-lg border border-transparent transition-all group relative ${isDark ? 'bg-gray-800/30 hover:bg-gray-800/50 hover:border-blue-600/30' : 'bg-bg-secondary/50 hover:bg-bg-accent hover:border-accent/30 shadow-sm'
+      className={`flex flex-col md:grid md:grid-cols-5 gap-4 px-4 py-4 md:py-3 rounded-lg border border-transparent transition-all group relative ${isDark ? 'bg-gray-800/30 hover:bg-gray-800/50 hover:border-blue-600/30' : 'bg-bg-secondary/50 hover:bg-bg-accent hover:border-accent/30 shadow-sm'
         }`}
     >
       <div className="flex items-center gap-2 cursor-grab active:cursor-grabbing" {...attributes} {...listeners}>
@@ -58,11 +58,6 @@ const SortableProjectItem = ({ project, onSelect, onDelete, deleting, isDark, is
       <div className="flex md:block justify-between items-center" onClick={() => onSelect(project)}>
         <span className={`md:hidden text-xs uppercase ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Category</span>
         <span className={`text-sm cursor-pointer transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-text-secondary'}`}>{project.category}</span>
-      </div>
-
-      <div className="flex md:block justify-between items-center" onClick={() => onSelect(project)}>
-        <span className={`md:hidden text-xs uppercase ${isDark ? 'text-gray-500' : 'text-text-muted'}`}>Stack</span>
-        <span className={`text-sm truncate cursor-pointer transition-colors duration-300 ${isDark ? 'text-gray-300' : 'text-text-secondary'}`}>{project.stack}</span>
       </div>
 
       <div className="flex items-center justify-between">
@@ -293,12 +288,11 @@ const Projects = () => {
           {!loading && !error && (
             <>
               {/* Table Header */}
-              <div className={`hidden md:grid grid-cols-6 gap-4 px-4 py-3 rounded-lg mb-3 transition-colors duration-300 ${isDark ? 'bg-gray-800/50' : 'bg-bg-secondary'
+              <div className={`hidden md:grid grid-cols-5 gap-4 px-4 py-3 rounded-lg mb-3 transition-colors duration-300 ${isDark ? 'bg-gray-800/50' : 'bg-bg-secondary'
                 }`}>
                 <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-text-muted'}`}></span>
                 <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>Project Context</span>
                 <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>Category</span>
-                <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>Stack Matrix</span>
                 <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>Status</span>
                 <span className={`text-xs font-medium uppercase tracking-wider ${isDark ? 'text-gray-400' : 'text-text-muted'}`}></span>
               </div>
