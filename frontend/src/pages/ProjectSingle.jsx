@@ -253,17 +253,17 @@ const ProjectSingle = () => {
               <div className="w-8 h-0.5 bg-[#1de9b6]" />
               <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-500">Project Info</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="space-y-2">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500">Project Type</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-[#12121a] rounded-xl border border-white/5 glass-card">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Project Type</p>
                 <p className="text-base font-medium text-slate-200">{projectData.category}</p>
               </div>
-              <div className="space-y-2">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500">Role</p>
+              <div className="p-6 bg-[#12121a] rounded-xl border border-white/5 glass-card">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Role</p>
                 <p className="text-base font-medium text-slate-200">{projectData.collaborationType || 'Solo'}</p>
               </div>
-              <div className="space-y-2">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500">Duration</p>
+              <div className="p-6 bg-[#12121a] rounded-xl border border-white/5 glass-card">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Duration</p>
                 <p className="text-base font-medium text-slate-200">{projectData.duration || '3 Days'}</p>
               </div>
             </div>
