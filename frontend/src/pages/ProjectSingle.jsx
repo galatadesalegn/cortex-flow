@@ -246,6 +246,22 @@ const ProjectSingle = () => {
               </span>
             ))}
           </h1>
+
+          {/* Featured Project Info Near Top */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+            <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Project Type</p>
+              <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
+            </div>
+            <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Role</p>
+              <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
+            </div>
+            <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Duration</p>
+              <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
+            </div>
+          </div>
         </section>
 
         {/* 02. Description & Challenges Grid */}
@@ -377,30 +393,7 @@ const ProjectSingle = () => {
               </div>
             )}
 
-            {/* Featured Project Section - Horizontal */}
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <h4 className="text-[#1de9b6] text-[10px] font-bold uppercase tracking-[0.4em]">Featured Project</h4>
-                <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {projectData.title}
-                </h2>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Project Type</p>
-                  <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
-                </div>
-                <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Role</p>
-                  <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
-                </div>
-                <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Duration</p>
-                  <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
-                </div>
-              </div>
-            </div>
 
             {/* Gallery Section - Single Frame */}
             {projectData.gallery && projectData.gallery.length > 0 && (
