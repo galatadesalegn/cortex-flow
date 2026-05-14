@@ -402,7 +402,7 @@ const ProjectSingle = () => {
             )}
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-8">
             <div className="space-y-4">
               <h4 className="text-[#1de9b6] text-[10px] font-bold uppercase tracking-[0.4em]">Featured Project</h4>
               <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -410,27 +410,27 @@ const ProjectSingle = () => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 mb-8">
-              <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2 group-hover:text-[#1de9b6]/50 transition-colors">Project Type</p>
-                <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
+            <div className="space-y-4 mb-8">
+              <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Project Type</p>
+                <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
               </div>
-              <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2 group-hover:text-[#1de9b6]/50 transition-colors">Role</p>
-                <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
+              <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Role</p>
+                <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
               </div>
-              <div className="p-6 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2 group-hover:text-[#1de9b6]/50 transition-colors">Duration</p>
-                <p className="text-sm font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
+              <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Duration</p>
+                <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3">
               <a 
                 href={projectData.liveUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="px-6 py-2.5 bg-[#1de9b6] text-[#0a0a0a] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[0_0_20px_rgba(29,233,182,0.15)] flex items-center gap-2"
+                className="px-6 py-3 bg-[#1de9b6] text-[#0a0a0a] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[0_0_20px_rgba(29,233,182,0.15)] flex items-center justify-center gap-2"
               >
                 <span>Live Demo</span>
                 <ExternalLink size={14} strokeWidth={3} />
@@ -440,7 +440,7 @@ const ProjectSingle = () => {
                 href={projectData.githubUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="px-6 py-2.5 bg-transparent text-white border border-white/20 rounded-full text-[10px] font-bold hover:bg-white hover:text-[#0a0a0a] hover:border-white transition-all flex items-center gap-2 group"
+                className="px-6 py-3 bg-transparent text-white border border-white/20 rounded-xl text-[10px] font-bold hover:bg-white hover:text-[#0a0a0a] hover:border-white transition-all flex items-center justify-center gap-2 group"
               >
                 <div className="group-hover:scale-110 transition-transform">
                   <GithubIcon />
