@@ -34,6 +34,7 @@ import { toast } from 'sonner';
 import { useTheme } from '../hooks';
 import settingService from '../services/settingService';
 import { profileService } from '../services/profileService';
+import systemStatsService from '../services/systemStatsService.js';
 
 const Settings = () => {
   const { isDark } = useTheme();
@@ -44,6 +45,8 @@ const Settings = () => {
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [systemStats, setSystemStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   // Settings state - connected to profile API
   const [settings, setSettings] = useState({
@@ -83,10 +86,23 @@ const Settings = () => {
     }
   }, [activeTab]);
 
-  // Fetch profile settings
+  // Fetch profile settings and system stats
   useEffect(() => {
     fetchProfileSettings();
+    fetchSystemStats();
   }, []);
+  
+  const fetchSystemStats = async () => {
+    try {
+      setStatsLoading(true);
+      const response = await systemStatsService.getStats();
+      setSystemStats(response.data);
+    } catch (error) {
+      console.error('Failed to fetch system stats:', error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
 
   const fetchProfileSettings = async () => {
     try {
@@ -370,8 +386,8 @@ const Settings = () => {
     }
   };
 
-  // System stats
-  const systemStats = [
+  // Default system stats (fallback)
+  const defaultSystemStats = [
     { title: 'API Status', value: '99.98%', subtext: '→ Stable', icon: Activity, color: 'green' },
     { title: 'Last Deploy', value: '2h 14m', subtext: 'AGO', icon: Clock, color: 'blue' },
     { title: 'Server Region', value: 'us-east-1', subtext: '', icon: Server, color: 'cyan' }
@@ -688,22 +704,41 @@ const Settings = () => {
 
           {/* System Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {systemStats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-[#12121a] border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-all duration-300"
-              >
-                <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">{stat.title}</p>
-                <div className="flex items-end gap-2">
-                  <span className={`text-2xl font-bold text-${stat.color}-400`}>{stat.value}</span>
-                  {stat.subtext && (
-                    <span className={`text-xs mb-1 ${stat.color === 'green' ? 'text-green-400' : 'text-gray-500'}`}>
-                      {stat.subtext}
-                    </span>
-                  )}
+            {statsLoading ? (
+              [1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="bg-[#12121a] border border-gray-800 rounded-xl p-5"
+                >
+                  <div className="h-4 bg-gray-800 rounded w-24 animate-pulse mb-2"></div>
+                  <div className="h-8 bg-gray-800 rounded w-32 animate-pulse"></div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <>
+                {/* API Status */}
+                <div className="bg-[#12121a] border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-all duration-300">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">API Status</p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-2xl font-bold text-green-400">{systemStats?.apiStatus || '99.98%'}</span>
+                    <span className="text-xs mb-1 text-green-400">{systemStats?.apiStatusSub || '→ Stable'}</span>
+                  </div>
+                </div>
+                {/* Last Deploy */}
+                <div className="bg-[#12121a] border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-all duration-300">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Last Deploy</p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-2xl font-bold text-blue-400">{systemStats?.lastDeploy || '2h 14m'}</span>
+                    <span className="text-xs mb-1 text-gray-500">{systemStats?.lastDeploySub || 'AGO'}</span>
+                  </div>
+                </div>
+                {/* Server Region */}
+                <div className="bg-[#12121a] border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition-all duration-300">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Server Region</p>
+                  <span className="text-2xl font-bold text-cyan-400">{systemStats?.serverRegion || 'us-east-1'}</span>
+                </div>
+              </>
+            )}
           </div>
         </>
       ) : activeTab === 'admins' ? (
@@ -914,18 +949,45 @@ const Settings = () => {
             <div className="bg-[#12121a] border border-gray-800 rounded-xl p-6">
               <h3 className="text-sm font-semibold text-white mb-4">Active Sessions</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center">
-                      <span className="text-xs text-blue-400">💻</span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-white">Chrome on MacOS</p>
-                      <p className="text-xs text-gray-500">Current session • IP: 192.168.1.1</p>
+                {statsLoading ? (
+                  <div className="p-3 rounded-lg bg-gray-800/50 animate-pulse">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded bg-gray-700"></div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-700 rounded w-32"></div>
+                        <div className="h-3 bg-gray-700 rounded w-48"></div>
+                      </div>
                     </div>
                   </div>
-                  <span className="text-xs text-green-400">Active</span>
-                </div>
+                ) : systemStats?.activeSessions && systemStats.activeSessions.length > 0 ? (
+                  systemStats.activeSessions.map((session, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center">
+                          <span className="text-xs text-blue-400">💻</span>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white">{session.browser} on {session.os}</p>
+                          <p className="text-xs text-gray-500">{session.isCurrent ? 'Current session' : ''} • IP: {session.ip}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-green-400">Active</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded bg-blue-500/20 flex items-center justify-center">
+                        <span className="text-xs text-blue-400">💻</span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-white">Chrome on MacOS</p>
+                        <p className="text-xs text-gray-500">Current session • IP: 192.168.1.1</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-green-400">Active</span>
+                  </div>
+                )}
               </div>
             </div>
 

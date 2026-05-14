@@ -47,6 +47,7 @@ import uploadRoutes from './routes/upload.js';
 import profileRoutes from './routes/profile.js';
 import userRoutes from './routes/users.js';
 import testimonialRoutes from './routes/testimonials.js';
+import systemStatsRoutes from './routes/systemStats.js';
 
 // Middleware
 import { errorHandler, notFound } from './middleware/errorHandler.js';
@@ -191,6 +192,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/system-stats', systemStatsRoutes);
 
 // DB health endpoint
 app.get('/api/health', async (req, res) => {
