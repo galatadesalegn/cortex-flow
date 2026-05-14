@@ -311,7 +311,7 @@ const ProjectSingle = () => {
         </section>
 
         {/* 04. Bottom Showcase */}
-        <section className="grid lg:grid-cols-[1.2fr_1fr] gap-16 items-start">
+        <section className="space-y-16">
           <div className="relative group space-y-8">
             <div className="aspect-video rounded-xl overflow-hidden relative z-10 bg-black shadow-2xl border border-white/5">
               {projectData.videoUrl ? (
@@ -370,11 +370,61 @@ const ProjectSingle = () => {
               )}
             </div>
 
+            
             {projectData.videoUrl && (
               <div className="absolute top-4 right-4 px-3 py-1 bg-[#1de9b6]/90 backdrop-blur-sm text-black text-[8px] font-black uppercase tracking-widest rounded z-20 shadow-xl pointer-events-none">
                 Live Stream
               </div>
             )}
+
+            {/* Featured Project Section - Horizontal */}
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h4 className="text-[#1de9b6] text-[10px] font-bold uppercase tracking-[0.4em]">Featured Project</h4>
+                <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {projectData.title}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Project Type</p>
+                  <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
+                </div>
+                <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Role</p>
+                  <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
+                </div>
+                <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Duration</p>
+                  <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <a 
+                  href={projectData.liveUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="px-6 py-3 bg-[#1de9b6] text-[#0a0a0a] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[0_0_20px_rgba(29,233,182,0.15)] flex items-center justify-center gap-2"
+                >
+                  <span>Live Demo</span>
+                  <ExternalLink size={14} strokeWidth={3} />
+                </a>
+                
+                <a 
+                  href={projectData.githubUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="px-6 py-3 bg-transparent text-white border border-white/20 rounded-xl text-[10px] font-bold hover:bg-white hover:text-[#0a0a0a] hover:border-white transition-all flex items-center justify-center gap-2 group"
+                >
+                  <div className="group-hover:scale-110 transition-transform">
+                    <GithubIcon />
+                  </div>
+                  <span>Github Repository</span>
+                </a>
+              </div>
+            </div>
 
             {/* Gallery Section - Single Frame */}
             {projectData.gallery && projectData.gallery.length > 0 && (
@@ -400,54 +450,6 @@ const ProjectSingle = () => {
                 </div>
               </div>
             )}
-          </div>
-
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h4 className="text-[#1de9b6] text-[10px] font-bold uppercase tracking-[0.4em]">Featured Project</h4>
-              <h2 className="text-xl md:text-2xl font-black text-white tracking-tight leading-snug" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                {projectData.title}
-              </h2>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Project Type</p>
-                <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.category}</p>
-              </div>
-              <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Role</p>
-                <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.collaborationType || 'Solo'}</p>
-              </div>
-              <div className="flex flex-col gap-2 p-5 bg-gradient-to-br from-[#0d1411] to-[#0a1a14] rounded-xl border border-emerald-500/10 hover:border-[#1de9b6]/30 transition-all group">
-                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-slate-500 group-hover:text-[#1de9b6]/50 transition-colors">Duration</p>
-                <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <a 
-                href={projectData.liveUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="px-6 py-3 bg-[#1de9b6] text-[#0a0a0a] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[0_0_20px_rgba(29,233,182,0.15)] flex items-center justify-center gap-2"
-              >
-                <span>Live Demo</span>
-                <ExternalLink size={14} strokeWidth={3} />
-              </a>
-              
-              <a 
-                href={projectData.githubUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="px-6 py-3 bg-transparent text-white border border-white/20 rounded-xl text-[10px] font-bold hover:bg-white hover:text-[#0a0a0a] hover:border-white transition-all flex items-center justify-center gap-2 group"
-              >
-                <div className="group-hover:scale-110 transition-transform">
-                  <GithubIcon />
-                </div>
-                <span>Github Repository</span>
-              </a>
-            </div>
           </div>
         </section>
       </main>
