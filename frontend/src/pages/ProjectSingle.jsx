@@ -227,7 +227,7 @@ const ProjectSingle = () => {
       {/* Tech Random External Background Image */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <img 
-          src={`https://source.unsplash.com/1920x1080/?technology,abstract,code,circuit,network&random=${Date.now()}`}
+          src={`https://picsum.photos/seed/${Date.now()}/1920/1080`}
           alt="Background"
           className="w-full h-full object-cover"
         />
