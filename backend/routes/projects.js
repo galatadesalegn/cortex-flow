@@ -18,8 +18,8 @@ router.get('/:id', cacheMiddleware(600), getProject);
 router.use(protect, checkPermission('projects'));
 
 router.post('/', createProject);
+router.put('/reorder', reorderProjects);
 router.put('/:id', updateProject);
 router.delete('/:id', deleteProject);
-router.put('/reorder', reorderProjects);
 
 export default router;
