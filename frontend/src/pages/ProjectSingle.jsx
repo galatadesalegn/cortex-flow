@@ -79,6 +79,7 @@ const use3DTilt = (maxRotate = 10, maxTranslate = 5) => {
 const TechCard = memo(({ name }) => {
   const { ref, style, onMove, onLeave } = use3DTilt(15, 5);
   const logo = TECH_LOGOS[name.toLowerCase()] || `https://cdn.simpleicons.org/${name.toLowerCase().replace('.', '').replace(' ', '')}/white`;
+  const [logoError, setLogoError] = useState(false);
 
   return (
     <div
@@ -90,7 +91,16 @@ const TechCard = memo(({ name }) => {
     >
       <div className="absolute inset-0 bg-gradient-to-br from-[#1de9b6]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="w-7 h-7 rounded bg-[#12221b] border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
-        <img src={logo} alt={name} className="w-4 h-4 object-contain" onError={(e) => e.target.style.display = 'none'} />
+        {logoError ? (
+          <span className="text-[#1de9b6] font-bold text-sm">{name.charAt(0).toUpperCase()}</span>
+        ) : (
+          <img 
+            src={logo} 
+            alt={name} 
+            className="w-4 h-4 object-contain" 
+            onError={() => setLogoError(true)} 
+          />
+        )}
       </div>
       <span className="text-[9px] font-black text-slate-400 group-hover:text-[#1de9b6] uppercase tracking-widest relative z-10 transition-colors">{name}</span>
     </div>
