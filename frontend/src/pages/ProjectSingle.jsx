@@ -400,30 +400,6 @@ const ProjectSingle = () => {
                   <p className="text-lg font-black text-slate-200 uppercase tracking-tight">{projectData.duration || '3 Days'}</p>
                 </div>
               </div>
-
-              <div className="flex flex-wrap gap-3">
-                <a 
-                  href={projectData.liveUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="px-6 py-3 bg-[#1de9b6] text-[#0a0a0a] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[0_0_20px_rgba(29,233,182,0.15)] flex items-center justify-center gap-2"
-                >
-                  <span>Live Demo</span>
-                  <ExternalLink size={14} strokeWidth={3} />
-                </a>
-                
-                <a 
-                  href={projectData.githubUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="px-6 py-3 bg-transparent text-white border border-white/20 rounded-xl text-[10px] font-bold hover:bg-white hover:text-[#0a0a0a] hover:border-white transition-all flex items-center justify-center gap-2 group"
-                >
-                  <div className="group-hover:scale-110 transition-transform">
-                    <GithubIcon />
-                  </div>
-                  <span>Github Repository</span>
-                </a>
-              </div>
             </div>
 
             {/* Gallery Section - Single Frame */}
@@ -450,6 +426,31 @@ const ProjectSingle = () => {
                 </div>
               </div>
             )}
+
+            {/* Buttons Section - Centered */}
+            <div className="flex justify-center gap-3 mt-8">
+              <a 
+                href={projectData.liveUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-6 py-3 bg-[#1de9b6] text-[#0a0a0a] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all shadow-[0_0_20px_rgba(29,233,182,0.15)] flex items-center justify-center gap-2"
+              >
+                <span>Live Demo</span>
+                <ExternalLink size={14} strokeWidth={3} />
+              </a>
+              
+              <a 
+                href={projectData.githubUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-6 py-3 bg-transparent text-white border border-white/20 rounded-xl text-[10px] font-bold hover:bg-white hover:text-[#0a0a0a] hover:border-white transition-all flex items-center justify-center gap-2 group"
+              >
+                <div className="group-hover:scale-110 transition-transform">
+                  <GithubIcon />
+                </div>
+                <span>Github Repository</span>
+              </a>
+            </div>
           </div>
         </section>
       </main>
