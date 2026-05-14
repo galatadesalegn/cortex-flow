@@ -52,18 +52,14 @@ const ProjectEdit = ({ project, onBack, onSave, readOnly = false }) => {
       if (project.galleryImages && project.galleryImages.length > 0) {
         setGalleryImages(project.galleryImages);
       } else {
-        setGalleryImages([1, 2]);
+        setGalleryImages([]);
       }
       
       // Handle pillars
       if (project.pillars && project.pillars.length > 0) {
         setPillars(project.pillars);
       } else {
-        setPillars([
-          { icon: '🎯', title: 'Mission', description: 'The core purpose and goal of this project.' },
-          { icon: '🛠️', title: 'Architecture', description: 'Well-structured codebase with modern patterns.' },
-          { icon: '⚡', title: 'Performance', description: 'Optimized for speed and efficiency.' }
-        ]);
+        setPillars([]);
       }
     }
   }, [project]);
