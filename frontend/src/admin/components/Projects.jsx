@@ -259,7 +259,7 @@ const Projects = () => {
               <FolderKanban className="text-blue-400" size={24} />
             </div>
             <div>
-              <h3 className={`text-3xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>{projectList.length}</h3>
+              <h3 className={`text-3xl font-bold transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>{localProjects.length}</h3>
               <p className={`text-sm transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-text-muted'}`}>Total Projects</p>
             </div>
           </div>
@@ -280,7 +280,7 @@ const Projects = () => {
         <div className={`lg:col-span-3 border rounded-xl p-6 transition-all duration-300 ${isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700' : 'bg-bg-card border-border-theme shadow-soft'
           }`}>
           <div className="flex items-center justify-between mb-6">
-            <h2 className={`text-lg font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>Projects ({projectList.length})</h2>
+            <h2 className={`text-lg font-semibold transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>Projects ({localProjects.length})</h2>
             <button
               onClick={() => refetch()}
               className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
