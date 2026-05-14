@@ -224,15 +224,15 @@ const ProjectSingle = () => {
 
   return (
     <div className="min-h-screen font-outfit selection:bg-accent selection:text-white overflow-x-hidden text-slate-100 relative">
-      {/* Random External Background Image */}
+      {/* Tech Random External Background Image */}
       <div className="fixed inset-0 z-0 overflow-hidden">
         <img 
-          src={`https://picsum.photos/1920/1080?random=${Date.now()}`}
+          src={`https://source.unsplash.com/1920x1080/?technology,abstract,code,circuit,network&random=${Date.now()}`}
           alt="Background"
           className="w-full h-full object-cover"
         />
-        {/* Dark overlay to keep text readable */}
-        <div className="absolute inset-0 bg-black/80" />
+        {/* Light overlay to keep text readable */}
+        <div className="absolute inset-0 bg-black/30" />
       </div>
       {/* Background Glows - Like in the image */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
