@@ -20,24 +20,41 @@ export const getProjects = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  // For list view, only fetch essential fields to improve performance
-  let selectFields = 'title description image techStack category featured createdAt _id';
-  if (req.query.excludeImages === 'true') {
-    selectFields = 'title description techStack category featured createdAt _id';
-  }
-
+  // Fetch all fields for admin panel editing
   let projects = await Project.find()
-    .select(selectFields)
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .lean();
 
   // Fix localhost URLs in image paths
-  projects = projects.map(project => ({
-    ...project,
-    image: fixImageUrl(project.image)
-  }));
+  projects = projects.map(project => {
+    const fixedProject = {
+      ...project,
+      image: fixImageUrl(project.image)
+    };
+    
+    if (fixedProject.galleryImages && Array.isArray(fixedProject.galleryImages)) {
+      fixedProject.galleryImages = fixedProject.galleryImages.map(img => {
+        if (typeof img === 'string') {
+          return fixImageUrl(img);
+        } else if (img && img.url) {
+          return fixImageUrl(img.url);
+        } else {
+          return img;
+        }
+      });
+    }
+
+    if (fixedProject.pillars && Array.isArray(fixedProject.pillars)) {
+      fixedProject.pillars = fixedProject.pillars.map(pillar => ({
+        ...pillar,
+        icon: fixImageUrl(pillar.icon)
+      }));
+    }
+
+    return fixedProject;
+  });
 
   const total = await Project.countDocuments();
 
