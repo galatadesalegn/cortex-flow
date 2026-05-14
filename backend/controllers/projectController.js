@@ -22,7 +22,7 @@ export const getProjects = asyncHandler(async (req, res) => {
 
   // Fetch all fields for admin panel editing
   let projects = await Project.find()
-    .sort({ createdAt: -1 })
+    .sort({ order: 1, createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .lean();
@@ -311,5 +311,33 @@ export const deleteProject = asyncHandler(async (req, res) => {
   res.json({
     success: true,
     message: 'Project deleted successfully',
+  });
+});
+
+// @desc    Reorder projects
+// @route   PUT /api/projects/reorder
+// @access  Private
+export const reorderProjects = asyncHandler(async (req, res) => {
+  const { projectIds } = req.body;
+  
+  if (!Array.isArray(projectIds)) {
+    res.status(400);
+    throw new Error('Invalid projectIds array');
+  }
+  
+  // Update order for all projects
+  for (let i = 0; i < projectIds.length; i++) {
+    await Project.findByIdAndUpdate(
+      projectIds[i],
+      { order: i },
+      { new: true }
+    );
+  }
+  
+  clearCache('projects');
+  
+  res.json({
+    success: true,
+    message: 'Projects reordered successfully'
   });
 });

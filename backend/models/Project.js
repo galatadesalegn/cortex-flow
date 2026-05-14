@@ -61,12 +61,16 @@ const projectSchema = new mongoose.Schema({
   featured: {
     type: Boolean,
     default: false
+  },
+  order: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
 });
 
-projectSchema.index({ featured: -1, createdAt: -1 });
+projectSchema.index({ featured: -1, order: 1, createdAt: -1 });
 
 const Project = mongoose.model('Project', projectSchema);
 

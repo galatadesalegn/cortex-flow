@@ -5,6 +5,7 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  reorderProjects,
 } from '../controllers/projectController.js';
 import { protect, checkPermission } from '../middleware/auth.js';
 import { cacheMiddleware } from '../utils/cache.js';
@@ -19,5 +20,6 @@ router.use(protect, checkPermission('projects'));
 router.post('/', createProject);
 router.put('/:id', updateProject);
 router.delete('/:id', deleteProject);
+router.put('/reorder', reorderProjects);
 
 export default router;
