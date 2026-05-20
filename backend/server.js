@@ -218,7 +218,12 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// Error handlers
+// Root route for uptime monitors and Render
+app.get('/', (req, res) => {
+  res.status(200).send('Backend is running');
+});
+
+// Error handlers (keep wildcard 404 at the bottom)
 app.use(notFound);
 app.use(errorHandler);
 
