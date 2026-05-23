@@ -37,6 +37,11 @@ export const fixImageUrl = (url) => {
     return `${API_URL}${url}`;
   }
   
+  // Handle relative URLs that start with uploads/ (no leading slash)
+  if (url.startsWith('uploads/')) {
+    return `${API_URL}/${url}`;
+  }
+  
   return url;
 };
 

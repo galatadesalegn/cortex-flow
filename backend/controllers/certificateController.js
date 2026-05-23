@@ -4,13 +4,7 @@ import { validateRequired, validateUrl, validateImageUrl } from '../utils/valida
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
-// Helper to fix image URLs
-const fixImageUrl = (url) => {
-  if (!url || typeof url !== 'string') return url;
-  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
-  // Replace localhost URLs with production URL
-  return url.replace(/http:\/\/localhost:\d+/g, backendUrl).replace(/http:\/\/127\.0\.0\.1:\d+/g, backendUrl);
-};
+
 
 // @desc    Get all certificates
 // @route   GET /api/certificates
@@ -21,7 +15,7 @@ export const getCertificates = asyncHandler(async (req, res) => {
   // Fix localhost URLs in image paths
   certificates = certificates.map(cert => ({
     ...cert,
-    image: fixImageUrl(cert.image)
+    image: getFullImageUrl(cert.image)
   }));
 
   res.json({
@@ -43,7 +37,7 @@ export const getCertificate = asyncHandler(async (req, res) => {
   }
 
   // Fix localhost URL in image path
-  certificate.image = fixImageUrl(certificate.image);
+  certificate.image = getFullImageUrl(certificate.image);
 
   res.json({
     success: true,

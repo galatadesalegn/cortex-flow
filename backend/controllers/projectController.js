@@ -4,13 +4,7 @@ import { validateRequired, validateUrl, validateImageUrl } from '../utils/valida
 import { clearCache } from '../utils/cache.js';
 import { getFullImageUrl } from '../utils/image.js';
 
-// Helper to fix image URLs
-const fixImageUrl = (url) => {
-  if (!url || typeof url !== 'string') return url;
-  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
-  // Replace localhost URLs with production URL
-  return url.replace(/http:\/\/localhost:\d+/g, backendUrl).replace(/http:\/\/127\.0\.0\.1:\d+/g, backendUrl);
-};
+
 
 // @desc    Get all projects
 // @route   GET /api/projects
@@ -31,15 +25,15 @@ export const getProjects = asyncHandler(async (req, res) => {
   projects = projects.map(project => {
     const fixedProject = {
       ...project,
-      image: fixImageUrl(project.image)
+      image: getFullImageUrl(project.image)
     };
     
     if (fixedProject.galleryImages && Array.isArray(fixedProject.galleryImages)) {
       fixedProject.galleryImages = fixedProject.galleryImages.map(img => {
         if (typeof img === 'string') {
-          return fixImageUrl(img);
+          return getFullImageUrl(img);
         } else if (img && img.url) {
-          return fixImageUrl(img.url);
+          return getFullImageUrl(img.url);
         } else {
           return img;
         }
@@ -49,7 +43,7 @@ export const getProjects = asyncHandler(async (req, res) => {
     if (fixedProject.pillars && Array.isArray(fixedProject.pillars)) {
       fixedProject.pillars = fixedProject.pillars.map(pillar => ({
         ...pillar,
-        icon: fixImageUrl(pillar.icon)
+        icon: getFullImageUrl(pillar.icon)
       }));
     }
 
@@ -80,14 +74,14 @@ export const getProject = asyncHandler(async (req, res) => {
   }
 
   // Fix localhost URLs in image paths
-  project.image = fixImageUrl(project.image);
+  project.image = getFullImageUrl(project.image);
   if (project.galleryImages && Array.isArray(project.galleryImages)) {
     project.galleryImages = project.galleryImages.map(img => {
       // Handle both string URLs and object URLs
       if (typeof img === 'string') {
-        return fixImageUrl(img);
+        return getFullImageUrl(img);
       } else if (img && img.url) {
-        return fixImageUrl(img.url);
+        return getFullImageUrl(img.url);
       } else {
         return img;
       }
