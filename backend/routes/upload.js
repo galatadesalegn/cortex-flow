@@ -99,7 +99,7 @@ router.post(
       // Serve file locally
       const protocol = req.protocol;
       const host = req.get('host');
-      const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
+      const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
       
       res.json({
         success: true,

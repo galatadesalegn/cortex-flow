@@ -7,7 +7,7 @@ import { getFullImageUrl } from '../utils/image.js';
 // Helper to fix image URLs
 const fixImageUrl = (url) => {
   if (!url || typeof url !== 'string') return url;
-  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
+  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
   // Replace localhost URLs with production URL
   return url.replace(/http:\/\/localhost:\d+/g, backendUrl).replace(/http:\/\/127\.0\.0\.1:\d+/g, backendUrl);
 };

@@ -60,13 +60,13 @@ export const validateImageUrl = (url) => {
   }
   
   // Allow production backend URL
-  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
+  const backendUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
   if (url.includes(backendUrl)) {
     return true;
   }
   
   // Also allow the domain without protocol for flexibility
-  if (url.includes('galatadesalegn.onrender.com')) {
+  if (url.includes('galatadesalegn-gi24.onrender.com')) {
     return true;
   }
   

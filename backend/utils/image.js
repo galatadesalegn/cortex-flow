@@ -12,7 +12,7 @@ export const getFullImageUrl = (imagePath) => {
   }
   
   // Convert relative path to full URL using production base
-  const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
+  const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
 
   // If it's already a full URL or data URI, return as-is (Cloudinary URLs etc)
   if (

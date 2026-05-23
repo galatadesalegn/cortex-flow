@@ -10,7 +10,7 @@ const CVUpload = ({ resumeUrl, onChange }) => {
   // Download CV via backend proxy
   const handleDownload = () => {
     if (!resumeUrl) return;
-    const backendUrl = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
+    const backendUrl = import.meta.env.VITE_API_URL || 'https://galatadesalegn-gi24.onrender.com';
     const downloadUrl = `${backendUrl}/api/upload/download?url=${encodeURIComponent(resumeUrl)}`;
     
     // Navigate to download endpoint - backend will serve file with download headers

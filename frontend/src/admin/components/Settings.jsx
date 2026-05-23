@@ -208,7 +208,7 @@ const Settings = () => {
     try {
       setSaving(true);
       const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
+      const API_URL = import.meta.env.VITE_API_URL || 'https://galatadesalegn-gi24.onrender.com';
       
       const response = await fetch(`${API_URL}/api/users/account/delete`, {
         method: 'DELETE',

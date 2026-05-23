@@ -60,12 +60,6 @@ app.set('trust proxy', 1);
 
 // 1. CORS - MUST BE FIRST
 const allowedOrigins = [
-  "https://www.qalatadesaleqn.me",
-  "https://qalatadesaleqn.me",
-  "https://qalatadesaleqn.vercel.app",
-  "https://www.galatadesaleqn.me",
-  "https://galatadesaleqn.me",
-  "https://galatadesaleqn.vercel.app",
   "https://www.galatadesalegn.me",
   "https://galatadesalegn.me",
   "https://galatadesalegn.vercel.app",

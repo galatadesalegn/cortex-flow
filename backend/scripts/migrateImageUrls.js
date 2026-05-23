@@ -10,7 +10,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '../.env') });
 
 const OLD_BASE_URL = 'http://localhost:5000';
-const NEW_BASE_URL = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
+const NEW_BASE_URL = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
 
 async function migrateUrls() {
   try {

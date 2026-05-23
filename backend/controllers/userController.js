@@ -83,7 +83,7 @@ export const createUser = asyncHandler(async (req, res) => {
   });
 
   // Send invitation email (fire and forget - non-blocking)
-  const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://galatadesalegn.onrender.com'}/login`;
+  const adminPanelUrl = `${process.env.FRONTEND_URL || 'https://www.galatadesalegn.me'}/login`;
 
   // Check if email is configured (either Resend or EmailJS)
   const isResendConfigured = !!process.env.RESEND_API_KEY;
