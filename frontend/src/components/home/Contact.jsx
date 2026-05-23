@@ -276,6 +276,11 @@ const Contact = () => {
 				description: "I'll get back to you as soon as possible.",
 			});
 			setFormData({ name: "", email: "", subject: "", message: "" });
+			
+			// Clear success status after 5 seconds
+			setTimeout(() => {
+				setStatus("");
+			}, 5000);
 		} catch (err) {
 			console.error("Failed to send message:", err);
 			const errorMessage = err.response?.data?.message || "Failed to send message. Please try again.";
