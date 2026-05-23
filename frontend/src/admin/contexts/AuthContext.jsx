@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services';
+import { useInactivityLogout } from '../hooks/useInactivityLogout';
 
 export const AuthContext = createContext(null);
 
@@ -8,6 +9,17 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Logout function
+  const logout = useCallback(() => {
+    authService.clearAuth();
+    setUser(null);
+    setIsAuthenticated(false);
+    setError(null);
+  }, []);
+
+  // Use inactivity logout hook
+  useInactivityLogout(logout, isAuthenticated);
 
   // Check auth status on mount
   useEffect(() => {
@@ -64,14 +76,6 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  // Logout function
-  const logout = useCallback(() => {
-    authService.clearAuth();
-    setUser(null);
-    setIsAuthenticated(false);
-    setError(null);
   }, []);
 
   // Clear error

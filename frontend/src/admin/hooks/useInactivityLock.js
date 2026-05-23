@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+const INACTIVITY_TIMEOUT = 3 * 60 * 1000; // 3 minutes for screen lock (must be less than logout timeout)
 
 export const useInactivityLock = (isEnabled = true) => {
   const [isLocked, setIsLocked] = useState(false);

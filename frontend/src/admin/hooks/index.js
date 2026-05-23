@@ -10,3 +10,4 @@ export { useTestimonials, useTestimonial, useCreateTestimonial, useUpdateTestimo
 export { useTheme } from '../contexts/ThemeContext.jsx';
 export { useNotification } from './useNotification.js';
 export { useInactivityLock } from './useInactivityLock.js';
+export { useInactivityLogout } from './useInactivityLogout.js';
