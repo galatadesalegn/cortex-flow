@@ -2,94 +2,101 @@ import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
 /**
- * Hook to automatically log out users after a period of inactivity.
- * 
- * @param {Function} logout - The logout function from AuthContext
- * @param {boolean} isAuthenticated - Current authentication status
- * @param {number} timeoutMs - Inactivity timeout in milliseconds (default: 10 mins)
- * @param {number} warningMs - Warning timeout in milliseconds (default: 9 mins)
+ * Production-grade hook for automatic session termination.
+ * Features: setTimeout-based timing, cross-tab sync, event debouncing, and memory safety.
  */
 export const useInactivityLogout = (logout, isAuthenticated, timeoutMs = 600000, warningMs = 540000) => {
-  const lastActivityRef = useRef(Date.now());
   const logoutTimerRef = useRef(null);
-  const warningShownRef = useRef(false);
+  const warningTimerRef = useRef(null);
+  const lastActivityRef = useRef(Date.now());
 
-  const resetTimer = useCallback(() => {
-    lastActivityRef.current = Date.now();
-    warningShownRef.current = false;
+  const clearTimers = useCallback(() => {
+    if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
+    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
   }, []);
 
+  const startTimers = useCallback(() => {
+    clearTimers();
+
+    // 1. Warning Timer (9 mins by default)
+    warningTimerRef.current = setTimeout(() => {
+      toast.warning('Inactivity Warning', {
+        id: 'inactivity-warning', // Prevent duplicates
+        description: 'Your session will expire in 1 minute due to inactivity.',
+        duration: Infinity, // Keep until logout or user action
+        action: {
+          label: 'Stay Logged In',
+          onClick: () => {
+            resetTimer();
+            toast.dismiss('inactivity-warning');
+          }
+        }
+      });
+    }, warningMs);
+
+    // 2. Logout Timer (10 mins by default)
+    logoutTimerRef.current = setTimeout(() => {
+      clearTimers();
+      toast.dismiss('inactivity-warning');
+      logout();
+      toast.info('Session Expired', {
+        description: 'You have been logged out for security.',
+        duration: 5000
+      });
+    }, timeoutMs);
+  }, [logout, timeoutMs, warningMs, clearTimers]);
+
+  const resetTimer = useCallback(() => {
+    const now = Date.now();
+    // Throttle resets to once every 2 seconds for performance
+    if (now - lastActivityRef.current < 2000) return;
+    
+    lastActivityRef.current = now;
+    if (isAuthenticated) {
+      startTimers();
+    }
+  }, [isAuthenticated, startTimers]);
+
+  // Handle cross-tab logout synchronization
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      // Sync logout if token is removed in another tab
+      if (e.key === 'logout_event' || (e.key === 'token' && !e.newValue)) {
+        logout();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [logout]);
+
+  // Manage timers and event listeners
   useEffect(() => {
     if (!isAuthenticated) {
-      if (logoutTimerRef.current) clearInterval(logoutTimerRef.current);
+      clearTimers();
       return;
     }
 
-    const checkInactivity = () => {
-      const now = Date.now();
-      const elapsed = now - lastActivityRef.current;
-
-      // Show warning at 9 minutes (or warningMs)
-      if (elapsed >= warningMs && elapsed < timeoutMs && !warningShownRef.current) {
-        warningShownRef.current = true;
-        toast.warning('Inactivity Warning', {
-          description: 'You will be logged out in 1 minute due to inactivity.',
-          duration: 10000,
-          action: {
-            label: 'Stay Logged In',
-            onClick: () => resetTimer()
-          }
-        });
-      }
-
-      // Logout at 10 minutes (or timeoutMs)
-      if (elapsed >= timeoutMs) {
-        if (logoutTimerRef.current) clearInterval(logoutTimerRef.current);
-        logout();
-        toast.info('Session Expired', {
-          description: 'You have been logged out due to 10 minutes of inactivity.',
-          duration: 5000
-        });
-      }
-    };
-
-    // Check inactivity every 5 seconds for better performance
-    logoutTimerRef.current = setInterval(checkInactivity, 5000);
-
-    return () => {
-      if (logoutTimerRef.current) clearInterval(logoutTimerRef.current);
-    };
-  }, [isAuthenticated, logout, timeoutMs, warningMs, resetTimer]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
     const activityEvents = [
-      'mousedown',
-      'mousemove',
-      'keypress',
-      'scroll',
-      'touchstart',
-      'click',
-      'keydown',
-      'wheel'
+      'mousedown', 'mousemove', 'keypress', 
+      'scroll', 'touchstart', 'wheel'
     ];
 
-    const handleActivity = () => {
-      resetTimer();
-    };
+    // Initialize timers
+    startTimers();
 
-    // Add event listeners with passive: true for performance
+    // Attach listeners
     activityEvents.forEach(event => {
-      window.addEventListener(event, handleActivity, { passive: true });
+      window.addEventListener(event, resetTimer, { passive: true });
     });
 
     return () => {
+      clearTimers();
       activityEvents.forEach(event => {
-        window.removeEventListener(event, handleActivity);
+        window.removeEventListener(event, resetTimer);
       });
     };
-  }, [isAuthenticated, resetTimer]);
+  }, [isAuthenticated, resetTimer, startTimers, clearTimers]);
 };
 
 export default useInactivityLogout;

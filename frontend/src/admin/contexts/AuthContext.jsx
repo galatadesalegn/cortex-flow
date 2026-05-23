@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = useCallback(() => {
     authService.clearAuth();
+    // Trigger storage event for other tabs
+    localStorage.setItem('logout_event', Date.now().toString());
     setUser(null);
     setIsAuthenticated(false);
     setError(null);
