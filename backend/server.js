@@ -63,7 +63,6 @@ const allowedOrigins = [
   "https://www.galatadesalegn.me",
   "https://galatadesalegn.me",
   "https://galatadesalegn.vercel.app",
-  "https://galatadesalegn-xi.vercel.app"
 ];
 
 const corsOptions = {
