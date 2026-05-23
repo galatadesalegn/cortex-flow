@@ -60,35 +60,36 @@ app.set('trust proxy', 1);
 
 // 1. CORS - MUST BE FIRST
 const allowedOrigins = [
-  "https://galatadesalegn-xi.vercel.app",
+  "https://www.galatadesaleqn.me",
+  "https://galatadesaleqn.me",
+  "https://galatadesaleqn.vercel.app",
+  "https://www.galatadesalegn.me",
+  "https://galatadesalegn.me",
+  "https://galatadesalegn.vercel.app",
+  "https://galatadesalegn-xi.vercel.app"
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && origin.startsWith('http://localhost'))) {
       return callback(null, true);
     }
 
-    if (origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-
-    // Allow localhost in development
-    if (process.env.NODE_ENV !== 'production' && origin.startsWith('http://localhost')) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("CORS not allowed: " + origin));
+    return callback(null, false);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+// Handle preflight for all routes
+app.options('*', cors(corsOptions));
 
 // 2. Security & Parsers
 app.use(helmet({
