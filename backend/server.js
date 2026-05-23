@@ -60,6 +60,9 @@ app.set('trust proxy', 1);
 
 // 1. CORS - MUST BE FIRST
 const allowedOrigins = [
+  "https://www.qalatadesaleqn.me",
+  "https://qalatadesaleqn.me",
+  "https://qalatadesaleqn.vercel.app",
   "https://www.galatadesaleqn.me",
   "https://galatadesaleqn.me",
   "https://galatadesaleqn.vercel.app",
@@ -71,7 +74,6 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== 'production' && origin.startsWith('http://localhost'))) {
@@ -88,7 +90,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// Handle preflight for all routes
 app.options('*', cors(corsOptions));
 
 // 2. Security & Parsers
@@ -126,37 +127,16 @@ app.use('/api/auth/login', authLimiter);
 // Static uploads
 app.use('/uploads', express.static(join(__dirname, 'uploads'), {
   setHeaders: (res, path) => {
-    const filename = path.split('/').pop();
-    
-    // Set proper content types based on file extension
-    if (filename.includes('.mp4')) {
-      res.setHeader('Content-Type', 'video/mp4');
-    } else if (filename.includes('.webm')) {
-      res.setHeader('Content-Type', 'video/webm');
-    } else if (filename.includes('.ogg')) {
-      res.setHeader('Content-Type', 'video/ogg');
-    } else if (filename.includes('.jpg') || filename.includes('.jpeg')) {
-      res.setHeader('Content-Type', 'image/jpeg');
-    } else if (filename.includes('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    } else if (filename.includes('.webp')) {
-      res.setHeader('Content-Type', 'image/webp');
-    } else if (filename.includes('.gif')) {
-      res.setHeader('Content-Type', 'image/gif');
-    } else if (filename.includes('.pdf')) {
-      res.setHeader('Content-Type', 'application/pdf');
-    } else if (!filename.includes('.')) {
-      // If file has no extension, default to image/jpeg for existing uploads
-      res.setHeader('Content-Type', 'image/jpeg');
-    }
-    
-    // Set CORS headers for frontend access
+    // Enable CORS for images
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
-    // Enable caching for static assets
-    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
+    // FIX: Add Cross-Origin-Resource-Policy to allow loading from different origins
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    
+    // Enable caching
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
   }
 }));
 

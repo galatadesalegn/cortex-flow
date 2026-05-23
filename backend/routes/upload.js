@@ -97,24 +97,15 @@ router.post(
       });
     } else {
       // Serve file locally
-      const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn.onrender.com';
-      const fileUrl = `/uploads/${req.file.filename}`;
-      
-      // Log file info for debugging
-      console.log('File uploaded locally:', {
-        filename: req.file.filename,
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        url: `${baseUrl}${fileUrl}`
-      });
+      const protocol = req.protocol;
+      const host = req.get('host');
+      const baseUrl = process.env.BACKEND_URL || `${protocol}://${host}`;
       
       res.json({
         success: true,
         data: {
-          url: `${baseUrl}${fileUrl}`,
-          localPath: fileUrl,
-          mimetype: req.file.mimetype,
+          url: `${baseUrl}/uploads/${req.file.filename}`,
+          publicId: null,
         }
       });
     }

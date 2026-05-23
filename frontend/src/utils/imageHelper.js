@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://galatadesalegn.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://qalatadesaleqn-qi24.onrender.com';
 
 /**
  * Replaces localhost URLs with production URL
