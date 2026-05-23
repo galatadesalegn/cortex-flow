@@ -17,6 +17,11 @@ export const fixImageUrl = (url) => {
     return url;
   }
   
+  // Replace old production URL with current API_URL
+  if (url.includes('https://galatadesalegn.onrender.com') && !url.includes('-gi24')) {
+    return url.replace('https://galatadesalegn.onrender.com', API_URL);
+  }
+  
   // Replace localhost:5000 with production URL
   if (url.includes('http://localhost:5000')) {
     return url.replace(/http:\/\/localhost:5000/g, API_URL);

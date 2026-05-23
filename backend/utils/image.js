@@ -14,9 +14,12 @@ export const getFullImageUrl = (imagePath) => {
   // Convert relative path to full URL using production base
   const baseUrl = process.env.BACKEND_URL || 'https://galatadesalegn-gi24.onrender.com';
 
-  // Replace localhost URLs with production URL
+  // Replace localhost URLs and old domain with production URL
   if (typeof imagePath === 'string') {
-    imagePath = imagePath.replace(/http:\/\/localhost:\d+/g, baseUrl).replace(/http:\/\/127\.0\.0\.1:\d+/g, baseUrl);
+    imagePath = imagePath
+      .replace(/http:\/\/localhost:\d+/g, baseUrl)
+      .replace(/http:\/\/127\.0\.0\.1:\d+/g, baseUrl)
+      .replace('https://galatadesalegn.onrender.com', baseUrl.includes('-gi24') ? baseUrl : 'https://galatadesalegn-gi24.onrender.com');
   }
 
   // If it's already a full URL or data URI, return as-is (Cloudinary URLs etc)
