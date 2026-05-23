@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { readFileSync, existsSync, openSync, readSync, closeSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -117,8 +118,41 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth/login', authLimiter);
 
-// Static uploads
-app.use('/uploads', express.static(join(__dirname, 'uploads'), {
+// Static uploads - with MIME type detection for extension-less files
+
+const detectMimeType = (filePath) => {
+  try {
+    const buf = Buffer.alloc(8);
+    const fd = openSync(filePath, 'r');
+    readSync(fd, buf, 0, 8, 0);
+    closeSync(fd);
+    // Check magic bytes
+    if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) return 'image/jpeg';
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) return 'image/png';
+    if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return 'image/gif';
+    if (buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46) return 'image/webp';
+    if (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46) return 'application/pdf';
+  } catch (e) {}
+  return null;
+};
+
+app.use('/uploads', (req, res, next) => {
+  const filePath = join(__dirname, 'uploads', req.path);
+  const ext = req.path.split('.').pop().toLowerCase();
+  const hasExt = req.path.includes('.') && ['jpg','jpeg','png','gif','webp','pdf','mp4','webm'].includes(ext);
+
+  if (!hasExt && existsSync(filePath)) {
+    const mime = detectMimeType(filePath);
+    if (mime) {
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+      return res.sendFile(filePath);
+    }
+  }
+  next();
+}, express.static(join(__dirname, 'uploads'), {
   setHeaders: (res, path) => {
     // Enable CORS for images
     res.setHeader('Access-Control-Allow-Origin', '*');
