@@ -47,6 +47,25 @@ import { educationService } from '../services/educationService.js';
 import { profileService } from '../services/profileService.js';
 import { fixImageUrl } from '../../utils/imageHelper.js';
 import Testimonials from './Testimonials.jsx';
+import { toast } from 'sonner';
+
+const iconMap = {
+  Code2, Plus, Search, Settings, BarChart3, Target, Zap, TrendingUp, Award, Clock,
+  ChevronLeft, ChevronRight, MoreHorizontal, Edit2, Trash2, Save, X, GripVertical,
+  Tag, Hash, Layers, Cpu, Smartphone, Palette, Wrench, Briefcase, Building2,
+  Calendar, MapPin, Sparkles, GraduationCap, Layout, Server, Bot, ImageIcon,
+  MessageSquare, ExternalLink
+};
+
+const categoryOptions = [
+  { value: 'Frontend Development', label: 'Frontend Development' },
+  { value: 'Backend Development', label: 'Backend Development' },
+  { value: 'AI Automation', label: 'AI Automation' },
+  { value: 'Mobile App Dev', label: 'Mobile App Dev' },
+  { value: 'UI/UX Design', label: 'UI/UX Design' },
+  { value: 'Tools & Deployment', label: 'Tools & Deployment' },
+  { value: 'Other', label: 'Other' }
+];
 
 const Skills = () => {
   const { isDark } = useTheme();
@@ -70,6 +89,46 @@ const Skills = () => {
   const [expOrderModified, setExpOrderModified] = useState(false);
   const [eduDraggedIndex, setEduDraggedIndex] = useState(null);
   const [eduOrderModified, setEduOrderModified] = useState(false);
+
+  // Experience states
+  const [experiences, setExperiences] = useState([]);
+  const [expLoading, setExpLoading] = useState(true);
+  const [expError, setExpError] = useState(null);
+  const [expFormData, setExpFormData] = useState({
+    role: '',
+    company: '',
+    location: '',
+    startDate: '',
+    endDate: '',
+    isCurrent: false,
+    description: '',
+    tags: [],
+    icon: '',
+    logo: ''
+  });
+  const [newTag, setNewTag] = useState('');
+
+  // Focus states
+  const [focusStats, setFocusStats] = useState({
+    title: 'Technical Focus',
+    subtitle: 'Core Specialization',
+    description: 'Specializing in building high-performance web applications and AI-driven automation systems.',
+    image: '',
+    stats: [
+      { label: 'Efficiency', value: '98%' },
+      { label: 'Uptime', value: '99.9%' }
+    ]
+  });
+  const [focusFormData, setFocusFormData] = useState({
+    title: '',
+    subtitle: '',
+    description: '',
+    image: '',
+    stats: [
+      { label: '', value: '' },
+      { label: '', value: '' }
+    ]
+  });
 
   // Education states
   const [educations, setEducations] = useState([]);
@@ -396,11 +455,46 @@ const Skills = () => {
       setSkills(prev => prev.map(skill =>
         skill._id === editingSkill.id ? response.data : skill
       ));
+      setEditingSkill(null);
+      success('Skill updated successfully');
     } catch (err) {
-      console.error('Failed to delete skill:', err);
-      error('Failed to delete skill');
+      console.error('Failed to update skill:', err);
+      error('Failed to update skill');
     }
   };
+
+  // Group skills by category and apply ordering
+  useEffect(() => {
+    if (skills.length > 0) {
+      const grouped = skills.reduce((acc, skill) => {
+        const cat = skill.category || 'Other';
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(skill);
+        return acc;
+      }, {});
+
+      let sortedCategories = Object.entries(grouped).map(([title, catSkills]) => ({
+        id: title,
+        title,
+        icon: catSkills[0]?.icon || 'Code2',
+        skills: catSkills
+      }));
+
+      // Apply order from profile
+      if (profile?.skillCategoryOrder?.length > 0) {
+        sortedCategories.sort((a, b) => {
+          const indexA = profile.skillCategoryOrder.indexOf(a.title);
+          const indexB = profile.skillCategoryOrder.indexOf(b.title);
+          if (indexA === -1 && indexB === -1) return 0;
+          if (indexA === -1) return 1;
+          if (indexB === -1) return -1;
+          return indexA - indexB;
+        });
+      }
+
+      setCategories(sortedCategories);
+    }
+  }, [skills, profile?.skillCategoryOrder]);
 
   // Open edit modal with skill data
   const openEditModal = (skill) => {
@@ -425,6 +519,240 @@ const Skills = () => {
       icon: ''
     });
     setShowAddModal(true);
+  };
+
+  const handleCreateSkill = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await skillService.create({
+        ...formData,
+        level: parseInt(formData.level)
+      });
+      setSkills(prev => [...prev, response.data]);
+      setShowAddModal(false);
+      success('Skill added successfully');
+    } catch (err) {
+      error('Failed to create skill');
+    }
+  };
+
+  const handleDeleteSkill = async (id) => {
+    if (window.confirm('Are you sure you want to delete this skill?')) {
+      try {
+        await skillService.delete(id);
+        setSkills(prev => prev.filter(s => s._id !== id));
+        success('Skill deleted successfully');
+      } catch (err) {
+        error('Failed to delete skill');
+      }
+    }
+  };
+
+  const openFocusEditModal = () => {
+    setFocusFormData({
+      title: focusStats.title,
+      subtitle: focusStats.subtitle,
+      description: focusStats.description,
+      image: focusStats.image,
+      stats: focusStats.stats
+    });
+    setEditingFocus(true);
+  };
+
+  const handleUpdateFocus = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await profileService.updateProfile({
+        focusStats: focusFormData
+      });
+      setFocusStats(response.data.focusStats);
+      setEditingFocus(false);
+      success('Focus updated successfully');
+    } catch (err) {
+      error('Failed to update focus');
+    }
+  };
+
+  const openExpAddModal = () => {
+    setEditingExp(null);
+    setExpFormData({
+      role: '',
+      company: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      isCurrent: false,
+      description: '',
+      tags: [],
+      icon: '',
+      logo: ''
+    });
+    setShowExpModal(true);
+  };
+
+  const openExpEditModal = (exp) => {
+    setEditingExp(exp);
+    setExpFormData({
+      role: exp.role,
+      company: exp.company,
+      location: exp.location,
+      startDate: exp.startDate,
+      endDate: exp.endDate,
+      isCurrent: exp.isCurrent,
+      description: exp.description,
+      tags: exp.tags || [],
+      icon: exp.icon || '',
+      logo: exp.logo || ''
+    });
+    setShowExpModal(true);
+  };
+
+  const openEduAddModal = () => {
+    setEditingEdu(null);
+    setEduFormData({
+      role: '',
+      company: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      isCurrent: false,
+      description: '',
+      tags: [],
+      icon: '',
+      logo: ''
+    });
+    setShowEduModal(true);
+  };
+
+  const openEduEditModal = (edu) => {
+    setEditingEdu(edu);
+    setEduFormData({
+      role: edu.role,
+      company: edu.company,
+      location: edu.location,
+      startDate: edu.startDate,
+      endDate: edu.endDate,
+      isCurrent: edu.isCurrent,
+      description: edu.description,
+      tags: edu.tags || [],
+      icon: edu.icon || '',
+      logo: edu.logo || ''
+    });
+    setShowEduModal(true);
+  };
+
+  const handleAddTag = () => {
+    if (newTag && !expFormData.tags.includes(newTag)) {
+      setExpFormData(prev => ({ ...prev, tags: [...prev.tags, newTag] }));
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setExpFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleAddEduTag = () => {
+    if (newEduTag && !eduFormData.tags.includes(newEduTag)) {
+      setEduFormData(prev => ({ ...prev, tags: [...prev.tags, newEduTag] }));
+      setNewEduTag('');
+    }
+  };
+
+  const handleRemoveEduTag = (tagToRemove) => {
+    setEduFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const saveCategoryOrder = async () => {
+    try {
+      const order = categories.map(c => c.title);
+      await profileService.updateProfile({ skillCategoryOrder: order });
+      setOrderModified(false);
+      success('Order saved successfully');
+    } catch (err) {
+      error('Failed to save order');
+    }
+  };
+
+  const saveExperienceOrder = async () => {
+    try {
+      await experienceService.updateOrder(experiences.map(e => e._id));
+      setExpOrderModified(false);
+      success('Experience order saved');
+    } catch (err) {
+      error('Failed to save experience order');
+    }
+  };
+
+  const saveEducationOrder = async () => {
+    try {
+      await educationService.updateOrder(educations.map(e => e._id));
+      setEduOrderModified(false);
+      success('Education order saved');
+    } catch (err) {
+      error('Failed to save education order');
+    }
+  };
+
+  const handleDragStart = (e, index) => setDraggedIndex(index);
+  const handleDragOver = (e) => e.preventDefault();
+  const handleDrop = (e, index) => {
+    const newCategories = [...categories];
+    const draggedItem = newCategories[draggedIndex];
+    newCategories.splice(draggedIndex, 1);
+    newCategories.splice(index, 0, draggedItem);
+    setCategories(newCategories);
+    setOrderModified(true);
+  };
+  const handleDragEnd = () => setDraggedIndex(null);
+
+  const handleExpDragStart = (e, index) => setExpDraggedIndex(index);
+  const handleExpDragOver = (e) => e.preventDefault();
+  const handleExpDrop = (e, index) => {
+    const newExperiences = [...experiences];
+    const draggedItem = newExperiences[expDraggedIndex];
+    newExperiences.splice(expDraggedIndex, 1);
+    newExperiences.splice(index, 0, draggedItem);
+    setExperiences(newExperiences);
+    setExpOrderModified(true);
+  };
+  const handleExpDragEnd = () => setExpDraggedIndex(null);
+
+  const handleEduDragStart = (e, index) => setEduDraggedIndex(index);
+  const handleEduDragOver = (e) => e.preventDefault();
+  const handleEduDrop = (e, index) => {
+    const newEducations = [...educations];
+    const draggedItem = newEducations[eduDraggedIndex];
+    newEducations.splice(eduDraggedIndex, 1);
+    newEducations.splice(index, 0, draggedItem);
+    setEducations(newEducations);
+    setEduOrderModified(true);
+  };
+  const handleEduDragEnd = () => setEduDraggedIndex(null);
+
+  const bottomStats = [
+    { title: 'Total Skills', value: skills.length, icon: Code2, color: 'cyan' },
+    { title: 'Exp Years', value: '4+', icon: Briefcase, color: 'blue' },
+    { title: 'Projects', value: '12+', icon: Target, color: 'purple' },
+    { title: 'Certificates', value: '8+', icon: Award, color: 'yellow' }
+  ];
+
+  const handleCreateEducation = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await educationService.create(eduFormData);
+      setEducations(prev => [...prev, response.data]);
+      setShowEduModal(false);
+      success('Education added');
+    } catch (err) {
+      error('Failed to add education');
+    }
   };
 
   return (
