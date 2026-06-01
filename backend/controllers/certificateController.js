@@ -163,6 +163,8 @@ export const reorderCertificates = asyncHandler(async (req, res) => {
 
   await Promise.all(updates);
 
+  clearCache('certificates');
+
   res.json({
     success: true,
     message: 'Certificates reordered successfully'

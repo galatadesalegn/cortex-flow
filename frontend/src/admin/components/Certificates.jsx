@@ -31,6 +31,219 @@ import { certificateService } from '../services/certificateService.js';
 import { uploadService } from '../services/uploadService.js';
 import { toast } from 'sonner';
 import { useTheme, useAuth } from '../hooks';
+import { fixImageUrl } from '../../utils/imageHelper.js';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+const SortableCertificateItem = ({
+  cert,
+  isDark,
+  isViewer,
+  onEdit,
+  onDelete,
+  onCopyLink,
+  onShowQRCode,
+  onDownloadImage,
+  canDrag,
+  formatDate
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: cert._id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    zIndex: isDragging ? 50 : 'auto',
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`border rounded-2xl overflow-hidden transition-all duration-300 group relative ${
+        isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700' : 'bg-bg-card border-border-theme shadow-soft hover:shadow-md'
+      } ${isDragging ? 'ring-2 ring-blue-500 shadow-2xl' : ''}`}
+    >
+      {/* Drag Handle */}
+      {canDrag && !isViewer && (
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute top-3 left-3 z-20 p-1.5 rounded-md bg-black/60 backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing hover:bg-black/80 flex items-center justify-center"
+          title="Drag to reorder"
+        >
+          <GripVertical size={14} className="text-gray-300" />
+        </div>
+      )}
+
+      {/* Certificate Image */}
+      <div className={`relative aspect-[4/3] overflow-hidden ${isDark ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-bg-secondary'}`}>
+        {/* Status Badge */}
+        <div className={`absolute top-3 right-3 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${cert.image ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
+          {cert.image ? 'verified' : 'pending'}
+        </div>
+
+        {/* Actual Image if available */}
+        {cert.image && (
+          <img
+            src={fixImageUrl(cert.image)}
+            alt={cert.name}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+        )}
+
+        {/* Placeholder Certificate Visual (only if no image) */}
+        {!cert.image && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`w-3/4 h-3/4 border rounded-lg flex items-center justify-center ${isDark ? 'border-gray-700 bg-gray-800/50' : 'border-border-theme bg-bg-primary'}`}>
+              <Award size={48} className={isDark ? 'text-gray-600' : 'text-text-muted'} />
+            </div>
+          </div>
+        )}
+
+        {/* Hover Overlay */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          {cert.link && (
+            <button
+              onClick={(e) => { e.stopPropagation(); window.open(cert.link, '_blank'); }}
+              className="p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors"
+              title="View Certificate"
+            >
+              <ExternalLink size={16} />
+            </button>
+          )}
+          {cert.link && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onCopyLink(cert.link); }}
+              className="p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors"
+              title="Copy Link"
+            >
+              <Copy size={16} />
+            </button>
+          )}
+          {cert.link && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onShowQRCode(cert.link); }}
+              className="p-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
+              title="Show QR Code"
+            >
+              <QrCode size={16} />
+            </button>
+          )}
+          {cert.image && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onDownloadImage(cert.image, cert.name); }}
+              className="p-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+              title="Download Image"
+            >
+              <Save size={16} />
+            </button>
+          )}
+          {!isViewer && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(cert); }}
+                className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                title="Edit Certificate"
+              >
+                <Edit2 size={16} />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(cert._id); }}
+                className="p-2 rounded-lg bg-red-600/80 text-white hover:bg-red-600 transition-colors"
+                title="Delete"
+              >
+                <Trash2 size={16} />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Certificate Info */}
+      <div className="p-4">
+        {/* Certificate ID - Show custom ID if available, otherwise MongoDB ID */}
+        <div className={`flex items-center gap-1 text-[10px] mb-2 transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
+          <Hash size={10} />
+          <span className="font-mono">{cert.certificateId || cert._id.slice(-8)}</span>
+        </div>
+
+        {/* Category Badge */}
+        <div className="mb-2">
+          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${cert.category === 'Web' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+            cert.category === 'Mobile' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+              cert.category === 'AI/ML' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                cert.category === 'UI/UX' ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' :
+                  cert.category === 'Cloud' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
+                    cert.category === 'Data Science' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                      cert.category === 'DevOps' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
+                        cert.category === 'Cybersecurity' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                          'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+            }`}>
+            {cert.category || 'Other'}
+          </span>
+        </div>
+
+        <h3 className={`text-sm font-bold mb-1 truncate transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>{cert.name}</h3>
+        <p className={`text-xs mb-3 flex items-center gap-1 transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-secondary'}`}>
+          <Building2 size={12} />
+          {cert.issuer}
+        </p>
+
+        {/* Link and QR Row */}
+        <div className="flex items-center gap-2 mb-3">
+          {cert.link ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); window.open(cert.link, '_blank'); }}
+              className={`flex-1 flex items-center gap-1 text-xs px-2 py-1.5 rounded transition-colors ${isDark ? 'text-blue-400 hover:text-blue-300 bg-blue-500/10' : 'text-accent hover:text-accent/80 bg-bg-secondary border border-border-theme'
+                }`}
+            >
+              <Link size={12} />
+              <span className="truncate font-bold">View Link</span>
+            </button>
+          ) : (
+            <div className={`flex-1 flex items-center gap-1 text-xs px-2 py-1.5 rounded ${isDark ? 'text-gray-500 bg-gray-800/50' : 'text-text-muted bg-bg-secondary'}`}>
+              <Link size={12} />
+              <span className="font-bold">No Link</span>
+            </div>
+          )}
+        </div>
+
+        <div className={`flex items-center justify-between pt-3 border-t transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-border-theme'}`}>
+          <div className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
+            <Calendar size={12} />
+            Issued {formatDate(cert.date)}
+          </div>
+          <button className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter transition-colors ${isDark ? 'text-cyan-400 hover:text-cyan-300' : 'text-accent hover:text-accent/80'}`}>
+            <Hash size={12} />
+            VIEW HASH
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Certificates = () => {
   const { isDark } = useTheme();
@@ -291,26 +504,40 @@ const Certificates = () => {
     }
   };
 
-  const handleReorder = (newOrder) => {
-    // Reordering is only allowed in 'all' view without active search and ONLY in custom sort mode
-    if (selectedFilter !== 'all' || searchQuery || sortBy !== 'custom') {
-      return; // Reorder.Group handles the visual side, but we don't update state
-    }
-    setCertificates(newOrder);
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const saveNewOrder = async () => {
+  const canDrag = selectedFilter === 'all' && !searchQuery && sortBy === 'custom';
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = certificates.findIndex((c) => c._id === active.id);
+    const newIndex = certificates.findIndex((c) => c._id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newCertificates = arrayMove(certificates, oldIndex, newIndex);
+    setCertificates(newCertificates);
+
     try {
-      const orders = certificates.map((cert, index) => ({
+      const orders = newCertificates.map((cert, index) => ({
         id: cert._id,
-        order: index
+        order: index,
       }));
-
       await certificateService.reorder(orders);
       toast.success('Display order saved successfully');
     } catch (err) {
       console.error('Failed to save order:', err);
-      toast.error('Failed to save order');
+      toast.error(err.response?.data?.message || 'Failed to save order');
+      // Revert on error
+      setCertificates(certificates);
     }
   };
 
@@ -502,15 +729,65 @@ const Certificates = () => {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-bold uppercase tracking-widest mr-2 transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>Sort:</span>
-          <button className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-xs font-bold ${isDark ? 'bg-gray-800/50 text-gray-400 border-gray-700 hover:text-white' : 'bg-bg-secondary text-text-muted border-border-theme hover:text-text-primary'
-            }`}>
-            Date Issued (Recent)
-            <ArrowUpDown size={14} />
-          </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-bold uppercase tracking-widest transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>Sort:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className={`px-4 py-2.5 rounded-xl border text-xs font-bold focus:outline-none transition-all ${
+                isDark 
+                  ? 'bg-gray-800/50 text-gray-300 border-gray-700 focus:border-blue-500 focus:text-white' 
+                  : 'bg-bg-secondary text-text-muted border-border-theme focus:border-accent focus:text-text-primary'
+              }`}
+            >
+              <option value="custom">Custom Order (Drag & Drop)</option>
+              <option value="date-new">Date (Newest)</option>
+              <option value="date-old">Date (Oldest)</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="issuer">Issuer (A-Z)</option>
+              <option value="id">Certificate ID</option>
+            </select>
+          </div>
+
+          {sortBy !== 'custom' && !isViewer && (
+            <button
+              onClick={applySortAsDefault}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[11px] font-bold transition-all ${
+                isDark 
+                  ? 'bg-blue-600/10 text-blue-400 border-blue-500/30 hover:bg-blue-600/20' 
+                  : 'bg-accent/10 text-accent border-accent/20 hover:bg-accent/20'
+              }`}
+              title="Apply this sort order permanently to all visitors"
+            >
+              <Save size={12} />
+              Apply as Custom Order
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Reorder Info Tip */}
+      {sortBy === 'custom' && !isViewer && (
+        <div className={`mb-6 p-3 rounded-xl border text-xs flex items-center gap-2 transition-all ${
+          canDrag
+            ? isDark ? 'bg-blue-500/10 border-blue-500/20 text-blue-400' : 'bg-accent/5 border-accent/10 text-accent'
+            : isDark ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400' : 'bg-orange-500/5 border-orange-500/10 text-orange-600'
+        }`}>
+          {canDrag ? (
+            <>
+              <span className="flex h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
+              <span>💡 <strong>Drag & Drop Active:</strong> Hover over any card and drag by the top-left grip handle <GripVertical size={12} className="inline align-middle -mt-0.5" /> to reorder. Changes are saved automatically.</span>
+            </>
+          ) : (
+            <>
+              <span className="flex h-2 w-2 rounded-full bg-yellow-400"></span>
+              <span>⚠️ <strong>Drag & Drop Inactive:</strong> Please clear the search query and switch filter to <strong>"All Entries"</strong> to drag and reorder.</span>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Certificates Grid */}
       {loading ? (
@@ -531,184 +808,53 @@ const Certificates = () => {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-          {filteredCertificates.map(cert => (
-            <div
-              key={cert._id}
-              className={`border rounded-2xl overflow-hidden transition-all duration-300 group relative ${isDark ? 'bg-[#12121a] border-gray-800 hover:border-gray-700' : 'bg-bg-card border-border-theme shadow-soft hover:shadow-md'
-                }`}
-            >
-              {/* Drag Handle (Hidden as Reordering is disabled) */}
-              {/* <div className="absolute top-3 left-3 z-20 p-1.5 rounded-md bg-black/40 backdrop-blur-sm border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-                <GripVertical size={14} className="text-gray-400" />
-              </div> */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={filteredCertificates.map(c => c._id)}
+            strategy={rectSortingStrategy}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+              {filteredCertificates.map(cert => (
+                <SortableCertificateItem
+                  key={cert._id}
+                  cert={cert}
+                  isDark={isDark}
+                  isViewer={isViewer}
+                  onEdit={setEditingCert}
+                  onDelete={handleDelete}
+                  onCopyLink={handleCopyLink}
+                  onShowQRCode={handleShowQRCode}
+                  onDownloadImage={handleDownloadImage}
+                  canDrag={canDrag}
+                  formatDate={formatDate}
+                />
+              ))}
 
-              {/* Certificate Image */}
-              <div className={`relative aspect-[4/3] overflow-hidden ${isDark ? 'bg-gradient-to-br from-gray-800 to-gray-900' : 'bg-bg-secondary'}`}>
-                {/* Status Badge */}
-                <div className={`absolute top-3 right-3 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${cert.image ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
-                  {cert.image ? 'verified' : 'pending'}
-                </div>
-
-                {/* Actual Image if available */}
-                {cert.image && (
-                  <img
-                    src={cert.image}
-                    alt={cert.name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                )}
-
-                {/* Placeholder Certificate Visual (only if no image) */}
-                {!cert.image && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className={`w-3/4 h-3/4 border rounded-lg flex items-center justify-center ${isDark ? 'border-gray-700 bg-gray-800/50' : 'border-border-theme bg-bg-primary'}`}>
-                      <Award size={48} className={isDark ? 'text-gray-600' : 'text-text-muted'} />
-                    </div>
+              {/* Add New Entry Card */}
+              {!isViewer && (
+                <button
+                  onClick={() => setShowNewCertModal(true)}
+                  className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all min-h-[280px] group ${isDark ? 'border-gray-800 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
+                    }`}
+                >
+                  <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-gray-800 group-hover:bg-gray-700' : 'bg-bg-primary group-hover:bg-bg-accent shadow-sm'}`}>
+                    <Plus size={28} className={isDark ? 'text-gray-500 group-hover:text-blue-400' : 'text-text-muted group-hover:text-accent'} />
                   </div>
-                )}
-
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  {cert.link && (
-                    <button
-                      onClick={() => window.open(cert.link, '_blank')}
-                      className="p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors"
-                      title="View Certificate"
-                    >
-                      <ExternalLink size={16} />
-                    </button>
-                  )}
-                  {cert.link && (
-                    <button
-                      onClick={() => handleCopyLink(cert.link)}
-                      className="p-2 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-colors"
-                      title="Copy Link"
-                    >
-                      <Copy size={16} />
-                    </button>
-                  )}
-                  {cert.link && (
-                    <button
-                      onClick={() => handleShowQRCode(cert.link)}
-                      className="p-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors"
-                      title="Show QR Code"
-                    >
-                      <QrCode size={16} />
-                    </button>
-                  )}
-                  {cert.image && (
-                    <button
-                      onClick={() => handleDownloadImage(cert.image, cert.name)}
-                      className="p-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors"
-                      title="Download Image"
-                    >
-                      <Save size={16} />
-                    </button>
-                  )}
-                  {!isViewer && (
-                    <>
-                      <button
-                        onClick={() => setEditingCert(cert)}
-                        className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                        title="Edit Certificate"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCertificate(cert._id)}
-                        className="p-2 rounded-lg bg-red-600/80 text-white hover:bg-red-600 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Certificate Info */}
-              <div className="p-4">
-                {/* Certificate ID - Show custom ID if available, otherwise MongoDB ID */}
-                <div className={`flex items-center gap-1 text-[10px] mb-2 transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
-                  <Hash size={10} />
-                  <span className="font-mono">{cert.certificateId || cert._id.slice(-8)}</span>
-                </div>
-
-                {/* Category Badge */}
-                <div className="mb-2">
-                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${cert.category === 'Web' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                    cert.category === 'Mobile' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                      cert.category === 'AI/ML' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
-                        cert.category === 'UI/UX' ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' :
-                          cert.category === 'Cloud' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
-                            cert.category === 'Data Science' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                              cert.category === 'DevOps' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' :
-                                cert.category === 'Cybersecurity' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                                  'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                    }`}>
-                    {cert.category || 'Other'}
-                  </span>
-                </div>
-
-                <h3 className={`text-sm font-bold mb-1 truncate transition-colors duration-300 ${isDark ? 'text-white' : 'text-text-primary'}`}>{cert.name}</h3>
-                <p className={`text-xs mb-3 flex items-center gap-1 transition-colors duration-300 ${isDark ? 'text-gray-500' : 'text-text-secondary'}`}>
-                  <Building2 size={12} />
-                  {cert.issuer}
-                </p>
-
-                {/* Link and QR Row */}
-                <div className="flex items-center gap-2 mb-3">
-                  {cert.link ? (
-                    <button
-                      onClick={() => window.open(cert.link, '_blank')}
-                      className={`flex-1 flex items-center gap-1 text-xs px-2 py-1.5 rounded transition-colors ${isDark ? 'text-blue-400 hover:text-blue-300 bg-blue-500/10' : 'text-accent hover:text-accent/80 bg-bg-secondary border border-border-theme'
-                        }`}
-                    >
-                      <Link size={12} />
-                      <span className="truncate font-bold">View Link</span>
-                    </button>
-                  ) : (
-                    <div className={`flex-1 flex items-center gap-1 text-xs px-2 py-1.5 rounded ${isDark ? 'text-gray-500 bg-gray-800/50' : 'text-text-muted bg-bg-secondary'}`}>
-                      <Link size={12} />
-                      <span className="font-bold">No Link</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className={`flex items-center justify-between pt-3 border-t transition-colors duration-300 ${isDark ? 'border-gray-800' : 'border-border-theme'}`}>
-                  <div className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
-                    <Calendar size={12} />
-                    Issued {formatDate(cert.date)}
+                  <div className="text-center">
+                    <p className={`text-sm font-bold mb-1 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-text-primary'}`}>Add New Entry</p>
+                    <p className={`text-xs text-center max-w-[200px] transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
+                      Upload a digital certificate or manual verification hash
+                    </p>
                   </div>
-                  <button className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-tighter transition-colors ${isDark ? 'text-cyan-400 hover:text-cyan-300' : 'text-accent hover:text-accent/80'}`}>
-                    <Hash size={12} />
-                    VIEW HASH
-                  </button>
-                </div>
-              </div>
+                </button>
+              )}
             </div>
-          ))}
-
-          {/* Add New Entry Card */}
-          {!isViewer && (
-            <button
-              onClick={() => setShowNewCertModal(true)}
-              className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transition-all min-h-[280px] group ${isDark ? 'border-gray-800 hover:border-blue-500/50 hover:bg-gray-800/20' : 'border-border-theme hover:border-accent/50 hover:bg-bg-secondary'
-                }`}
-            >
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${isDark ? 'bg-gray-800 group-hover:bg-gray-700' : 'bg-bg-primary group-hover:bg-bg-accent shadow-sm'}`}>
-                <Plus size={28} className={isDark ? 'text-gray-500 group-hover:text-blue-400' : 'text-text-muted group-hover:text-accent'} />
-              </div>
-              <div className="text-center">
-                <p className={`text-sm font-bold mb-1 transition-colors duration-300 ${isDark ? 'text-gray-400' : 'text-text-primary'}`}>Add New Entry</p>
-                <p className={`text-xs text-center max-w-[200px] transition-colors duration-300 ${isDark ? 'text-gray-600' : 'text-text-muted'}`}>
-                  Upload a digital certificate or manual verification hash
-                </p>
-              </div>
-            </button>
-          )}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Pagination */}
@@ -904,7 +1050,7 @@ const Certificates = () => {
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-800">
                           <img
-                            src={imagePreview || formData.image}
+                            src={imagePreview || fixImageUrl(formData.image)}
                             alt="Certificate"
                             className="w-full h-full object-cover"
                           />
