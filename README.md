@@ -62,10 +62,10 @@
 | **Frontend** | React 18, Vite |
 | **Styling** | Tailwind CSS 3, custom CSS animations |
 | **Backend** | Node.js, Express |
-| **Email** | Nodemailer |
+| **Email** | EmailJs |
 | **Routing** | React Router v6 |
 | **Icons** | Lucide React |
-| **Deployment** | Vercel / Netlify (frontend) + Render (backend) |
+| **Deployment** | Vercel /  (frontend) + Render (backend) |
 
 ---
 
