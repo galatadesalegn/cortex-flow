@@ -12,7 +12,7 @@
 
 <br />
 
-![Cortex Flow Preview](https://placehold.co/900x500/0f172a/38bdf8?text=Cortex+Flow+Preview&font=montserrat)
+![Cortex Flow Preview](https://www.galatadesalegn.me/admin/login)
 
 <br />
 
