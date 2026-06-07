@@ -1,71 +1,73 @@
 <div align="center">
 
-# ⚡ Cortex Flow
+<img src="https://img.shields.io/badge/CORTEX%20FLOW-Developer%20Portfolio-6366f1?style=for-the-badge&logo=react&logoColor=white" alt="Cortex Flow" />
 
-### A modern, high-performance developer portfolio
+# 🧠 CORTEX FLOW
 
-[![React](https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
-[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
-[![Deploy](https://img.shields.io/badge/deployed-live-brightgreen?style=flat-square)](https://your-live-url.com)
+### A modern, full-stack developer portfolio with a built-in admin command center
+
+[![React](https://img.shields.io/badge/React_18-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+
+[![Live Demo](https://img.shields.io/badge/🌐%20Live%20Demo-galatadesalegn.me-6366f1?style=flat-square)](https://www.galatadesalegn.me/)
+[![Repo](https://img.shields.io/badge/GitHub-cortex--flow-181717?style=flat-square&logo=github)](https://github.com/galatadesalegn/cortex-flow)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](./LICENSE)
 
 <br />
 
-![Cortex Flow Preview](https://res.cloudinary.com/debw95rak/image/upload/v1779567009/portfolio/image-1779567008778-556720869_htrdku.png )
+[![Cortex Flow Preview](https://res.cloudinary.com/debw95rak/image/upload/w_900,q_auto,f_auto/portfolio/image-1779567008778-556720869_htrdku)](https://www.galatadesalegn.me/)
 
-<br />
-
-[🌐 Live Demo](https://www.galatadesalegn.me) · [📋 Report Bug](https://github.com/galatadesalegn/cortex-flow/issues) · [✨ Request Feature](https://github.com/galatadesalegn/cortex-flow/issues)
+> 🖱️ *Click to visit the live portfolio*
 
 </div>
 
 ---
 
-## 📖 Table of Contents
+## 📖 Overview
 
-- [About](#-about)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Getting Started](#-getting-started)
-- [Project Structure](#-project-structure)
-- [Sections](#-sections)
-- [Customization](#-customization)
-- [Deployment](#-deployment)
-- [License](#-license)
-
----
-
-## 🧠 About
-
-**Cortex Flow** is a sleek, modern developer portfolio built to showcase projects, skills, and experience with style. Designed with performance and aesthetics in mind — smooth animations, responsive layouts, and a clean dark-mode-first design that leaves a lasting impression on recruiters and collaborators.
+**Cortex Flow** is a full-stack developer portfolio platform built for performance and control. The public-facing site showcases work, skills, and experience with smooth animations and a dark-mode-first design. Behind the scenes, a private admin dashboard lets you manage every piece of content — from projects and testimonials to your CV and profile image — without touching code.
 
 ---
 
 ## ✨ Features
 
-- ⚡ **Blazing fast** — Vite-powered dev & build pipeline
-- 🎨 **Dark/Light mode** — system-aware theme switching
-- 📱 **Fully responsive** — mobile, tablet, and desktop
-- 🖱️ **Smooth animations** — scroll-triggered reveals and micro-interactions
-- 📬 **Contact form** — powered by a Node.js backend
-- 🗂️ **Project showcase** — filterable by tech stack or category
-- ♿ **Accessible** — semantic HTML and keyboard-navigable
-- 🔍 **SEO optimized** — meta tags and Open Graph support
+### 🌐 Public Portfolio
+
+| Section | Description |
+|---|---|
+| **Hero** | Animated introduction with call-to-action buttons |
+| **About** | Personal biography and professional summary |
+| **Skills** | Visual representation of technical expertise |
+| **Projects** | Filterable showcase of work and case studies |
+| **Experience** | Timeline of professional history and education |
+| **Testimonials** | Client and colleague feedback |
+| **Contact** | Functional inquiry form with backend integration |
+
+### ⚙️ Admin Dashboard
+
+| Feature | Description |
+|---|---|
+| **Overview** | Summary cards and real-time activity charts |
+| **Content Management** | Editors for projects, skills, experience, and testimonials |
+| **Profile Management** | Update bio, profile images, and CV uploads |
+| **System Monitoring** | Live terminal output and server statistics |
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18, Vite |
-| **Styling** | Tailwind CSS 3, custom CSS animations |
+|---|---|
+| **Frontend** | React 18, Vite, Tailwind CSS, Lucide Icons |
 | **Backend** | Node.js, Express |
-| **Email** | EmailJs |
-| **Routing** | React Router v6 |
-| **Icons** | Lucide React |
-| **Deployment** | Vercel /  (frontend) + Render (backend) |
+| **Database** | MongoDB (Mongoose) |
+| **State Management** | React Context API, Custom Hooks |
+| **Storage** | Local uploads + Cloudinary (optional) |
+| **Deployment** | Vercel (Frontend), Render (Backend) |
 
 ---
 
@@ -73,65 +75,71 @@
 
 ### Prerequisites
 
-Make sure you have the following installed:
+- Node.js `v18+`
+- npm or yarn
+- MongoDB Atlas account
 
-- [Node.js](https://nodejs.org/) **v18+**
-- [npm](https://npmjs.com/) or [yarn](https://yarnpkg.com/)
-
-### Installation
+### Local Setup
 
 **1. Clone the repository**
-
 ```bash
 git clone https://github.com/galatadesalegn/cortex-flow.git
 cd cortex-flow
 ```
 
-**2. Install frontend dependencies**
-
+**2. Install dependencies**
 ```bash
-cd client
-npm install
+# Backend
+cd backend && npm install
+
+# Frontend
+cd ../frontend && npm install
 ```
 
-**3. Install backend dependencies**
+**3. Configure environment variables**
 
-```bash
-cd ../server
-npm install
+Create a `.env` file in `/backend`:
+```env
+NODE_ENV=development
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+FRONTEND_URL=http://localhost:5173
 ```
 
-**4. Set up environment variables**
-
-```bash
-# In /server, create a .env file:
-cp .env.example .env
+Create a `.env` file in `/frontend`:
+```env
+VITE_BACKEND_URL=http://localhost:5000
 ```
 
-Then fill in your values:
+**4. Start the development servers**
+```bash
+# Backend
+cd backend && npm run dev
+
+# Frontend (new terminal)
+cd frontend && npm run dev
+```
+
+---
+
+## ☁️ Deployment
+
+### Backend → Render
 
 ```env
+NODE_ENV=production
 PORT=5000
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-RECEIVER_EMAIL=your_email@gmail.com
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+FRONTEND_URL=https://www.galatadesalegn.me
 ```
 
-**5. Start the development servers**
+### Frontend → Vercel
 
-In two separate terminals:
-
-```bash
-# Terminal 1 — Frontend
-cd client
-npm run dev
-
-# Terminal 2 — Backend
-cd server
-npm run dev
+```env
+VITE_BACKEND_URL=https://your-backend-url.onrender.com
 ```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
@@ -139,113 +147,60 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ```
 cortex-flow/
-├── client/                  # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── Hero.jsx
-│   │   │   ├── ProjectCard.jsx
-│   │   │   └── ...
-│   │   ├── pages/           # Page-level components
-│   │   ├── data/            # Portfolio content (projects, skills, etc.)
-│   │   │   └── projects.js
-│   │   ├── hooks/           # Custom React hooks
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   ├── tailwind.config.js
-│   └── vite.config.js
+├── frontend/                     # React App (Vite + Tailwind)
+│   └── src/
+│       ├── admin/                # Full admin application
+│       │   ├── components/       # Admin UI (charts, editors, modals)
+│       │   ├── hooks/            # Admin-specific custom hooks
+│       │   └── pages/            # Dashboard, Projects, Skills, etc.
+│       ├── components/           # Public site UI components
+│       │   ├── home/             # Section components (Hero, Projects, etc.)
+│       │   └── layout/           # Navbar, Footer
+│       ├── pages/                # Public routes (Home, ProjectSingle)
+│       └── services/             # Axios API integration layer
 │
-├── server/                  # Node.js + Express backend
-│   ├── routes/
-│   │   └── contact.js       # Contact form endpoint
-│   ├── .env.example
-│   └── index.js
+├── backend/                      # Node.js Express API
+│   ├── controllers/              # Request handlers (auth, projects, messages)
+│   ├── models/                   # Mongoose schemas
+│   ├── routes/                   # API endpoint definitions
+│   ├── middleware/               # Auth & error handling
+│   ├── uploads/                  # Local asset storage
+│   └── server.js                 # Entry point
 │
 └── README.md
 ```
 
 ---
 
-## 🗂 Sections
+## 🔒 Security
 
-| Section | Description |
-|---------|-------------|
-| **Hero** | Animated intro with name, title, and CTA buttons |
-| **About** | Brief bio, photo, and personality highlights |
-| **Skills** | Visual skill grid organized by category |
-| **Projects** | Filterable cards with live demo & GitHub links |
-| **Experience** | Timeline of work history and education |
-| **Contact** | Working contact form backed by Node.js |
+- **JWT Authentication** — All admin routes are protected with token-based auth
+- **Middleware Guards** — Role-based access control on sensitive endpoints
+- **Input Validation** — Server-side validation on all form submissions
+- **Error Handling** — Centralized error middleware; no stack traces in production
 
 ---
 
-## 🎨 Customization
+## 🤝 Contributing
 
-All portfolio content lives in `client/src/data/`. No need to touch component code — just edit these files:
+Contributions are welcome! Please open an issue first to discuss what you'd like to change.
 
-```js
-// client/src/data/projects.js
-export const projects = [
-  {
-    title: "My Awesome Project",
-    description: "What it does and why it's cool.",
-    tags: ["React", "Node.js", "MongoDB"],
-    liveUrl: "https://...",
-    githubUrl: "https://...",
-    image: "/images/project1.png",
-  },
-  // ...
-];
-```
-
-To change colors, edit `tailwind.config.js`:
-
-```js
-theme: {
-  extend: {
-    colors: {
-      accent: "#38bdf8",   // your brand color
-      dark: "#0f172a",
-    }
-  }
-}
-```
-
----
-
-## 🌍 Deployment
-
-### Frontend (Vercel)
-
-```bash
-cd client
-npm run build
-# Deploy the /dist folder to Vercel
-```
-
-Or connect your GitHub repo to [Vercel](https://vercel.com) for automatic deploys on every push.
-
-### Backend (Render)
-
-1. Push your repo to GitHub
-2. Create a new **Web Service** on [Render](https://render.com)
-3. Set root directory to `server/`
-4. Add your environment variables in the Render dashboard
-5. Deploy 🚀
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-Made with ❤️ by **Galata Desalegn**
-
-⭐ Star this repo if you found it helpful!
+Built with ❤️ by [Galata Desalegn](https://www.galatadesalegn.me/)
 
 </div>
