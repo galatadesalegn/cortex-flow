@@ -16,7 +16,7 @@
 
 <br />
 
-[🌐 Live Demo](https://your-live-url.com) · [📋 Report Bug](https://github.com/galatadesalegn/cortex-flow/issues) · [✨ Request Feature](https://github.com/galatadesalegn/cortex-flow/issues)
+[🌐 Live Demo](https://www.galatadesalegn.me) · [📋 Report Bug](https://github.com/galatadesalegn/cortex-flow/issues) · [✨ Request Feature](https://github.com/galatadesalegn/cortex-flow/issues)
 
 </div>
 
