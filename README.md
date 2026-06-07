@@ -12,7 +12,7 @@
 
 <br />
 
-![Cortex Flow Preview](https://www.galatadesalegn.me/admin/login)
+![Cortex Flow Preview](https://res.cloudinary.com/debw95rak/image/upload/v1779567009/portfolio/image-1779567008778-556720869_htrdku.png )
 
 <br />
 
